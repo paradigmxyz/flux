@@ -275,6 +275,32 @@ export function getFluxNodeLineage(
   return lineage;
 }
 
+// Get the index of the parent node in the lineage of the child
+// where index 0 is the node,
+// index 1 is the node's parent,
+// index 2 is the node's grandparent, etc.
+// TODO: Eventually would be nice to have
+// support for connecting multiple parents!
+export function getFluxNodeLineageIndex(
+  existingNodes: Node<FluxNodeData>[],
+  existingEdges: Edge[],
+  childId: string,
+  parentId: string
+): number | undefined {
+  let index = 0;
+  let currentId: string | undefined = childId;
+
+  while (currentId !== undefined) {
+    if(currentId == parentId) return index;
+
+    currentId = getFluxNodeParent(existingNodes, existingEdges, currentId)?.id;
+
+    index++;
+  }
+
+  return undefined;
+}
+
 /*//////////////////////////////////////////////////////////////
                             RENDERERS
 //////////////////////////////////////////////////////////////*/

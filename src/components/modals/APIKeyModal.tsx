@@ -26,15 +26,7 @@ export function APIKeyModal({
   };
 
   return (
-    <Modal
-      isOpen={true}
-      onClose={() => {}}
-      size="3xl"
-      isCentered={true}
-      // TODO: We really should trap focus here but for some reason this
-      // is the only way to get Chakra not to auto focus on the first link.
-      trapFocus={false}
-    >
+    <Modal isOpen={true} onClose={() => {}} size="3xl" isCentered={true}>
       <ModalOverlay />
       <ModalContent>
         <Column mainAxisAlignment="center" crossAxisAlignment="center" height="500px">

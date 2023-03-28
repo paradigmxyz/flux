@@ -98,7 +98,13 @@ export function LabeledPasswordInputWithLink({
     <Box {...others}>
       <Row mainAxisAlignment="space-between" crossAxisAlignment="center">
         <b>{label}:</b>
-        <Link href={link} isExternal fontSize="sm" color="green">
+        <Link
+          _focus={{ boxShadow: "none" }}
+          href={link}
+          isExternal
+          fontSize="sm"
+          color="green"
+        >
           {linkLabel}
           <ExternalLinkIcon ml="5px" mb="3px" />
         </Link>

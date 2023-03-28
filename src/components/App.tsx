@@ -452,7 +452,8 @@ function App() {
     const parentNodeId = parentNodeLineage[0].id;
 
     (async () => {
-      // TODO: stop sequences for user/assistant/etc? min tokens? select between instruction and auto completer?
+      // TODO: Stop sequences for user/assistant/etc? min tokens?
+      // Select between instruction and auto completer?
       const stream = await OpenAI(
         "completions",
         {

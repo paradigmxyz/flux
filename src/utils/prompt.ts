@@ -50,7 +50,6 @@ export function messagesFromLineage(
   return messages;
 }
 
-// TODO: Rolling window based on context size.
 export function promptFromLineage(
   lineage: Node<FluxNodeData>[],
   settings: Settings,

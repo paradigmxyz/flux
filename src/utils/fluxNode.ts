@@ -216,9 +216,6 @@ export function getFluxNodeChildren(
   );
 }
 
-// Note: Includes self.
-// TODO: There is an efficient way of
-// doing this given parentNode property.
 export function getFluxNodeSiblings(
   existingNodes: Node<FluxNodeData>[],
   existingEdges: Edge[],

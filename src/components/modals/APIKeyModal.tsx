@@ -21,7 +21,7 @@ export function APIKeyModal({
 
       // Hacky way to get the prompt box to focus after the
       // modal closes. Long term should probably use a ref.
-      window.document.getElementById("promptBox")?.focus();
+      setTimeout(() => window.document.getElementById("promptBox")?.focus(), 50);
     }
   };
 

@@ -275,6 +275,16 @@ export function getFluxNodeLineage(
   return lineage;
 }
 
+export function isFluxNodeInLineage(
+  existingNodes: Node<FluxNodeData>[],
+  existingEdges: Edge[],
+  { nodeToCheck, nodeToGetLineageOf }: { nodeToCheck: string; nodeToGetLineageOf: string }
+): boolean {
+  const lineage = getFluxNodeLineage(existingNodes, existingEdges, nodeToGetLineageOf);
+
+  return lineage.some((node) => node.id === nodeToCheck);
+}
+
 /*//////////////////////////////////////////////////////////////
                             RENDERERS
 //////////////////////////////////////////////////////////////*/

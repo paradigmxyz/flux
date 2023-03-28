@@ -85,6 +85,7 @@ export const SettingsModal = React.memo(function SettingsModal({
             max={1.25}
             min={0}
             step={0.01}
+            precision={2}
           />
 
           <LabeledSlider
@@ -96,6 +97,7 @@ export const SettingsModal = React.memo(function SettingsModal({
             max={10}
             min={1}
             step={1}
+            precision={0}
           />
 
           <Checkbox

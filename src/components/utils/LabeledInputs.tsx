@@ -4,10 +4,16 @@ import {
   Box,
   BoxProps,
   Button,
+  Flex,
   Input,
   InputGroup,
   InputRightElement,
   Link,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Select,
   Slider,
   SliderFilledTrack,
@@ -26,6 +32,7 @@ export function LabeledSlider({
   max,
   min,
   step,
+  precision,
   ...others
 }: {
   label: string;
@@ -35,10 +42,20 @@ export function LabeledSlider({
   max: number;
   min: number;
   step: number;
+  precision: number;
 } & BoxProps) {
   return (
     <Box {...others}>
-      <b>{label}:</b> {value}
+      <Flex {...others} alignItems="center">
+        <b>{label}:</b> 
+        <NumberInput size='xs' maxW='100px' ml='0.5rem' step={step} max={max} min={min} value={value} precision={precision} onChange={(_, v) => setValue(isNaN(v) ? min : v)}>
+          <NumberInputField />
+          <NumberInputStepper>
+            <NumberIncrementStepper />
+            <NumberDecrementStepper />
+          </NumberInputStepper>
+        </NumberInput>
+      </Flex>
       <Slider
         mx="2px"
         aria-label="temp-slider"
@@ -47,6 +64,7 @@ export function LabeledSlider({
         max={max}
         min={min}
         step={step}
+        focusThumbOnChange={false}
       >
         <SliderTrack>
           <SliderFilledTrack bg={color} />

@@ -12,10 +12,9 @@ import App from "./components/App";
 
 import "./index.css";
 
-const MIXPANEL_TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN;
+export const MIXPANEL_TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN;
 
 if (MIXPANEL_TOKEN) mixpanel.init(MIXPANEL_TOKEN);
-else throw new Error("MIXPANEL_TOKEN is not defined");
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

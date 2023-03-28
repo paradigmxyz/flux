@@ -37,6 +37,8 @@ import { Prompt } from "./Prompt";
 import { APIKeyModal } from "./modals/APIKeyModal";
 import { SettingsModal } from "./modals/SettingsModal";
 
+import { MIXPANEL_TOKEN } from "../main";
+
 import {
   getFluxNode,
   getFluxNodeGPTChildren,
@@ -238,7 +240,7 @@ function App() {
   const submitPrompt = async () => {
     takeSnapshot();
 
-    mixpanel.track("Submitted Prompt");
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
 
     const responses = settings.n;
     const temp = settings.temp;
@@ -872,7 +874,7 @@ function App() {
                   moveToRightSibling={moveToRightSibling}
                   autoZoom={autoZoom}
                   onOpenSettingsModal={() => {
-                    mixpanel.track("Opened Settings Modal");
+                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal");
                     onOpenSettingsModal();
                   }}
                 />

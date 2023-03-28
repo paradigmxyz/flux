@@ -1,0 +1,16 @@
+.selected {
+  box-shadow: 0px 0px 0px 2px red, 0px 0px 30px 2px red !important;
+}
+
+.react-flow__node {
+  border-radius: 6px;
+  border-width: 0px;
+}
+
+/* Enable if you
+want bigger handles:
+.react-flow__handle {
+  width: 20px;
+  height: 7px;
+  border-radius: 5px;
+} */

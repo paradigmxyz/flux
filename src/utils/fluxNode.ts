@@ -279,8 +279,6 @@ export function getFluxNodeLineage(
 // where index 0 is the node,
 // index 1 is the node's parent,
 // index 2 is the node's grandparent, etc.
-// TODO: Eventually would be nice to have
-// support for connecting multiple parents!
 export function getFluxNodeLineageIndex(
   existingNodes: Node<FluxNodeData>[],
   existingEdges: Edge[],

@@ -251,7 +251,7 @@ export function NavigationBar({
           px="5px"
           ml="16px"
           as="a"
-          href="https://twitter.com/transmissions11"
+          href="https://twitter.com/transmissions11/status/1640775967856803840"
         >
           About
         </Button>

@@ -1,5 +1,3 @@
-import mixpanel from "mixpanel-browser";
-
 import { Modal, ModalOverlay, ModalContent, Link, Text } from "@chakra-ui/react";
 
 import { Column } from "../../utils/chakra";
@@ -17,8 +15,6 @@ export function APIKeyModal({
     setApiKey(apiKey);
 
     if (isValidAPIKey(apiKey)) {
-      mixpanel.track("Entered API Key");
-
       // Hacky way to get the prompt box to focus after the
       // modal closes. Long term should probably use a ref.
       setTimeout(() => window.document.getElementById("promptBox")?.focus(), 50);

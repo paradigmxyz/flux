@@ -17,8 +17,6 @@ import ReactFlow, {
 
 import "reactflow/dist/style.css";
 
-import mixpanel from "mixpanel-browser";
-
 import { Resizable } from "re-resizable";
 
 import { yieldStream } from "yield-stream";
@@ -237,8 +235,6 @@ function App() {
   // then creates a child node for each response under the selected node.
   const submitPrompt = async () => {
     takeSnapshot();
-
-    mixpanel.track("Submitted Prompt");
 
     const responses = settings.n;
     const temp = settings.temp;
@@ -872,7 +868,6 @@ function App() {
                   moveToRightSibling={moveToRightSibling}
                   autoZoom={autoZoom}
                   onOpenSettingsModal={() => {
-                    mixpanel.track("Opened Settings Modal");
                     onOpenSettingsModal();
                   }}
                 />

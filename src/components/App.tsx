@@ -44,7 +44,7 @@ import {
   newFluxNode,
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
-  getFluxNodeLineageIndex,
+  isFluxNodeInLineage,
   addFluxNode,
   modifyFluxNode,
   getFluxNodeChildren,
@@ -161,8 +161,14 @@ function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const onConnect = (connection: Edge<any> | Connection) => {
-    // Check the lineage of the source node to make sure we are not creating a recursive connection
-    if(getFluxNodeLineageIndex(nodes, edges, connection.source!, connection.target!) != undefined)
+    // Check the lineage of the source node to make
+    // sure we aren't creating a recursive connection.
+    if (
+      isFluxNodeInLineage(nodes, edges, {
+        nodeToCheck: connection.target!,
+        nodeToGetLineageOf: connection.source!,
+      })
+    )
       return;
 
     takeSnapshot();

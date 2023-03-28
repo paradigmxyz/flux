@@ -275,28 +275,14 @@ export function getFluxNodeLineage(
   return lineage;
 }
 
-// Get the index of the parent node in the lineage of the child
-// where index 0 is the node,
-// index 1 is the node's parent,
-// index 2 is the node's grandparent, etc.
-export function getFluxNodeLineageIndex(
+export function isFluxNodeInLineage(
   existingNodes: Node<FluxNodeData>[],
   existingEdges: Edge[],
-  childId: string,
-  parentId: string
-): number | undefined {
-  let index = 0;
-  let currentId: string | undefined = childId;
+  { nodeToCheck, nodeToGetLineageOf }: { nodeToCheck: string; nodeToGetLineageOf: string }
+): boolean {
+  const lineage = getFluxNodeLineage(existingNodes, existingEdges, nodeToGetLineageOf);
 
-  while (currentId !== undefined) {
-    if (currentId == parentId) return index;
-
-    currentId = getFluxNodeParent(existingNodes, existingEdges, currentId)?.id;
-
-    index++;
-  }
-
-  return undefined;
+  return lineage.some((node) => node.id === nodeToCheck);
 }
 
 /*//////////////////////////////////////////////////////////////

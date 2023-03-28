@@ -289,7 +289,7 @@ export function getFluxNodeLineageIndex(
   let currentId: string | undefined = childId;
 
   while (currentId !== undefined) {
-    if(currentId == parentId) return index;
+    if (currentId == parentId) return index;
 
     currentId = getFluxNodeParent(existingNodes, existingEdges, currentId)?.id;
 

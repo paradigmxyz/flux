@@ -53,6 +53,11 @@ Flux is a power tool for interacting with large language models (LLMs) that gene
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+![FsU1DUpaAAA1-Fl](https://user-images.githubusercontent.com/463317/228371427-bd3af47e-095b-4eb3-9962-02dcbc398eaa.jpeg)
+
+![FsU1C4PakAE4yxP](https://user-images.githubusercontent.com/463317/228371484-a2b72f4b-3c2c-4e64-9931-617079c5aa80.jpeg)
+
+
 ### Built With
 
 - [openai-streams](https://github.com/ctjlewis/openai-streams)

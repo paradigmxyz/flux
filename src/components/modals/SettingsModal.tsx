@@ -16,6 +16,7 @@ import {
 import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
 
 import { APIKeyInput } from "../utils/APIKeyInput";
+import { ElevenLabsKeyInput } from "../utils/ElevenLabsKeyInput";
 import { Settings, FluxNodeType } from "../../utils/types";
 import { getFluxNodeTypeDarkColor } from "../../utils/color";
 import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
@@ -26,14 +27,18 @@ export const SettingsModal = React.memo(function SettingsModal({
   settings,
   setSettings,
   apiKey,
+  elevenKey,
   setApiKey,
+  setElevenKey,
 }: {
   isOpen: boolean;
   onClose: () => void;
   settings: Settings;
   setSettings: (settings: Settings) => void;
   apiKey: string | null;
+  elevenKey: string | null;
   setApiKey: (apiKey: string) => void;
+  setElevenKey: (elevenKey: string) => void;
 }) {
   const reset = () =>
     confirm(
@@ -75,6 +80,8 @@ export const SettingsModal = React.memo(function SettingsModal({
           />
 
           <APIKeyInput mt={4} width="100%" apiKey={apiKey} setApiKey={setApiKey} />
+          <ElevenLabsKeyInput mt={4} width="100%" elevenKey={elevenKey} setElevenKey={setElevenKey} />
+
 
           <LabeledSlider
             mt={4}

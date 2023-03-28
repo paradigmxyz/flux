@@ -67,6 +67,7 @@ import {
 } from "../utils/types";
 import {
   API_KEY_LOCAL_STORAGE_KEY,
+  ELEVEN_KEY_LOCAL_STORAGE_KEY,
   DEFAULT_SETTINGS,
   FIT_VIEW_SETTINGS,
   HOTKEY_CONFIG,
@@ -744,6 +745,7 @@ function App() {
   //////////////////////////////////////////////////////////////*/
 
   const [apiKey, setApiKey] = useLocalStorage<string>(API_KEY_LOCAL_STORAGE_KEY);
+  const [elevenKey, setElevenKey] = useLocalStorage<string>(ELEVEN_KEY_LOCAL_STORAGE_KEY);
 
   const isAnythingLoading = isSavingReactFlow || isSavingSettings;
 
@@ -823,7 +825,9 @@ function App() {
         isOpen={isSettingsModalOpen}
         onClose={onCloseSettingsModal}
         apiKey={apiKey}
+        elevenKey={elevenKey}
         setApiKey={setApiKey}
+        setElevenKey={setElevenKey}
       />
       <Column
         mainAxisAlignment="center"

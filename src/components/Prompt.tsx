@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { Node } from "reactflow";
 
-import { Spinner, Text } from "@chakra-ui/react";
+import { Spinner, Text, Button } from "@chakra-ui/react";
 
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -123,25 +123,43 @@ export function Prompt({
                     :&nbsp;
                   </Text>
                   {isLast ? (
-                    <TextareaAutosize
-                      id="promptBox"
-                      style={{
-                        width: "100%",
-                        backgroundColor: "transparent",
-                        outline: "none",
-                      }}
-                      value={data.text ?? ""}
-                      onChange={(e) => onType(e.target.value)}
-                      placeholder={
-                        data.fluxNodeType === FluxNodeType.User
-                          ? "Write a poem about..."
-                          : data.fluxNodeType === FluxNodeType.System
-                          ? "You are ChatGPT..."
-                          : undefined
-                      }
-                    />
+                    <>
+                      <TextareaAutosize
+                        id="promptBox"
+                        style={{
+                          width: "100%",
+                          backgroundColor: "transparent",
+                          outline: "none",
+                        }}
+                        value={data.text ?? ""}
+                        onChange={(e) => onType(e.target.value)}
+                        placeholder={
+                          data.fluxNodeType === FluxNodeType.User
+                            ? "Write a poem about..."
+                            : data.fluxNodeType === FluxNodeType.System
+                            ? "You are ChatGPT..."
+                            : undefined
+                        }
+                      />
+                      {/* //TODO: utilize whisper here to transcribe audio. */}
+                      {data.fluxNodeType === FluxNodeType.User && (
+                        <Button marginLeft={2} alignSelf="end">Transcribe</Button>
+                      )}
+                      {/* //TODO: utilize elevenlabs here to transcribe audio. */}
+                      {(data.fluxNodeType === FluxNodeType.GPT ||
+                        data.fluxNodeType === FluxNodeType.TweakedGPT) && (
+                        <Button marginLeft={2} alignSelf="end">Listen</Button>
+                      )}
+                    </>
                   ) : (
-                    data.text
+                    <>
+                      {data.text}
+                      {/* //TODO: utilize elevenlabs here to transcribe audio. */}
+                      {(data.fluxNodeType === FluxNodeType.GPT ||
+                        data.fluxNodeType === FluxNodeType.TweakedGPT) && (
+                        <Button marginLeft={2} alignSelf="end">Listen</Button>
+                      )}
+                    </>
                   )}
                 </>
               )}

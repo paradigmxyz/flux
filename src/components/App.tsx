@@ -898,6 +898,7 @@ function App() {
                   redo={redo}
                   onClear={onClear}
                   copyMessagesToClipboard={copyMessagesToClipboard}
+                  toggleShowRenameInput={toggleShowRenameInput}
                   moveToParent={moveToParent}
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}

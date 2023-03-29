@@ -136,14 +136,25 @@ export function modifyFluxNodeText(
 
 export function modifyFluxNodeLabel(
   existingNodes: Node<FluxNodeData>[],
-  { id, label }: { id: string; label: string }
+  { id, type, label }: { id: string; type?: FluxNodeType; label: string }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
 
-    const copy = { ...node, data: { ...node.data } };
+    const copy = { ...node, data: { ...node.data, label }, type };
 
-    copy.data.label = label;
+    return copy;
+  });
+}
+
+export function modifyFluxNodeType(
+  existingNodes: Node<FluxNodeData>[],
+  { id, type }: { id: string; type?: FluxNodeType }
+): Node<FluxNodeData>[] {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    const copy = { ...node, data: { ...node.data }, type };
 
     return copy;
   });
@@ -311,5 +322,7 @@ export function displayNameFromFluxNodeType(
         : "GPT-3.5 (edited)";
     case FluxNodeType.System:
       return "System";
+    default:
+      return "User";
   }
 }

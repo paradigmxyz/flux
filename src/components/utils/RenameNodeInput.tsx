@@ -50,7 +50,6 @@ export function RenameNodeInput({
         <Column mainAxisAlignment="flex-start" crossAxisAlignment="center">
           <LabeledInput
             label="Rename node"
-            aria-label="test"
             value={renameLabel}
             setValue={setRenameLabel}
             backgroundColor="white"

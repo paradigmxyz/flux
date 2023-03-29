@@ -47,6 +47,7 @@ import {
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
   addFluxNode,
+  modifyFluxNodeLabel,
   modifyFluxNodeText,
   getFluxNodeChildren,
   getFluxNodeParent,
@@ -56,7 +57,6 @@ import {
   deleteSelectedFluxNodes,
   addUserNodeLinkedToASystemNode,
   markFluxNodeAsDoneGenerating,
-  modifyFluxNodeLabel,
 } from "../utils/fluxNode";
 import {
   FluxNodeData,

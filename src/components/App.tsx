@@ -760,14 +760,12 @@ function App() {
   const showRenameInput = () => {
     takeSnapshot();
 
-    const selectedNode = nodes.find(
-      (node) => node.selected ?? node.id === selectedNodeId
-    );
+    const selectedNode = nodes.find((node) => node.selected);
 
     if (selectedNode) {
       setNodes((nodes) =>
         modifyFluxNodeType(nodes, {
-          id: selectedNode.id,
+          id: selectedNode?.id ?? selectedNodeId,
           type: FluxNodeType.LabelUpdater,
         })
       );

@@ -15,11 +15,10 @@ export function CustomNode({
   data: FluxNodeData;
   isConnectable: boolean;
 }): any {
+  const { setNodes } = useReactFlow();
+
   const [renameLabel, setRenameLabel] = useState(data.label);
   const renameBlockRef = useRef<HTMLInputElement>(null);
-
-  const reactFlowInstance = useReactFlow();
-  const { setNodes } = reactFlowInstance;
 
   const cancel = () => {
     setNodes((nodes) =>

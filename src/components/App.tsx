@@ -89,6 +89,7 @@ import { getQueryParam, resetURL } from "../utils/qparams";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { RenameNodeInput } from "./utils/RenameNodeInput";
 
 function App() {
   const toast = useToast();
@@ -877,6 +878,13 @@ function App() {
               borderRightWidth="1px"
               expand
             >
+              {nodeToRename && (
+                <RenameNodeInput
+                  selectedNode={nodeToRename}
+                  renameNode={renameNode}
+                  setNodeToRename={setNodeToRename}
+                />
+              )}
               <Row
                 mainAxisAlignment="space-between"
                 crossAxisAlignment="center"

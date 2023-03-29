@@ -109,7 +109,12 @@ export function addUserNodeLinkedToASystemNode(
 
 export function modifyFluxNode(
   existingNodes: Node<FluxNodeData>[],
-  { asHuman, id, text }: { asHuman: boolean; id: string; text: string }
+  {
+    asHuman,
+    id,
+    text,
+    label,
+  }: { asHuman: boolean; id: string; text: string; label?: string }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
@@ -128,6 +133,10 @@ export function modifyFluxNode(
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
       copy.data.label = displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
+    }
+
+    if (label) {
+      copy.data.label = label;
     }
 
     return copy;

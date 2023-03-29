@@ -47,7 +47,7 @@ import {
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
   addFluxNode,
-  modifyFluxNode,
+  modifyFluxNodeText,
   getFluxNodeChildren,
   getFluxNodeParent,
   getFluxNodeSiblings,
@@ -56,6 +56,7 @@ import {
   deleteSelectedFluxNodes,
   addUserNodeLinkedToASystemNode,
   markFluxNodeAsDoneGenerating,
+  modifyFluxNodeLabel,
 } from "../utils/fluxNode";
 import {
   FluxNodeData,
@@ -770,10 +771,8 @@ function App() {
     takeSnapshot();
 
     setNodes((nodes) =>
-      modifyFluxNode(nodes, {
-        asHuman: false,
+      modifyFluxNodeLabel(nodes, {
         id: node.id,
-        text: node.data.text,
         label,
       })
     );
@@ -975,7 +974,7 @@ function App() {
                 onType={(text: string) => {
                   takeSnapshot();
                   setNodes((nodes) =>
-                    modifyFluxNode(nodes, {
+                    modifyFluxNodeText(nodes, {
                       asHuman: true,
                       id: selectedNodeId!,
                       text,

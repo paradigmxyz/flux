@@ -107,14 +107,9 @@ export function addUserNodeLinkedToASystemNode(
   return nodesCopy;
 }
 
-export function modifyFluxNode(
+export function modifyFluxNodeText(
   existingNodes: Node<FluxNodeData>[],
-  {
-    asHuman,
-    id,
-    text,
-    label,
-  }: { asHuman: boolean; id: string; text: string; label?: string }
+  { asHuman, id, text }: { asHuman: boolean; id: string; text: string }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
@@ -135,9 +130,20 @@ export function modifyFluxNode(
       copy.data.label = displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
     }
 
-    if (label) {
-      copy.data.label = label;
-    }
+    return copy;
+  });
+}
+
+export function modifyFluxNodeLabel(
+  existingNodes: Node<FluxNodeData>[],
+  { id, label }: { id: string; label: string }
+): Node<FluxNodeData>[] {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    const copy = { ...node, data: { ...node.data } };
+
+    copy.data.label = label;
 
     return copy;
   });

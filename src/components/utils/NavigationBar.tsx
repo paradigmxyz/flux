@@ -101,6 +101,10 @@ export function NavigationBar({
             href="https://twitter.com/paradigm"
           />
         </AvatarGroup>
+        
+        <Text whiteSpace="nowrap">
+          and <b>Audio</b> by <b>Hunty</b>
+        </Text>
 
         <Box mx="20px" height="100%" width="1px" bg="#EEEEEE" />
 

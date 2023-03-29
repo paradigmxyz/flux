@@ -30,7 +30,7 @@ export function NavigationBar({
   redo,
   onClear,
   copyMessagesToClipboard,
-  toggleShowRenameInput,
+  showRenameInput,
   deleteSelectedNodes,
   moveToParent,
   moveToChild,
@@ -48,7 +48,7 @@ export function NavigationBar({
   redo: () => void;
   onClear: () => void;
   copyMessagesToClipboard: () => void;
-  toggleShowRenameInput: () => void;
+  showRenameInput: () => void;
   moveToParent: () => void;
   moveToChild: () => void;
   moveToLeftSibling: () => void;
@@ -197,7 +197,7 @@ export function NavigationBar({
             </MenuGroup>
             <MenuDivider />
             <MenuGroup>
-              <MenuItem command="Ctrl+R" onClick={toggleShowRenameInput}>
+              <MenuItem command="Ctrl+R" onClick={showRenameInput}>
                 Rename
               </MenuItem>
             </MenuGroup>

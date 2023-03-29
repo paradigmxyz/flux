@@ -760,7 +760,7 @@ function App() {
 
   const [nodeToRename, setNodeToRename] = useState<Node>();
 
-  const toggleShowRenameInput = () => {
+  const showRenameInput = () => {
     const selectedNode = nodes.find((node) => node.selected);
 
     setNodeToRename(selectedNode || undefined);
@@ -827,7 +827,7 @@ function App() {
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
 
   useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
-  useHotkeys("ctrl+r", toggleShowRenameInput, HOTKEY_CONFIG);
+  useHotkeys("ctrl+r", showRenameInput, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -906,7 +906,7 @@ function App() {
                   redo={redo}
                   onClear={onClear}
                   copyMessagesToClipboard={copyMessagesToClipboard}
-                  toggleShowRenameInput={toggleShowRenameInput}
+                  showRenameInput={showRenameInput}
                   moveToParent={moveToParent}
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}

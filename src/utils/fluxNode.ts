@@ -153,12 +153,12 @@ export function modifyFluxNodeLabel(
 
 export function modifyFluxNodeType(
   existingNodes: Node<FluxNodeData>[],
-  { id, type }: { id: string; type?: FluxNodeType }
+  { id, type, draggable = true }: { id: string; type?: FluxNodeType; draggable?: boolean }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
 
-    const copy = { ...node, data: { ...node.data }, type };
+    const copy = { ...node, data: { ...node.data }, type, draggable };
 
     return copy;
   });

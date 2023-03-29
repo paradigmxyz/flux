@@ -768,6 +768,7 @@ function App() {
         modifyFluxNodeType(nodes, {
           id: nodeId,
           type: FluxNodeType.LabelUpdater,
+          draggable: false,
         })
       );
     }

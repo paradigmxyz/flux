@@ -762,7 +762,9 @@ function App() {
   const [nodeToRename, setNodeToRename] = useState<Node>();
 
   const showRenameInput = () => {
-    const selectedNode = nodes.find((node) => node.selected);
+    const selectedNode = nodes.find(
+      (node) => node.selected ?? node.id === selectedNodeId
+    );
 
     setNodeToRename(selectedNode || undefined);
   };

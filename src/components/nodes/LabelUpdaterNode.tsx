@@ -3,7 +3,7 @@ import { Box, Input } from "@chakra-ui/react";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Handle, Position, useReactFlow } from "reactflow";
 import { Row } from "../../utils/chakra";
-import { modifyFluxNodeLabel, modifyFluxNodeType } from "../../utils/fluxNode";
+import { modifyFluxNodeLabel, modifyFluxNode } from "../../utils/fluxNode";
 import { FluxNodeData } from "../../utils/types";
 
 export function LabelUpdaterNode({
@@ -22,7 +22,7 @@ export function LabelUpdaterNode({
 
   const cancel = () => {
     setNodes((nodes) =>
-      modifyFluxNodeType(nodes, {
+      modifyFluxNode(nodes, {
         id,
       })
     );

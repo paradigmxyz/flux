@@ -107,6 +107,19 @@ export function addUserNodeLinkedToASystemNode(
   return nodesCopy;
 }
 
+export function modifyFluxNode(
+  existingNodes: Node<FluxNodeData>[],
+  nodeOptions: Partial<Node>
+): Node<FluxNodeData>[] {
+  return existingNodes.map((node) => {
+    if (node.id !== nodeOptions.id) return node;
+
+    const copy = { ...node, data: { ...node.data }, ...nodeOptions };
+
+    return copy;
+  });
+}
+
 export function modifyFluxNodeText(
   existingNodes: Node<FluxNodeData>[],
   { asHuman, id, text }: { asHuman: boolean; id: string; text: string }
@@ -146,19 +159,6 @@ export function modifyFluxNodeLabel(
     if (node.id !== id) return node;
 
     const copy = { ...node, data: { ...node.data, label }, type };
-
-    return copy;
-  });
-}
-
-export function modifyFluxNodeType(
-  existingNodes: Node<FluxNodeData>[],
-  { id, type, draggable = true }: { id: string; type?: FluxNodeType; draggable?: boolean }
-): Node<FluxNodeData>[] {
-  return existingNodes.map((node) => {
-    if (node.id !== id) return node;
-
-    const copy = { ...node, data: { ...node.data }, type, draggable };
 
     return copy;
   });

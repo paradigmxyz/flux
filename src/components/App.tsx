@@ -761,11 +761,12 @@ function App() {
     takeSnapshot();
 
     const selectedNode = nodes.find((node) => node.selected);
+    const nodeId = selectedNode?.id ?? selectedNodeId;
 
-    if (selectedNode) {
+    if (nodeId) {
       setNodes((nodes) =>
         modifyFluxNodeType(nodes, {
-          id: selectedNode?.id ?? selectedNodeId,
+          id: nodeId,
           type: FluxNodeType.LabelUpdater,
         })
       );

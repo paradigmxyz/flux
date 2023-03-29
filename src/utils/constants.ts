@@ -1,4 +1,5 @@
 import { Options } from "react-hotkeys-hook";
+import { LabelUpdaterNode } from "../components/nodes/LabelUpdaterNode";
 
 import { Settings } from "./types";
 
@@ -34,3 +35,7 @@ export const UNDEFINED_RESPONSE_STRING = "[UNDEFINED RESPONSE]";
 export const FIT_VIEW_SETTINGS = { padding: 0.1, duration: 200 };
 
 export const NEW_TREE_X_OFFSET = 600;
+
+export const nodeTypes = {
+  LabelUpdater: LabelUpdaterNode,
+};

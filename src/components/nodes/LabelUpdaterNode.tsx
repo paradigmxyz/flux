@@ -1,6 +1,6 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Box, Input } from "@chakra-ui/react";
-import { FormEvent, memo, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Handle, Position, useReactFlow } from "reactflow";
 import { Row } from "../../utils/chakra";
 import { modifyFluxNodeLabel, modifyFluxNodeType } from "../../utils/fluxNode";
@@ -108,5 +108,3 @@ export function LabelUpdaterNode({
     </Box>
   );
 }
-
-export const MemoizedLabelUpdaterNode = memo(LabelUpdaterNode);

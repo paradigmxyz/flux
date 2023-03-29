@@ -1,5 +1,5 @@
 import { Options } from "react-hotkeys-hook";
-import { MemoizedLabelUpdaterNode } from "../components/nodes/LabelUpdaterNode";
+import { LabelUpdaterNode } from "../components/nodes/LabelUpdaterNode";
 
 import { Settings } from "./types";
 
@@ -37,5 +37,5 @@ export const FIT_VIEW_SETTINGS = { padding: 0.1, duration: 200 };
 export const NEW_TREE_X_OFFSET = 600;
 
 export const nodeTypes = {
-  LabelUpdater: MemoizedLabelUpdaterNode,
+  LabelUpdater: LabelUpdaterNode,
 };

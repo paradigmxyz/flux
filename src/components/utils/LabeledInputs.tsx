@@ -44,11 +44,56 @@ export function LabeledSlider({
   step: number;
   precision: number;
 } & BoxProps) {
+
+  // Keep state for inputs that are invalid (being typed)
+  const [incompleteInput, setIncompleteInput] = useState(false);
+  const [inputStr, setInputStr] = useState("");
+  const [defaultValue, setDefaultValue] = useState(value);
+
+  // Handle input changes and update state accordingly
+  const inputChangeHandler = (s: string, v: number) => {
+    const isDecimalNotAllowed = precision === 0 && /\./.test(s);
+    const isIncompleteInput = s === "" || (!isDecimalNotAllowed && /^\d+\.$/.test(s));
+    
+    setIncompleteInput(isIncompleteInput);
+    setInputStr(s);
+  
+    if (!isIncompleteInput && !isDecimalNotAllowed) {
+      setValue(isNaN(v) ? defaultValue : v);
+    }
+  };
+
+  // Reset values to default if input is empty onBlur
+  const handleBlur = (event?: React.FocusEvent<HTMLInputElement>) => {
+    if (inputStr === "") {
+      setIncompleteInput(false);
+      setValue(defaultValue);
+    }
+  };
+
+  // Reset value binding if input is invalid on slider click
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (incompleteInput) {
+      setIncompleteInput(false);
+    }
+  };
+
   return (
     <Box {...others}>
       <Flex {...others} alignItems="center">
         <b>{label}:</b> 
-        <NumberInput size='xs' maxW='100px' ml='0.5rem' step={step} max={max} min={min} value={value} precision={precision} onChange={(_, v) => setValue(isNaN(v) ? min : v)}>
+        <NumberInput 
+          size='xs' 
+          maxW='75px' 
+          ml='0.5rem' 
+          step={step} 
+          max={max} 
+          min={min} 
+          precision={precision} 
+          value={incompleteInput ? inputStr : value}
+          onChange={inputChangeHandler}
+          onBlur={handleBlur}
+        >
           <NumberInputField />
           <NumberInputStepper>
             <NumberIncrementStepper />
@@ -65,6 +110,7 @@ export function LabeledSlider({
         min={min}
         step={step}
         focusThumbOnChange={false}
+        onClick={handleClick}
       >
         <SliderTrack>
           <SliderFilledTrack bg={color} />

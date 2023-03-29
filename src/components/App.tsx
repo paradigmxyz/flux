@@ -84,12 +84,12 @@ import { generateNodeId } from "../utils/nodeId";
 import { useLocalStorage } from "../utils/lstore";
 import { NavigationBar } from "./utils/NavigationBar";
 import { useDebouncedEffect } from "../utils/debounce";
+import { RenameNodeInput } from "./utils/RenameNodeInput";
 import { useDebouncedWindowResize } from "../utils/resize";
 import { getQueryParam, resetURL } from "../utils/qparams";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
-import { RenameNodeInput } from "./utils/RenameNodeInput";
 
 function App() {
   const toast = useToast();

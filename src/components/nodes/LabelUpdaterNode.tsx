@@ -14,7 +14,7 @@ export function LabelUpdaterNode({
   id: string;
   data: FluxNodeData;
   isConnectable: boolean;
-}): any {
+}) {
   const { setNodes } = useReactFlow();
 
   const [renameLabel, setRenameLabel] = useState(data.label);
@@ -109,4 +109,4 @@ export function LabelUpdaterNode({
   );
 }
 
-export const LabelUpdaterNode = memo(CustomNode);
+export const MemoizedLabelUpdaterNode = memo(LabelUpdaterNode);

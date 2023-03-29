@@ -870,6 +870,13 @@ function App() {
             }}
             onResizeStop={autoZoomIfNecessary}
           >
+            {nodeToRename && (
+              <RenameNodeInput
+                selectedNode={nodeToRename}
+                renameNode={renameNode}
+                setNodeToRename={setNodeToRename}
+              />
+            )}
             <Column
               mainAxisAlignment="center"
               crossAxisAlignment="center"
@@ -877,13 +884,6 @@ function App() {
               borderRightWidth="1px"
               expand
             >
-              {nodeToRename && (
-                <RenameNodeInput
-                  selectedNode={nodeToRename}
-                  renameNode={renameNode}
-                  setNodeToRename={setNodeToRename}
-                />
-              )}
               <Row
                 mainAxisAlignment="space-between"
                 crossAxisAlignment="center"

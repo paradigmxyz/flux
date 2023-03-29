@@ -752,6 +752,35 @@ function App() {
   };
 
   /*//////////////////////////////////////////////////////////////
+                         RENAME NODE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  // TODO: Prevent node name to be overridden when GPT node is edited
+
+  const [nodeToRename, setNodeToRename] = useState<Node>();
+
+  const toggleShowRenameInput = () => {
+    const selectedNode = nodes.find((node) => node.selected);
+
+    setNodeToRename(selectedNode || undefined);
+  };
+
+  const renameNode = (node: Node, label: string) => {
+    takeSnapshot();
+
+    setNodes((nodes) =>
+      modifyFluxNode(nodes, {
+        asHuman: false,
+        id: node.id,
+        text: node.data.text,
+        label,
+      })
+    );
+
+    setNodeToRename(undefined);
+  };
+
+  /*//////////////////////////////////////////////////////////////
                         WINDOW RESIZE LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -797,6 +826,7 @@ function App() {
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
 
   useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys("ctrl+r", toggleShowRenameInput, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP

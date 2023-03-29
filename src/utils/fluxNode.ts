@@ -127,7 +127,11 @@ export function modifyFluxNodeText(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
-      copy.data.label = displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
+      copy.data.label = displayNameFromFluxNodeType(
+        FluxNodeType.TweakedGPT,
+        undefined,
+        copy.data.label
+      );
     }
 
     return copy;
@@ -307,7 +311,8 @@ export function getFluxNodeLineage(
 
 export function displayNameFromFluxNodeType(
   fluxNodeType: FluxNodeType,
-  isGPT4?: boolean
+  isGPT4?: boolean,
+  label?: string
 ) {
   switch (fluxNodeType) {
     case FluxNodeType.User:
@@ -316,10 +321,10 @@ export function displayNameFromFluxNodeType(
       return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
     case FluxNodeType.TweakedGPT:
       return isGPT4 === undefined
-        ? "GPT (edited)"
+        ? `${label || "GPT"} (edited)`
         : isGPT4
-        ? "GPT-4 (edited)"
-        : "GPT-3.5 (edited)";
+        ? `${label || "GPT-4"} (edited)`
+        : `${label || "GPT-3.5"} (edited)`;
     case FluxNodeType.System:
       return "System";
     default:

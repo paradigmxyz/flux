@@ -761,8 +761,6 @@ function App() {
                          RENAME NODE LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  // TODO: Prevent node name to be overridden when GPT node is edited
-
   const showRenameInput = () => {
     takeSnapshot();
 

@@ -320,11 +320,7 @@ export function displayNameFromFluxNodeType(
     case FluxNodeType.GPT:
       return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
     case FluxNodeType.TweakedGPT:
-      return isGPT4 === undefined
-        ? `${label || "GPT"} (edited)`
-        : isGPT4
-        ? `${label || "GPT-4"} (edited)`
-        : `${label || "GPT-3.5"} (edited)`;
+      return `${label} (edited)`;
     case FluxNodeType.System:
       return "System";
     default:

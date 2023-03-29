@@ -6,7 +6,7 @@ import { Row } from "../../utils/chakra";
 import { modifyFluxNodeLabel, modifyFluxNodeType } from "../../utils/fluxNode";
 import { FluxNodeData } from "../../utils/types";
 
-export function CustomNode({
+export function LabelUpdaterNode({
   id,
   data,
   isConnectable,

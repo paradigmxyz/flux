@@ -49,16 +49,27 @@ export function CustomNode({
         cancel();
       }
     }
-    // Bind the event listener
+    function handleClose(event: any) {
+      if (event.key === "Escape") cancel();
+    }
+
+    // Bind the event listeners
     document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", (evt) => {
-      if (evt.key === "Escape") cancel();
-    });
+    document.addEventListener("keydown", handleClose);
     return () => {
-      // Unbind the event listener on clean up
+      // Unbind the event listeners on clean up
       document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleClose);
     };
   }, [renameBlockRef]);
+
+  useEffect(() => {
+    // select the input element on mount
+    const input = renameBlockRef.current?.querySelector("input");
+    if (input) {
+      input.select();
+    }
+  }, []);
 
   return (
     <Box width={150} height={38} ref={renameBlockRef}>

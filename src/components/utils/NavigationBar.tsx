@@ -196,7 +196,7 @@ export function NavigationBar({
               </MenuItem>
             </MenuGroup>
             <MenuDivider />
-            <MenuGroup>
+            <MenuGroup title="Rename">
               <MenuItem command="Ctrl+R" onClick={showRenameInput}>
                 Rename
               </MenuItem>

@@ -47,8 +47,8 @@ import {
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
   addFluxNode,
-  modifyFluxNodeLabel,
   modifyFluxNodeText,
+  modifyFluxNodeType,
   getFluxNodeChildren,
   getFluxNodeParent,
   getFluxNodeSiblings,
@@ -85,7 +85,6 @@ import { generateNodeId } from "../utils/nodeId";
 import { useLocalStorage } from "../utils/lstore";
 import { NavigationBar } from "./utils/NavigationBar";
 import { useDebouncedEffect } from "../utils/debounce";
-import { RenameNodeInput } from "./utils/RenameNodeInput";
 import { useDebouncedWindowResize } from "../utils/resize";
 import { getQueryParam, resetURL } from "../utils/qparams";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
@@ -764,27 +763,21 @@ function App() {
 
   // TODO: Prevent node name to be overridden when GPT node is edited
 
-  const [nodeToRename, setNodeToRename] = useState<Node>();
-
   const showRenameInput = () => {
+    takeSnapshot();
+
     const selectedNode = nodes.find(
       (node) => node.selected ?? node.id === selectedNodeId
     );
 
-    setNodeToRename(selectedNode || undefined);
-  };
-
-  const renameNode = (node: Node, label: string) => {
-    takeSnapshot();
-
-    setNodes((nodes) =>
-      modifyFluxNodeLabel(nodes, {
-        id: node.id,
-        label,
-      })
-    );
-
-    setNodeToRename(undefined);
+    if (selectedNode) {
+      setNodes((nodes) =>
+        modifyFluxNodeType(nodes, {
+          id: selectedNode.id,
+          type: FluxNodeType.LabelUpdater,
+        })
+      );
+    }
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -877,13 +870,6 @@ function App() {
             }}
             onResizeStop={autoZoomIfNecessary}
           >
-            {nodeToRename && (
-              <RenameNodeInput
-                selectedNode={nodeToRename}
-                renameNode={renameNode}
-                setNodeToRename={setNodeToRename}
-              />
-            )}
             <Column
               mainAxisAlignment="center"
               crossAxisAlignment="center"

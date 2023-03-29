@@ -91,6 +91,11 @@ import { getQueryParam, resetURL } from "../utils/qparams";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { LabelUpdaterNode } from "./nodes/LabelUpdaterNode";
+
+const nodeTypes = {
+  LabelUpdater: LabelUpdaterNode,
+};
 
 function App() {
   const toast = useToast();
@@ -940,6 +945,7 @@ function App() {
                 onEdgesDelete={takeSnapshot}
                 onNodesDelete={takeSnapshot}
                 onConnect={onConnect}
+                nodeTypes={nodeTypes}
                 // Causes clicks to also trigger auto zoom.
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}

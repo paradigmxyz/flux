@@ -13,6 +13,7 @@ export enum FluxNodeType {
   User = "User",
   GPT = "GPT",
   TweakedGPT = "GPT (tweaked)",
+  LabelUpdater = "LabelUpdater",
 }
 
 export type Settings = {

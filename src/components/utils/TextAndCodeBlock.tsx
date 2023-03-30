@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Button, Flex, Box } from "@chakra-ui/react";
+import { Button, Box } from "@chakra-ui/react";
+import { Row } from "../../utils/chakra";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { CODE_BLOCK_DETECT_REGEX, CODE_BLOCK_LANGUAGE_DETECT_REGEX } from "../../utils/constants";
 
 interface CodeBlockProps {
   text: string;
@@ -13,8 +15,7 @@ interface TitleBarProps {
 }
 
 const getNextCodeBlockMatch = (text: string) => {
-  const codeBlockRegex = /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
-  return codeBlockRegex.exec(text);
+  return CODE_BLOCK_DETECT_REGEX.exec(text);
 };
 
 const CopyCodeButton = ({ code }: { code: string }) => {
@@ -45,7 +46,10 @@ const CopyCodeButton = ({ code }: { code: string }) => {
 
 const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
   return (
-    <Flex
+    <Row
+      mainAxisAlignment="flex-start"
+      crossAxisAlignment="stretch"
+      expand
       justifyContent="space-between"
       alignItems="center"
       padding="5px 10px"
@@ -56,7 +60,7 @@ const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
     >
       {language ? <Box>{language}</Box> : <Box>plaintext</Box>}
       <CopyCodeButton code={code} />
-    </Flex>
+    </Row>
   );
 };
 
@@ -69,7 +73,7 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
 
   const before = text.substring(0, match.index);
 
-  const languageLine = /^```[a-zA-Z0-9-]*$/m.exec(match[1]);
+  const languageLine = CODE_BLOCK_LANGUAGE_DETECT_REGEX.exec(match[1]);
   const language = languageLine ? languageLine[0].substring(3) : "plaintext";
   const code = match[2].trim();
 

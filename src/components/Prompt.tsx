@@ -125,63 +125,49 @@ export function Prompt({
                     {displayNameFromFluxNodeType(data.fluxNodeType)}
                     :&nbsp;
                   </Text>
-                  {isLast ? (
-                    <>
-                      <Column
-                        width={"100%"}
-                        whiteSpace="pre-wrap"
-                        mainAxisAlignment="flex-start"
-                        crossAxisAlignment="flex-start"
-                        borderRadius="6px"
-                      >
-                        <>
-                          {isEditing || data.fluxNodeType === FluxNodeType.User ? (
-                            <TextareaAutosize
-                              id="promptBox"
-                              style={{
-                                width: "100%",
-                                backgroundColor: "transparent",
-                                outline: "none",
-                              }}
-                              value={data.text ?? ""}
-                              onChange={(e) => onType(e.target.value)}
-                              placeholder={
-                                data.fluxNodeType === FluxNodeType.User
-                                  ? "Write a poem about..."
-                                  : data.fluxNodeType === FluxNodeType.System
-                                  ? "You are ChatGPT..."
-                                  : undefined
-                              }
-                            />
-                          ) : (
-                            <TextAndCodeBlock text={data.text} />
-                          )}
-                          {!(data.fluxNodeType === FluxNodeType.User) && (
-                            <Button
-                              onClick={() => setIsEditing(!isEditing)}
-                              mt={5}
-                              width="100%"
-                              alignSelf="center"
-                            >
-                              {isEditing ? "Done Editing" : "Edit"}
-                            </Button>
-                          )}
-                        </>
-                      </Column>
-                    </>
-                  ) : (
-                    <>
-                      <Column
-                        width={"100%"}
-                        whiteSpace="pre-wrap"
-                        mainAxisAlignment="flex-start"
-                        crossAxisAlignment="flex-start"
-                        borderRadius="6px"
-                      >
+                  <Column
+                    width={"100%"}
+                    whiteSpace="pre-wrap"
+                    mainAxisAlignment="flex-start"
+                    crossAxisAlignment="flex-start"
+                    borderRadius="6px"
+                  >
+                    {isLast ? (
+                      isEditing || data.fluxNodeType === FluxNodeType.User ? (
+                        <TextareaAutosize
+                          id="promptBox"
+                          style={{
+                            width: "100%",
+                            backgroundColor: "transparent",
+                            outline: "none",
+                          }}
+                          value={data.text ?? ""}
+                          onChange={(e) => onType(e.target.value)}
+                          placeholder={
+                            data.fluxNodeType === FluxNodeType.User
+                              ? "Write a poem about..."
+                              : data.fluxNodeType === FluxNodeType.System
+                              ? "You are ChatGPT..."
+                              : undefined
+                          }
+                        />
+                      ) : (
                         <TextAndCodeBlock text={data.text} />
-                      </Column>
-                    </>
-                  )}
+                      )
+                    ) : (
+                      <TextAndCodeBlock text={data.text} />
+                    )}
+                    {isLast && !(data.fluxNodeType === FluxNodeType.User) && (
+                      <Button
+                        onClick={() => setIsEditing(!isEditing)}
+                        mt={5}
+                        width="100%"
+                        alignSelf="center"
+                      >
+                        {isEditing ? "Done Editing" : "Edit"}
+                      </Button>
+                    )}
+                  </Column>
                 </>
               )}
             </Row>

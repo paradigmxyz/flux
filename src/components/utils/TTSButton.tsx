@@ -87,12 +87,12 @@ export const TTSButton: React.FC<TTSButtonProps> = ({ text, voiceID, apiKey }) =
     return null;
   };
 
-  const buttonText = findHistoryItem() ? 'Fetch ElevenLabs Audio' : 'Transcribe Audio Using ElevenLabs';
+  const buttonText = findHistoryItem() ? 'Fetch Audio' : 'Transcribe Audio';
 
   return (
-    <Flex alignSelf="center" mt={5} mr={10}>
+    <>
       {!audioSrc && (
-        <Button onClick={handleButtonClick}>
+        <Button onClick={handleButtonClick} disabled={isLoading}>
           {!isLoading ? buttonText : renderLoadingSpinner()}
         </Button>
       )}
@@ -101,6 +101,6 @@ export const TTSButton: React.FC<TTSButtonProps> = ({ text, voiceID, apiKey }) =
           Your browser does not support the audio element.
         </audio>
       )}
-    </Flex>
+    </>
   );
 };

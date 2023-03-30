@@ -10,6 +10,7 @@ import { LabeledSlider } from "./utils/LabeledInputs";
 import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
 import { TTSButton } from "./utils/TTSButton";
+import { CopyCodeButton } from "./utils/CopyCodeButton";
 
 export function Prompt({
   lineage,
@@ -104,6 +105,7 @@ export function Prompt({
         <SyntaxHighlighter language={language} showLineNumbers>
           {code}
         </SyntaxHighlighter>
+        <CopyCodeButton code={code} />
         {renderCodeBlock(after)}
       </>
     );

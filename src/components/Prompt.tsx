@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Node } from "reactflow";
-import { Spinner, Text, Button } from "@chakra-ui/react";
+import { Spinner, Text, Button, Box, IconButton } from "@chakra-ui/react";
+import { EditIcon, CheckIcon } from "@chakra-ui/icons";
 import TextareaAutosize from "react-textarea-autosize";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
@@ -46,6 +47,7 @@ export function Prompt({
   //////////////////////////////////////////////////////////////*/
 
   const [isEditing, setIsEditing] = useState(false);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   /*//////////////////////////////////////////////////////////////
                               EFFECTS
@@ -95,6 +97,13 @@ export function Prompt({
               crossAxisAlignment="flex-start"
               borderRadius="6px"
               borderLeftWidth={isLast ? "4px" : "0px"}
+              position="relative"
+              onMouseEnter={() =>
+                !(data.fluxNodeType === FluxNodeType.User) && setHoveredNodeId(node.id)
+              }
+              onMouseLeave={() =>
+                !(data.fluxNodeType === FluxNodeType.User) && setHoveredNodeId(null)
+              }
               borderColor={getFluxNodeTypeDarkColor(data.fluxNodeType)}
               bg={getFluxNodeTypeColor(data.fluxNodeType)}
               key={node.id}
@@ -121,12 +130,25 @@ export function Prompt({
                 </Center>
               ) : (
                 <>
+                  <Button
+                    display={hoveredNodeId === node.id ? "block" : "none"}
+                    onClick={() => setIsEditing(!isEditing)}
+                    position="absolute"
+                    top={1}
+                    right={1}
+                    zIndex={10}
+                    variant="outline"
+                    border="0px"
+                    p="1"
+                  >
+                    {(isEditing && hoveredNodeId === node.id) ? <CheckIcon boxSize={4} /> : <EditIcon boxSize={4} />}
+                  </Button>
                   <Text fontWeight="bold" width="auto" whiteSpace="nowrap">
                     {displayNameFromFluxNodeType(data.fluxNodeType)}
                     :&nbsp;
                   </Text>
                   <Column
-                    width={"100%"}
+                    width="calc(100% - 50px)"
                     whiteSpace="pre-wrap"
                     mainAxisAlignment="flex-start"
                     crossAxisAlignment="flex-start"
@@ -137,7 +159,7 @@ export function Prompt({
                         <TextareaAutosize
                           id="promptBox"
                           style={{
-                            width: "100%",
+                            width: "calc(100% - 50px)",
                             backgroundColor: "transparent",
                             outline: "none",
                           }}
@@ -156,16 +178,6 @@ export function Prompt({
                       )
                     ) : (
                       <TextAndCodeBlock text={data.text} />
-                    )}
-                    {isLast && !(data.fluxNodeType === FluxNodeType.User) && (
-                      <Button
-                        onClick={() => setIsEditing(!isEditing)}
-                        mt={5}
-                        width="100%"
-                        alignSelf="center"
-                      >
-                        {isEditing ? "Done Editing" : "Edit"}
-                      </Button>
                     )}
                   </Column>
                 </>

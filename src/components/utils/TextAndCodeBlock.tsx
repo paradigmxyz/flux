@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Box } from "@chakra-ui/react";
+import { CopyIcon } from "@chakra-ui/icons";
 import { Row } from "../../utils/chakra";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -39,7 +40,7 @@ const CopyCodeButton = ({ code }: { code: string }) => {
 
   return (
     <Button onClick={copyToClipboard} size="sm">
-      {copied ? "Copied!" : "Copy Code"}
+      <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
     </Button>
   );
 };
@@ -80,7 +81,7 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
   const after = text.substring(match.index + match[0].length);
 
   return (
-    <>
+    <Box width="calc(100% - 50px)">
       {before}
       <Box borderRadius="4px" overflow="hidden">
         <TitleBar language={language} code={code} />
@@ -101,6 +102,6 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
         </SyntaxHighlighter>
       </Box>
       <TextAndCodeBlock text={after} />
-    </>
+    </Box>
   );
 };

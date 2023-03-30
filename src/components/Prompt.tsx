@@ -74,6 +74,18 @@ export function Prompt({
     textOffsetRef.current = -1;
   }, [promptNode.id]);
 
+  // adjust height when edit mode changes
+  // ensures no unsightly scrollbars, the intended effect of TextareaAutosize.
+  useEffect(() => {
+    if (isEditing) {
+      const promptBox = document.getElementById("promptBox") as HTMLTextAreaElement | null;
+      if (promptBox) {
+        promptBox.style.height = "inherit";
+        promptBox.style.height = `${promptBox.scrollHeight}px`;
+      }
+    }
+  }, [isEditing]);
+
   /*//////////////////////////////////////////////////////////////
                               APP
   //////////////////////////////////////////////////////////////*/
@@ -148,7 +160,8 @@ export function Prompt({
                     :&nbsp;
                   </Text>
                   <Column
-                    width="calc(100% - 50px)"
+                    width="100%"
+                    marginRight="50px"
                     whiteSpace="pre-wrap"
                     mainAxisAlignment="flex-start"
                     crossAxisAlignment="flex-start"
@@ -159,7 +172,7 @@ export function Prompt({
                         <TextareaAutosize
                           id="promptBox"
                           style={{
-                            width: "calc(100% - 50px)",
+                            width: "100%",
                             backgroundColor: "transparent",
                             outline: "none",
                           }}

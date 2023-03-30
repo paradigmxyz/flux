@@ -81,7 +81,7 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
   const after = text.substring(match.index + match[0].length);
 
   return (
-    <Box width="calc(100% - 50px)">
+    <Box width="100%">
       {before}
       <Box borderRadius="4px" overflow="hidden">
         <TitleBar language={language} code={code} />

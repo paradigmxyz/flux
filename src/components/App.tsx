@@ -915,7 +915,7 @@ function App() {
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}
                 selectionKeyCode={null}
-                multiSelectionKeyCode={null}
+                multiSelectionKeyCode="Shift"
                 panActivationKeyCode={null}
                 deleteKeyCode={null}
                 panOnDrag={false}

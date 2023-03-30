@@ -30,7 +30,7 @@ import { useBeforeunload } from "react-beforeunload";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
 
-import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams-flux";
+import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
 
 import { Prompt } from "./Prompt";
 
@@ -46,6 +46,7 @@ import {
   newFluxNode,
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
+  isFluxNodeInLineage,
   addFluxNode,
   modifyFluxNodeText,
   modifyFluxNode,
@@ -164,6 +165,16 @@ function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const onConnect = (connection: Edge<any> | Connection) => {
+    // Check the lineage of the source node to make
+    // sure we aren't creating a recursive connection.
+    if (
+      isFluxNodeInLineage(nodes, edges, {
+        nodeToCheck: connection.target!,
+        nodeToGetLineageOf: connection.source!,
+      })
+    )
+      return;
+
     takeSnapshot();
     setEdges((eds) => addEdge({ ...connection }, eds));
   };
@@ -930,7 +941,7 @@ function App() {
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}
                 selectionKeyCode={null}
-                multiSelectionKeyCode={null}
+                multiSelectionKeyCode="Shift"
                 panActivationKeyCode={null}
                 deleteKeyCode={null}
                 panOnDrag={false}

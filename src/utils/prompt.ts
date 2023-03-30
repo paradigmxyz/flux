@@ -1,6 +1,6 @@
 import { Node } from "reactflow";
 
-import { ChatCompletionRequestMessage } from "openai-streams-flux";
+import { ChatCompletionRequestMessage } from "openai-streams";
 
 import { FluxNodeData, FluxNodeType, Settings } from "./types";
 

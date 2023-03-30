@@ -7,6 +7,11 @@ interface CodeBlockProps {
   text: string;
 }
 
+interface TitleBarProps {
+  language?: string;
+  code: string;
+}
+
 const getNextCodeBlockMatch = (text: string) => {
   const codeBlockRegex = /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
   return codeBlockRegex.exec(text);
@@ -32,9 +37,29 @@ const CopyCodeButton = ({ code }: { code: string }) => {
   }, [copied]);
 
   return (
-    <Button onClick={copyToClipboard} mb={5} size="sm">
+    <Button onClick={copyToClipboard} size="sm">
       {copied ? "Copied!" : "Copy Code"}
     </Button>
+  );
+};
+
+const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "5px 10px",
+        backgroundColor: "#f5f5f5",
+        borderBottom: "1px solid #eee",
+        marginTop: "1em",
+        borderRadius: "4px 4px 0 0",
+      }}
+    >
+      {language ? <div>{language}</div> : <div>plaintext</div>}
+      <CopyCodeButton code={code} />
+    </div>
   );
 };
 
@@ -56,20 +81,33 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
   return (
     <>
       {before}
-      <SyntaxHighlighter
-        language={language}
-        wrapLongLines={true}
-        style={coy}
-        codeTagProps={{
-          style: { wordBreak: "break-word" },
-        }}
-        customStyle={{
-          padding: "10px",
+      <div
+        style={{
+          borderRadius: "4px",
+          overflow: "hidden",
         }}
       >
-        {code}
-      </SyntaxHighlighter>
-      <CopyCodeButton code={code} />
+        <TitleBar language={language} code={code} />
+        <SyntaxHighlighter
+          language={language}
+          wrapLongLines={true}
+          style={coy}
+          codeTagProps={{
+            style: { wordBreak: "break-word" },
+          }}
+          customStyle={{
+            padding: "10px",
+            margin: "0px",
+          }}
+          preProps={{
+            style: {
+              margin: "0px",
+            },
+          }}
+        >
+          {code}
+        </SyntaxHighlighter>
+      </div>
       <TextAndCodeBlock text={after} />
     </>
   );

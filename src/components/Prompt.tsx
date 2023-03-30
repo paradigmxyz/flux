@@ -1,17 +1,15 @@
-import { useEffect, useRef } from "react";
-
+import { useState, useEffect, useRef } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { Node } from "reactflow";
-
-import { Spinner, Text } from "@chakra-ui/react";
-
+import { Spinner, Text, Button } from "@chakra-ui/react";
 import TextareaAutosize from "react-textarea-autosize";
-
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { displayNameFromFluxNodeType } from "../utils/fluxNode";
 import { LabeledSlider } from "./utils/LabeledInputs";
-import { Row, Center } from "../utils/chakra";
+import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
+import { CopyCodeButton } from "./utils/CopyCodeButton";
 
 export function Prompt({
   lineage,
@@ -45,6 +43,12 @@ export function Prompt({
   };
 
   /*//////////////////////////////////////////////////////////////
+                              STATE
+  //////////////////////////////////////////////////////////////*/
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  /*//////////////////////////////////////////////////////////////
                               EFFECTS
   //////////////////////////////////////////////////////////////*/
 
@@ -72,6 +76,34 @@ export function Prompt({
   /*//////////////////////////////////////////////////////////////
                               APP
   //////////////////////////////////////////////////////////////*/
+
+  const renderCodeBlock = (text: string): React.ReactNode => {
+    const codeBlockRegex = /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
+    const match = codeBlockRegex.exec(text);
+
+    if (!match) {
+      return text;
+    }
+
+    const before = text.substring(0, match.index);
+
+    const languageLine = /^```[a-zA-Z0-9-]*$/m.exec(match[1]);
+    const language = languageLine ? languageLine[0].substring(3) : "plaintext";
+    const code = match[2].trim();
+
+    const after = text.substring(match.index + match[0].length);
+
+    return (
+      <>
+        {before}
+        <SyntaxHighlighter language={language} showLineNumbers>
+          {code}
+        </SyntaxHighlighter>
+        <CopyCodeButton code={code} />
+        {renderCodeBlock(after)}
+      </>
+    );
+  };
 
   return (
     <>
@@ -123,25 +155,61 @@ export function Prompt({
                     :&nbsp;
                   </Text>
                   {isLast ? (
-                    <TextareaAutosize
-                      id="promptBox"
-                      style={{
-                        width: "100%",
-                        backgroundColor: "transparent",
-                        outline: "none",
-                      }}
-                      value={data.text ?? ""}
-                      onChange={(e) => onType(e.target.value)}
-                      placeholder={
-                        data.fluxNodeType === FluxNodeType.User
-                          ? "Write a poem about..."
-                          : data.fluxNodeType === FluxNodeType.System
-                          ? "You are ChatGPT..."
-                          : undefined
-                      }
-                    />
+                    <>
+                      <Column
+                        width={"100%"}
+                        whiteSpace="pre-wrap" 
+                        mainAxisAlignment="flex-start"
+                        crossAxisAlignment="flex-start"
+                        borderRadius="6px"
+                      >
+                        <>
+                          {(isEditing || data.fluxNodeType === FluxNodeType.User) ? (
+                            <TextareaAutosize
+                              id="promptBox"
+                              style={{
+                                width: "100%",
+                                backgroundColor: "transparent",
+                                outline: "none",
+                              }}
+                              value={data.text ?? ""}
+                              onChange={(e) => onType(e.target.value)}
+                              placeholder={
+                                data.fluxNodeType === FluxNodeType.User
+                                  ? "Write a poem about..."
+                                  : data.fluxNodeType === FluxNodeType.System
+                                  ? "You are ChatGPT..."
+                                  : undefined
+                              }
+                            />
+                          ) : (
+                            renderCodeBlock(data.text)
+                          )}
+                          {!(data.fluxNodeType === FluxNodeType.User) && (
+                            <Button
+                              onClick={() => setIsEditing(!isEditing)}
+                              mt={5}
+                              width="100%"
+                              alignSelf="center"
+                            >
+                              {isEditing ? "Done Editing" : "Edit"}
+                            </Button>
+                          )}
+                        </>
+                      </Column>
+                    </>
                   ) : (
-                    data.text
+                    <>
+                      <Column
+                        width={"100%"}
+                        whiteSpace="pre-wrap" 
+                        mainAxisAlignment="flex-start"
+                        crossAxisAlignment="flex-start"
+                        borderRadius="6px"
+                      >
+                        {renderCodeBlock(data.text)}
+                      </Column>
+                    </>
                   )}
                 </>
               )}

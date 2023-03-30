@@ -1,7 +1,7 @@
 <div align="center">
   <h3 align="center">Flux</h3>
   <p align="center">
-    LLM power tool.
+    LLM power tool
     <br />
     <br />
     <a href="https://twitter.com/transmissions11/status/1640775967856803840">Announcement</a>

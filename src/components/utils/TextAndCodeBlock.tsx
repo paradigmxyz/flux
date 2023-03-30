@@ -64,13 +64,13 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
           style: { wordBreak: "break-word" },
         }}
         customStyle={{
-          padding: "10px"
+          padding: "10px",
         }}
       >
         {code}
       </SyntaxHighlighter>
       <CopyCodeButton code={code} />
       <TextAndCodeBlock text={after} />
-      </>
+    </>
   );
 };

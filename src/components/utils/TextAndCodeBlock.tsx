@@ -54,7 +54,7 @@ const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
       marginTop="1em"
       borderRadius="4px 4px 0 0"
     >
-      {language ? <div>{language}</div> : <div>plaintext</div>}
+      {language ? <Box>{language}</Box> : <Box>plaintext</Box>}
       <CopyCodeButton code={code} />
     </Flex>
   );

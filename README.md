@@ -1,5 +1,5 @@
 <div align="center">
-  <h3 align="center">Flux</h3>
+  <h1 align="center">Flux</h1>
   <p align="center">
     LLM power tool
     <br />

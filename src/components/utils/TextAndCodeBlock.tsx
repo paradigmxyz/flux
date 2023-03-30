@@ -5,6 +5,7 @@ import { Row } from "../../utils/chakra";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { CODE_BLOCK_DETECT_REGEX, CODE_BLOCK_LANGUAGE_DETECT_REGEX } from "../../utils/constants";
+import { copyToClipboard } from "../../utils/clipboard";
 
 interface CodeBlockProps {
   text: string;
@@ -22,12 +23,10 @@ const getNextCodeBlockMatch = (text: string) => {
 const CopyCodeButton = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
+  const handleCopyButtonClick = async () => {
+    const result = await copyToClipboard(code);
+    if (result) {
       setCopied(true);
-    } catch (err) {
-      console.error("Failed to copy to clipboard", err);
     }
   };
 
@@ -39,7 +38,7 @@ const CopyCodeButton = ({ code }: { code: string }) => {
   }, [copied]);
 
   return (
-    <Button onClick={copyToClipboard} size="sm">
+    <Button onClick={handleCopyButtonClick} size="sm">
       <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
     </Button>
   );

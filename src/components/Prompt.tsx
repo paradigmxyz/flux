@@ -111,10 +111,10 @@ export function Prompt({
               borderLeftWidth={isLast ? "4px" : "0px"}
               position="relative"
               onMouseEnter={() =>
-                !(data.fluxNodeType === FluxNodeType.User) && setHoveredNodeId(node.id)
+                data.fluxNodeType !== FluxNodeType.User && setHoveredNodeId(node.id)
               }
               onMouseLeave={() =>
-                !(data.fluxNodeType === FluxNodeType.User) && setHoveredNodeId(null)
+                data.fluxNodeType !== FluxNodeType.User && setHoveredNodeId(null)
               }
               borderColor={getFluxNodeTypeDarkColor(data.fluxNodeType)}
               bg={getFluxNodeTypeColor(data.fluxNodeType)}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@chakra-ui/react";
+import { Button, Flex, Box } from "@chakra-ui/react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -45,21 +45,18 @@ const CopyCodeButton = ({ code }: { code: string }) => {
 
 const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "5px 10px",
-        backgroundColor: "#f5f5f5",
-        borderBottom: "1px solid #eee",
-        marginTop: "1em",
-        borderRadius: "4px 4px 0 0",
-      }}
+    <Flex
+      justifyContent="space-between"
+      alignItems="center"
+      padding="5px 10px"
+      backgroundColor="#f5f5f5"
+      borderBottom="1px solid #eee"
+      marginTop="1em"
+      borderRadius="4px 4px 0 0"
     >
       {language ? <div>{language}</div> : <div>plaintext</div>}
       <CopyCodeButton code={code} />
-    </div>
+    </Flex>
   );
 };
 
@@ -81,12 +78,7 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
   return (
     <>
       {before}
-      <div
-        style={{
-          borderRadius: "4px",
-          overflow: "hidden",
-        }}
-      >
+      <Box borderRadius="4px" overflow="hidden">
         <TitleBar language={language} code={code} />
         <SyntaxHighlighter
           language={language}
@@ -98,6 +90,7 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
           customStyle={{
             padding: "10px",
             margin: "0px",
+            borderRadius: "0 0 4px 4px",
           }}
           preProps={{
             style: {
@@ -107,7 +100,7 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
         >
           {code}
         </SyntaxHighlighter>
-      </div>
+      </Box>
       <TextAndCodeBlock text={after} />
     </>
   );

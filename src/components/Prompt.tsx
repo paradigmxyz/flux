@@ -19,6 +19,8 @@ export function Prompt({
   isGPT4,
   settings,
   setSettings,
+  elevenKey,
+  voiceID
 }: {
   lineage: Node<FluxNodeData>[];
   onType: (text: string) => void;
@@ -27,6 +29,8 @@ export function Prompt({
   newConnectedToSelectedNode: (type: FluxNodeType) => void;
   isGPT4: boolean;
   settings: Settings;
+  elevenKey: string | null;
+  voiceID: string | null;
   setSettings: (settings: Settings) => void;
 }) {
   const promptNode = lineage[0];

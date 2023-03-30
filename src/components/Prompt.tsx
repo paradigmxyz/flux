@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { Node } from "reactflow";
 import { Spinner, Text, Button } from "@chakra-ui/react";
 import TextareaAutosize from "react-textarea-autosize";
@@ -9,7 +8,7 @@ import { displayNameFromFluxNodeType } from "../utils/fluxNode";
 import { LabeledSlider } from "./utils/LabeledInputs";
 import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
-import { CopyCodeButton } from "./utils/CopyCodeButton";
+import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 
 export function Prompt({
   lineage,
@@ -77,34 +76,6 @@ export function Prompt({
                               APP
   //////////////////////////////////////////////////////////////*/
 
-  const renderCodeBlock = (text: string): React.ReactNode => {
-    const codeBlockRegex = /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
-    const match = codeBlockRegex.exec(text);
-
-    if (!match) {
-      return text;
-    }
-
-    const before = text.substring(0, match.index);
-
-    const languageLine = /^```[a-zA-Z0-9-]*$/m.exec(match[1]);
-    const language = languageLine ? languageLine[0].substring(3) : "plaintext";
-    const code = match[2].trim();
-
-    const after = text.substring(match.index + match[0].length);
-
-    return (
-      <>
-        {before}
-        <SyntaxHighlighter language={language} showLineNumbers>
-          {code}
-        </SyntaxHighlighter>
-        <CopyCodeButton code={code} />
-        {renderCodeBlock(after)}
-      </>
-    );
-  };
-
   return (
     <>
       {lineage
@@ -158,13 +129,13 @@ export function Prompt({
                     <>
                       <Column
                         width={"100%"}
-                        whiteSpace="pre-wrap" 
+                        whiteSpace="pre-wrap"
                         mainAxisAlignment="flex-start"
                         crossAxisAlignment="flex-start"
                         borderRadius="6px"
                       >
                         <>
-                          {(isEditing || data.fluxNodeType === FluxNodeType.User) ? (
+                          {isEditing || data.fluxNodeType === FluxNodeType.User ? (
                             <TextareaAutosize
                               id="promptBox"
                               style={{
@@ -183,7 +154,7 @@ export function Prompt({
                               }
                             />
                           ) : (
-                            renderCodeBlock(data.text)
+                            <TextAndCodeBlock text={data.text} />
                           )}
                           {!(data.fluxNodeType === FluxNodeType.User) && (
                             <Button
@@ -202,12 +173,12 @@ export function Prompt({
                     <>
                       <Column
                         width={"100%"}
-                        whiteSpace="pre-wrap" 
+                        whiteSpace="pre-wrap"
                         mainAxisAlignment="flex-start"
                         crossAxisAlignment="flex-start"
                         borderRadius="6px"
                       >
-                        {renderCodeBlock(data.text)}
+                        <TextAndCodeBlock text={data.text} />
                       </Column>
                     </>
                   )}

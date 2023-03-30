@@ -96,11 +96,6 @@ export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
             margin: "0px",
             borderRadius: "0 0 4px 4px",
           }}
-          preProps={{
-            style: {
-              margin: "0px",
-            },
-          }}
         >
           {code}
         </SyntaxHighlighter>

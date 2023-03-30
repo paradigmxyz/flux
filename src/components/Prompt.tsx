@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { Node } from "reactflow";
-import { Spinner, Text, Button, Flex } from "@chakra-ui/react";
+import { Spinner, Text, Button } from "@chakra-ui/react";
 import TextareaAutosize from "react-textarea-autosize";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
@@ -9,8 +8,7 @@ import { displayNameFromFluxNodeType } from "../utils/fluxNode";
 import { LabeledSlider } from "./utils/LabeledInputs";
 import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
-import { TTSButton } from "./utils/TTSButton";
-import { CopyCodeButton } from "./utils/CopyCodeButton";
+import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 
 export function Prompt({
   lineage,
@@ -21,8 +19,6 @@ export function Prompt({
   isGPT4,
   settings,
   setSettings,
-  elevenKey,
-  voiceID,
 }: {
   lineage: Node<FluxNodeData>[];
   onType: (text: string) => void;
@@ -32,8 +28,6 @@ export function Prompt({
   isGPT4: boolean;
   settings: Settings;
   setSettings: (settings: Settings) => void;
-  elevenKey: string | null;
-  voiceID: string | null;
 }) {
   const promptNode = lineage[0];
 
@@ -81,35 +75,6 @@ export function Prompt({
   /*//////////////////////////////////////////////////////////////
                               APP
   //////////////////////////////////////////////////////////////*/
-
-  const renderCodeBlock = (text: string): React.ReactNode => {
-    const codeBlockRegex = /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
-    const match = codeBlockRegex.exec(text);
-
-    if (!match) {
-      return text;
-    }
-
-    const before = text.substring(0, match.index);
-
-    // Get language name or use 'plaintext' as the default value
-    const languageLine = /^```[a-zA-Z0-9-]*$/m.exec(match[1]);
-    const language = languageLine ? languageLine[0].substring(3) : "plaintext";
-    const code = match[2].trim();
-
-    const after = text.substring(match.index + match[0].length);
-
-    return (
-      <>
-        {before}
-        <SyntaxHighlighter language={language} showLineNumbers>
-          {code}
-        </SyntaxHighlighter>
-        <CopyCodeButton code={code} />
-        {renderCodeBlock(after)}
-      </>
-    );
-  };
 
   return (
     <>
@@ -164,7 +129,7 @@ export function Prompt({
                     <>
                       <Column
                         width={"100%"}
-                        whiteSpace="pre-wrap" // Preserve newlines.
+                        whiteSpace="pre-wrap"
                         mainAxisAlignment="flex-start"
                         crossAxisAlignment="flex-start"
                         borderRadius="6px"
@@ -189,25 +154,18 @@ export function Prompt({
                               }
                             />
                           ) : (
-                            renderCodeBlock(data.text)
+                            <TextAndCodeBlock text={data.text} />
                           )}
-                          <Flex mt={5}>
-                            {!(data.fluxNodeType === FluxNodeType.User) && (
-                              <Button onClick={() => setIsEditing(!isEditing)} mr={2}>
-                                {isEditing ? "Done Editing" : "Edit"}
-                              </Button>
-                            )}
-                            {(data.fluxNodeType === FluxNodeType.GPT ||
-                              data.fluxNodeType === FluxNodeType.TweakedGPT) &&
-                              elevenKey &&
-                              voiceID && (
-                                <TTSButton
-                                  text={data.text}
-                                  voiceID={voiceID}
-                                  apiKey={elevenKey}
-                                />
-                              )}
-                          </Flex>
+                          {!(data.fluxNodeType === FluxNodeType.User) && (
+                            <Button
+                              onClick={() => setIsEditing(!isEditing)}
+                              mt={5}
+                              width="100%"
+                              alignSelf="center"
+                            >
+                              {isEditing ? "Done Editing" : "Edit"}
+                            </Button>
+                          )}
                         </>
                       </Column>
                     </>
@@ -215,12 +173,12 @@ export function Prompt({
                     <>
                       <Column
                         width={"100%"}
-                        whiteSpace="pre-wrap" // Preserve newlines.
+                        whiteSpace="pre-wrap"
                         mainAxisAlignment="flex-start"
                         crossAxisAlignment="flex-start"
                         borderRadius="6px"
                       >
-                        {renderCodeBlock(data.text)}
+                        <TextAndCodeBlock text={data.text} />
                       </Column>
                     </>
                   )}

@@ -30,7 +30,7 @@ import { useBeforeunload } from "react-beforeunload";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
 
-import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams-flux";
+import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
 
 import { Prompt } from "./Prompt";
 
@@ -907,7 +907,7 @@ function App() {
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}
                 selectionKeyCode={null}
-                multiSelectionKeyCode={null}
+                multiSelectionKeyCode="Shift"
                 panActivationKeyCode={null}
                 deleteKeyCode={null}
                 panOnDrag={false}

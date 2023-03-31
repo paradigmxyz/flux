@@ -51,7 +51,9 @@ export function Prompt({
                               STATE
   //////////////////////////////////////////////////////////////*/
 
-  const [isEditing, setIsEditing] = useState(promptNodeType === FluxNodeType.User);
+  const [isEditing, setIsEditing] = useState(
+    promptNodeType === FluxNodeType.User || promptNodeType === FluxNodeType.System
+  );
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   /*//////////////////////////////////////////////////////////////
@@ -83,8 +85,10 @@ export function Prompt({
       textOffsetRef.current = -1;
     }, 50);
 
-    // reset editing state
-    setIsEditing(promptNodeType === FluxNodeType.User);
+    // Reset editing state.
+    setIsEditing(
+      promptNodeType === FluxNodeType.User || promptNodeType === FluxNodeType.System
+    );
   }, [promptNode.id]);
 
   /*//////////////////////////////////////////////////////////////

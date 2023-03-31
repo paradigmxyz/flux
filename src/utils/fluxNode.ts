@@ -337,7 +337,5 @@ export function displayNameFromFluxNodeType(
       return `${label} (edited)`;
     case FluxNodeType.System:
       return "System";
-    default:
-      return "User";
   }
 }

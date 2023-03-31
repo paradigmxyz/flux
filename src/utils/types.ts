@@ -1,5 +1,5 @@
 import { ChatCompletionResponseMessage } from "openai-streams";
-import { Node, Edge } from "reactflow";
+import { Node, Edge, NodeProps } from "reactflow";
 
 export type FluxNodeData = {
   label: string;
@@ -13,7 +13,6 @@ export enum FluxNodeType {
   User = "User",
   GPT = "GPT",
   TweakedGPT = "GPT (tweaked)",
-  LabelUpdater = "LabelUpdater",
 }
 
 export type Settings = {
@@ -23,6 +22,10 @@ export type Settings = {
   temp: number;
   n: number;
 };
+
+export type NodeTypes = Record<NodeTypeNames, (args: NodeProps) => JSX.Element>;
+
+export type NodeTypeNames = "LabelUpdater";
 
 // The stream response is weird and has a delta instead of message field.
 export interface CreateChatCompletionStreamResponseChoicesInner {

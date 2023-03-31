@@ -1,4 +1,4 @@
-import { FluxNodeType, Settings } from "./types";
+import { FluxNodeType } from "./types";
 
 export function adjustColor(color: string, amount: number) {
   return (
@@ -23,8 +23,6 @@ export function getFluxNodeTypeColor(fluxNodeType: FluxNodeType) {
       return "#f7d0a1";
     case FluxNodeType.System:
       return "#C5E2F6";
-    case FluxNodeType.LabelUpdater:
-      return "#F6E05E";
   }
 }
 
@@ -38,7 +36,5 @@ export function getFluxNodeTypeDarkColor(fluxNodeType: FluxNodeType) {
       return "#CB7937";
     case FluxNodeType.System:
       return "#5F8AF7";
-    case FluxNodeType.LabelUpdater:
-      return "#C05621";
   }
 }

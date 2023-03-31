@@ -55,10 +55,6 @@ export function Prompt({
 
   const textOffsetRef = useRef<number>(-1);
 
-  useEffect(() => {
-    setIsEditing(promptNodeType === FluxNodeType.User);
-  }, [promptNode.id]);
-
   // Scroll to the prompt buttons
   // when the bottom node is swapped.
   useEffect(() => {
@@ -76,6 +72,9 @@ export function Prompt({
 
     // Default to moving to the start of the text.
     textOffsetRef.current = -1;
+
+    // reset editing state
+    setIsEditing(promptNodeType === FluxNodeType.User);
   }, [promptNode.id]);
 
   // adjust height when edit mode changes

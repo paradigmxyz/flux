@@ -69,18 +69,18 @@ export function Prompt({
       .getElementById("promptButtons")
       ?.scrollIntoView(/* { behavior: "smooth" } */);
 
-    // If the promptNode swap is not being triggered by a click.
-    if (textOffsetRef.current === -1) {
-      // Reset editing state.
-      setIsEditing(
-        promptNodeType === FluxNodeType.User || promptNodeType === FluxNodeType.System
-      );
-    }
+    // If the user clicked on the node, we assume they want to edit it.
+    // Otherwise, we only put them in edit mode if its a user or system node.
+    setIsEditing(
+      textOffsetRef.current !== -1 ||
+        promptNodeType === FluxNodeType.User ||
+        promptNodeType === FluxNodeType.System
+    );
+  }, [promptNode.id]);
 
-    // TODO: Really wish we didn't have to do this...
-    // is there an optimization we can make somewhere?
-    // Need a small timeout to ensure the text box is rendered.
-    setTimeout(() => {
+  // Focus the textbox when the user changes into edit mode.
+  useEffect(() => {
+    if (isEditing) {
       const promptBox = window.document.getElementById(
         "promptBox"
       ) as HTMLTextAreaElement | null;
@@ -89,10 +89,10 @@ export function Prompt({
       promptBox?.setSelectionRange(textOffsetRef.current, textOffsetRef.current);
       promptBox?.focus();
 
-      // Default to moving to the start of the text.
+      // Default to moving to the end of the text.
       textOffsetRef.current = -1;
-    }, 50);
-  }, [promptNode.id]);
+    }
+  }, [promptNode.id, isEditing]);
 
   /*//////////////////////////////////////////////////////////////
                               APP

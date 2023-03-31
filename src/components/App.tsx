@@ -87,10 +87,10 @@ import { NavigationBar } from "./utils/NavigationBar";
 import { useDebouncedEffect } from "../utils/debounce";
 import { useDebouncedWindowResize } from "../utils/resize";
 import { getQueryParam, resetURL } from "../utils/qparams";
+import { copyMessagesToClipboard } from "../utils/clipboard";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
-import { copyMessagesToClipboard } from "../utils/clipboard";
 
 function App() {
   const toast = useToast();
@@ -797,9 +797,11 @@ function App() {
   );
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys("ctrl+c", () => {
-    copyMessagesToClipboard(selectedNodeLineage, settings);
-  }, HOTKEY_CONFIG);
+  useHotkeys(
+    "ctrl+c",
+    () => copyMessagesToClipboard(selectedNodeLineage, settings),
+    HOTKEY_CONFIG
+  );
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -870,7 +872,10 @@ function App() {
                   undo={undo}
                   redo={redo}
                   onClear={onClear}
-                  copyMessagesToClipboard={copyMessagesToClipboard(selectedNodeLineage, settings)}
+                  copyMessagesToClipboard={copyMessagesToClipboard(
+                    selectedNodeLineage,
+                    settings
+                  )}
                   moveToParent={moveToParent}
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}

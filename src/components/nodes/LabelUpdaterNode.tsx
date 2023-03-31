@@ -1,10 +1,12 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Box, Input } from "@chakra-ui/react";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Handle, Position, useReactFlow } from "reactflow";
 import { Row } from "../../utils/chakra";
 import { modifyFluxNodeLabel, modifyFluxNodeType } from "../../utils/fluxNode";
 import { FluxNodeData } from "../../utils/types";
+import { useHotkeys } from "react-hotkeys-hook";
+import { HOTKEY_CONFIG } from "../../utils/constants";
 
 export function LabelUpdaterNode({
   id,
@@ -39,54 +41,43 @@ export function LabelUpdaterNode({
     );
   };
 
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    renameNode();
-  };
+  useHotkeys("return", renameNode, HOTKEY_CONFIG);
+  useHotkeys("escape", cancel, HOTKEY_CONFIG);
 
   useEffect(() => {
     function handleClick(event: any) {
       if (renameBlockRef.current && !renameBlockRef.current.contains(event.target)) {
-        cancel();
+        renameNode();
       }
     }
-    function handleClose(event: any) {
-      if (event.key === "Escape") cancel();
-    }
 
-    // Bind the event listeners
+    // Bind the event listener
     document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleClose);
     return () => {
-      // Unbind the event listeners on clean up
+      // Unbind the event listener on clean up
       document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleClose);
     };
   }, [renameBlockRef]);
 
   useEffect(() => {
     // select the input element on mount
     const input = document.getElementById(renameInputId) as HTMLInputElement;
-    if (input) {
-      input.select();
-    }
+    input.select();
   }, []);
 
   return (
     <Box width={150} height={38} ref={renameBlockRef}>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
-        <form style={{ marginBottom: "2px" }} onSubmit={submit}>
-          <Input
-            id={renameInputId}
-            value={renameLabel}
-            onChange={(e: any) => setRenameLabel(e.target.value)}
-            textAlign="center"
-            size="xs"
-            px={6}
-            className="nodrag"
-          />
-        </form>
+        <Input
+          id={renameInputId}
+          value={renameLabel}
+          onChange={(e: any) => setRenameLabel(e.target.value)}
+          textAlign="center"
+          size="xs"
+          px={6}
+          className="nodrag"
+        />
 
         <Row
           mainAxisAlignment="center"

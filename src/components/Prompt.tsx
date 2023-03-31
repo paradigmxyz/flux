@@ -119,9 +119,10 @@ export function Prompt({
               onMouseLeave={() => setHoveredNodeId(null)}
               bg={getFluxNodeTypeColor(data.fluxNodeType)}
               key={node.id}
-              {...(!isLast
-                ? {
-                    onClick: () => {
+              onClick={
+                isLast
+                  ? undefined
+                  : () => {
                       const selection = window.getSelection();
 
                       // We don't want to trigger the selection
@@ -131,10 +132,9 @@ export function Prompt({
 
                         selectNode(node.id);
                       }
-                    },
-                    cursor: "pointer",
-                  }
-                : {})}
+                    }
+              }
+              cursor={isLast && isEditing ? "text" : "pointer"}
             >
               {data.generating && data.text === "" ? (
                 <Center expand>
@@ -172,6 +172,7 @@ export function Prompt({
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"
                     wordBreak="break-word"
+                    onClick={isEditing ? undefined : () => setIsEditing(true)}
                   >
                     {isLast && isEditing ? (
                       <TextareaAutosize

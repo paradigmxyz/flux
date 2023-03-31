@@ -26,7 +26,9 @@ const getNextCodeBlockMatch = (text: string) => {
 const CopyCodeButton = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopyButtonClick = async () => {
+  const handleCopyButtonClick = async (e: MouseEvent) => {
+    e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
+
     const result = await copySnippetToClipboard(code);
     if (result) {
       setCopied(true);

@@ -67,16 +67,21 @@ export function Prompt({
       .getElementById("promptButtons")
       ?.scrollIntoView(/* { behavior: "smooth" } */);
 
-    const promptBox = window.document.getElementById(
-      "promptBox"
-    ) as HTMLTextAreaElement | null;
+    // TODO: Really wish we didn't have to do this...
+    // is there an optimization we can make somewhere?
+    // Need a small timeout to ensure the text box is rendered.
+    setTimeout(() => {
+      const promptBox = window.document.getElementById(
+        "promptBox"
+      ) as HTMLTextAreaElement | null;
 
-    // Focus the text box and move the cursor to chosen offset (defaults to end).
-    promptBox?.setSelectionRange(textOffsetRef.current, textOffsetRef.current);
-    promptBox?.focus();
+      // Focus the text box and move the cursor to chosen offset (defaults to end).
+      promptBox?.setSelectionRange(textOffsetRef.current, textOffsetRef.current);
+      promptBox?.focus();
 
-    // Default to moving to the start of the text.
-    textOffsetRef.current = -1;
+      // Default to moving to the start of the text.
+      textOffsetRef.current = -1;
+    }, 50);
 
     // reset editing state
     setIsEditing(promptNodeType === FluxNodeType.User);

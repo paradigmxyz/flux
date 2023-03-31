@@ -49,7 +49,7 @@ import {
   isFluxNodeInLineage,
   addFluxNode,
   modifyFluxNodeText,
-  modifyFluxNode,
+  modifyFluxNodeType,
   getFluxNodeChildren,
   getFluxNodeParent,
   getFluxNodeSiblings,
@@ -776,7 +776,7 @@ function App() {
 
     if (nodeId) {
       setNodes((nodes) =>
-        modifyFluxNode(nodes, {
+        modifyFluxNodeType(nodes, {
           id: nodeId,
           type: FluxNodeType.LabelUpdater,
           draggable: false,

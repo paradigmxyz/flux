@@ -107,14 +107,14 @@ export function addUserNodeLinkedToASystemNode(
   return nodesCopy;
 }
 
-export function modifyFluxNode(
+export function modifyFluxNodeType(
   existingNodes: Node<FluxNodeData>[],
-  nodeOptions: Partial<Node>
+  { id, type, draggable = true }: { id: string; type?: FluxNodeType; draggable?: boolean }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
-    if (node.id !== nodeOptions.id) return node;
+    if (node.id !== id) return node;
 
-    const copy = { ...node, data: { ...node.data }, ...nodeOptions };
+    const copy = { ...node, data: { ...node.data }, type, draggable };
 
     return copy;
   });

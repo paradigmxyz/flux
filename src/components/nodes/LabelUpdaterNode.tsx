@@ -47,7 +47,7 @@ export function LabelUpdaterNode({
   useEffect(() => {
     function handleClick(event: any) {
       if (renameBlockRef.current && !renameBlockRef.current.contains(event.target)) {
-        renameNode();
+        cancel();
       }
     }
 

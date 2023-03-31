@@ -1,4 +1,4 @@
-import { MouseEvent, useState, useEffect } from "react";
+import { MouseEvent, useState, useEffect, memo } from "react";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -69,7 +69,7 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
   );
 };
 
-export const TextAndCodeBlock = ({ text }: { text: string }) => {
+export const TextAndCodeBlock = memo(({ text }: { text: string }) => {
   const match = getNextCodeBlockMatch(text);
 
   if (!match) {
@@ -108,4 +108,4 @@ export const TextAndCodeBlock = ({ text }: { text: string }) => {
       <TextAndCodeBlock text={after} />
     </Box>
   );
-};
+});

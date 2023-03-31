@@ -90,6 +90,7 @@ import { getQueryParam, resetURL } from "../utils/qparams";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { copyMessagesToClipboard } from "../utils/clipboard";
 
 function App() {
   const toast = useToast();
@@ -753,16 +754,6 @@ function App() {
   });
 
   /*//////////////////////////////////////////////////////////////
-                        COPY MESSAGES LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  const copyMessagesToClipboard = () => {
-    const messages = promptFromLineage(selectedNodeLineage, settings);
-
-    if (messages) navigator.clipboard.writeText(messages);
-  };
-
-  /*//////////////////////////////////////////////////////////////
                         WINDOW RESIZE LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -806,8 +797,9 @@ function App() {
   );
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-
-  useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys("ctrl+c", () => {
+    copyMessagesToClipboard(selectedNodeLineage, settings);
+  }, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -878,7 +870,7 @@ function App() {
                   undo={undo}
                   redo={redo}
                   onClear={onClear}
-                  copyMessagesToClipboard={copyMessagesToClipboard}
+                  copyMessagesToClipboard={copyMessagesToClipboard(selectedNodeLineage, settings)}
                   moveToParent={moveToParent}
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}

@@ -1,3 +1,7 @@
+import { Node } from "reactflow";
+import { promptFromLineage } from "./prompt";
+import { FluxNodeData, Settings } from "./types";
+
 export const copyToClipboard = async (code: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(code);
@@ -6,4 +10,13 @@ export const copyToClipboard = async (code: string): Promise<boolean> => {
     console.error("Failed to copy to clipboard", err);
     return false;
   }
+};
+
+export const copyMessagesToClipboard = (
+  selectedNodeLineage: Array<Node<FluxNodeData>>,
+  settings: Settings
+) => () => {
+  const messages = promptFromLineage(selectedNodeLineage, settings);
+
+  if (messages) navigator.clipboard.writeText(messages);
 };

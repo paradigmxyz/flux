@@ -3,7 +3,7 @@ import { MouseEvent, useState, useEffect, memo } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import { Button, Box } from "@chakra-ui/react";
+import { Button, Box, Text } from "@chakra-ui/react";
 
 import { CopyIcon } from "@chakra-ui/icons";
 
@@ -60,7 +60,6 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
       padding="5px 10px"
       backgroundColor="#f5f5f5"
       borderBottom="1px solid #eee"
-      marginTop={4}
       borderRadius="6px"
     >
       {language ? <Box>{language}</Box> : <Box>plaintext</Box>}
@@ -73,7 +72,7 @@ export const TextAndCodeBlock = memo(({ text }: { text: string }) => {
   const match = getNextCodeBlockMatch(text);
 
   if (!match) {
-    return <>{text}</>;
+    return <Text>{text}</Text>;
   }
 
   const before = text.substring(0, match.index);
@@ -86,7 +85,7 @@ export const TextAndCodeBlock = memo(({ text }: { text: string }) => {
 
   return (
     <Box width="100%">
-      {before}
+      {before.length > 0 ? <Text mb={4}>{before}</Text> : null}
       <Box borderRadius="4px" overflow="hidden">
         <TitleBar language={language} code={code} />
         <SyntaxHighlighter

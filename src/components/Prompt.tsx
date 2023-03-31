@@ -69,6 +69,14 @@ export function Prompt({
       .getElementById("promptButtons")
       ?.scrollIntoView(/* { behavior: "smooth" } */);
 
+    // If the promptNode swap is not being triggered by a click.
+    if (textOffsetRef.current === -1) {
+      // Reset editing state.
+      setIsEditing(
+        promptNodeType === FluxNodeType.User || promptNodeType === FluxNodeType.System
+      );
+    }
+
     // TODO: Really wish we didn't have to do this...
     // is there an optimization we can make somewhere?
     // Need a small timeout to ensure the text box is rendered.
@@ -84,11 +92,6 @@ export function Prompt({
       // Default to moving to the start of the text.
       textOffsetRef.current = -1;
     }, 50);
-
-    // Reset editing state.
-    setIsEditing(
-      promptNodeType === FluxNodeType.User || promptNodeType === FluxNodeType.System
-    );
   }, [promptNode.id]);
 
   /*//////////////////////////////////////////////////////////////
@@ -134,6 +137,7 @@ export function Prompt({
                         textOffsetRef.current = selection.anchorOffset ?? 0;
 
                         selectNode(node.id);
+                        setIsEditing(true);
                       }
                     }
               }

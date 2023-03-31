@@ -22,6 +22,7 @@ export function LabelUpdaterNode({
 
   const cancel = () => {
     setNodes((nodes) =>
+      // Reset the node type to the original type
       modifyFluxNodeType(nodes, {
         id,
       })

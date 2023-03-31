@@ -173,28 +173,24 @@ export function Prompt({
                     borderRadius="6px"
                     wordBreak="break-word"
                   >
-                    {isLast ? (
-                      isEditing ? (
-                        <TextareaAutosize
-                          id="promptBox"
-                          style={{
-                            width: "100%",
-                            backgroundColor: "transparent",
-                            outline: "none",
-                          }}
-                          value={data.text ?? ""}
-                          onChange={(e) => onType(e.target.value)}
-                          placeholder={
-                            data.fluxNodeType === FluxNodeType.User
-                              ? "Write a poem about..."
-                              : data.fluxNodeType === FluxNodeType.System
-                              ? "You are ChatGPT..."
-                              : undefined
-                          }
-                        />
-                      ) : (
-                        <TextAndCodeBlock text={data.text} />
-                      )
+                    {isLast && isEditing ? (
+                      <TextareaAutosize
+                        id="promptBox"
+                        style={{
+                          width: "100%",
+                          backgroundColor: "transparent",
+                          outline: "none",
+                        }}
+                        value={data.text ?? ""}
+                        onChange={(e) => onType(e.target.value)}
+                        placeholder={
+                          data.fluxNodeType === FluxNodeType.User
+                            ? "Write a poem about..."
+                            : data.fluxNodeType === FluxNodeType.System
+                            ? "You are ChatGPT..."
+                            : undefined
+                        }
+                      />
                     ) : (
                       <TextAndCodeBlock text={data.text} />
                     )}

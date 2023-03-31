@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import ReactFlow, {
   addEdge,
@@ -246,6 +246,10 @@ function App() {
                           AI PROMPT CALLBACKS
   //////////////////////////////////////////////////////////////*/
 
+  // This prevents us from getting responses from old streams.
+  // This is mapped by the id of the node and an incrementing stream id.
+  const nodeStreamIdMapRef = useRef<Map<string, number>>(new Map());
+
   // Takes a prompt, submits it to the GPT API with n responses,
   // then creates a child node for each response under the selected node.
   const submitPrompt = async () => {
@@ -319,6 +323,11 @@ function App() {
 
     if (firstCompletionId === undefined) throw new Error("No first completion id!");
 
+    // Update the current stream identifier
+    const currentNodeStreamId = (nodeStreamIdMapRef.current.get(parentNodeId) || 0) + 1;
+    nodeStreamIdMapRef.current.set(parentNodeId, currentNodeStreamId);
+    const thisStreamId = currentNodeStreamId;
+
     (async () => {
       const stream = await OpenAI(
         "chat",
@@ -360,10 +369,19 @@ function App() {
           // choice with only a role delta and no content.
           if (choice.delta?.content) {
             setNodes((newerNodes) => {
-              return appendTextToFluxNodeAsGPT(newerNodes, {
-                id: correspondingNodeId,
-                text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
-              });
+              const currentNodeStreamId = nodeStreamIdMapRef.current.get(parentNodeId);
+
+              // If the stream ID is up to date, then we can update the node.
+              if (currentNodeStreamId && currentNodeStreamId === thisStreamId) {
+                return appendTextToFluxNodeAsGPT(newerNodes, {
+                  id: correspondingNodeId,
+                  text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
+                });
+              // If the stream ID does not match, it is stale and we ignore.
+              } else {
+                // console.log(`Skipping update for node ${correspondingNodeId} because ${thisStreamId} !== ${currentNodeStreamId}`);
+                return newerNodes;
+              }
             });
           }
 

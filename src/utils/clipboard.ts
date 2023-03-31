@@ -2,7 +2,7 @@ import { Node } from "reactflow";
 import { promptFromLineage } from "./prompt";
 import { FluxNodeData, Settings } from "./types";
 
-export const copyToClipboard = async (code: string): Promise<boolean> => {
+export const copySnippetToClipboard = async (code: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(code);
     return true;

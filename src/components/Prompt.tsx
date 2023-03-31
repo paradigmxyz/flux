@@ -77,7 +77,6 @@ export function Prompt({
     setIsEditing(promptNodeType === FluxNodeType.User);
   }, [promptNode.id]);
 
-
   /*//////////////////////////////////////////////////////////////
                               APP
   //////////////////////////////////////////////////////////////*/
@@ -131,7 +130,11 @@ export function Prompt({
               ) : (
                 <>
                   <Button
-                    display={hoveredNodeId === promptNode.id && promptNode.id === node.id ? "block" : "none"}
+                    display={
+                      hoveredNodeId === promptNode.id && promptNode.id === node.id
+                        ? "block"
+                        : "none"
+                    }
                     onClick={() => setIsEditing(!isEditing)}
                     position="absolute"
                     top={1}
@@ -142,11 +145,7 @@ export function Prompt({
                     _hover={{ bg: "transparent" }}
                     p="1"
                   >
-                    {isEditing ? (
-                      <CheckIcon boxSize={4} />
-                    ) : (
-                      <EditIcon boxSize={4} />
-                    )}
+                    {isEditing ? <CheckIcon boxSize={4} /> : <EditIcon boxSize={4} />}
                   </Button>
                   <Text fontWeight="bold" width="auto" whiteSpace="nowrap">
                     {displayNameFromFluxNodeType(data.fluxNodeType)}

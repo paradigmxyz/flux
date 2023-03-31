@@ -162,7 +162,7 @@ export function modifyFluxNodeLabel(
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
 
-    const copy = { ...node, data: { ...node.data, label }, type };
+    const copy = { ...node, data: { ...node.data, label }, type, draggable: undefined };
 
     return copy;
   });

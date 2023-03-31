@@ -19,6 +19,7 @@ export function LabelUpdaterNode({
 
   const [renameLabel, setRenameLabel] = useState(data.label);
   const renameBlockRef = useRef<HTMLInputElement>(null);
+  const renameInputId = `rename-${id}`;
 
   const cancel = () => {
     setNodes((nodes) =>
@@ -65,7 +66,7 @@ export function LabelUpdaterNode({
 
   useEffect(() => {
     // select the input element on mount
-    const input = renameBlockRef.current?.querySelector("input");
+    const input = document.getElementById(renameInputId) as HTMLInputElement;
     if (input) {
       input.select();
     }
@@ -77,12 +78,13 @@ export function LabelUpdaterNode({
       <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
         <form style={{ marginBottom: "2px" }} onSubmit={submit}>
           <Input
+            id={renameInputId}
             value={renameLabel}
             onChange={(e: any) => setRenameLabel(e.target.value)}
             textAlign="center"
             size="xs"
-            className="nodrag"
             px={6}
+            className="nodrag"
           />
         </form>
 

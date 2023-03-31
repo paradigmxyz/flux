@@ -164,7 +164,7 @@ export function Prompt({
                     variant="outline"
                     border="0px"
                     _hover={{ background: "none" }}
-                    p="1"
+                    p={1}
                   >
                     {isEditing ? <ViewIcon boxSize={4} /> : <EditIcon boxSize={4} />}
                   </Button>

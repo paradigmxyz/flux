@@ -158,6 +158,7 @@ export function Prompt({
                     mainAxisAlignment="flex-start"
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"
+                    wordBreak="break-word"
                   >
                     {isLast ? (
                       isEditing ? (

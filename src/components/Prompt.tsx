@@ -161,7 +161,7 @@ export function Prompt({
                   </Text>
                   <Column
                     width="100%"
-                    marginRight="50px"
+                    marginRight="35px"
                     whiteSpace="pre-wrap"
                     mainAxisAlignment="flex-start"
                     crossAxisAlignment="flex-start"

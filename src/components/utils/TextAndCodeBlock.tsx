@@ -24,10 +24,7 @@ const CopyCodeButton = ({ code }: { code: string }) => {
   const handleCopyButtonClick = async (e: MouseEvent) => {
     e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
 
-    const result = await copySnippetToClipboard(code);
-    if (result) {
-      setCopied(true);
-    }
+    if (await copySnippetToClipboard(code)) setCopied(true);
   };
 
   useEffect(() => {

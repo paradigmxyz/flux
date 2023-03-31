@@ -75,6 +75,7 @@ import {
   NEW_TREE_CONTENT_QUERY_PARAM,
   OVERLAP_RANDOMNESS_MAX,
   REACT_FLOW_LOCAL_STORAGE_KEY,
+  TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
 } from "../utils/constants";
 import { mod } from "../utils/mod";
@@ -87,7 +88,7 @@ import { NavigationBar } from "./utils/NavigationBar";
 import { useDebouncedEffect } from "../utils/debounce";
 import { useDebouncedWindowResize } from "../utils/resize";
 import { getQueryParam, resetURL } from "../utils/qparams";
-import { copyMessagesToClipboard } from "../utils/clipboard";
+import { copySnippetToClipboard } from "../utils/clipboard";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
@@ -407,9 +408,7 @@ function App() {
       toast({
         title: err.toString(),
         status: "error",
-        isClosable: true,
-        variant: "left-accent",
-        position: "bottom-left",
+        ...TOAST_CONFIG,
       })
     );
 
@@ -760,6 +759,28 @@ function App() {
   useDebouncedWindowResize(autoZoomIfNecessary, 100);
 
   /*//////////////////////////////////////////////////////////////
+                        MESSAGE COPY LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  const copyMessagesToClipboard = async () => {
+    const messages = promptFromLineage(selectedNodeLineage, settings);
+
+    if (await copySnippetToClipboard(messages)) {
+      toast({
+        title: "Copied messages to clipboard!",
+        status: "success",
+        ...TOAST_CONFIG,
+      });
+    } else {
+      toast({
+        title: "Failed to copy messages to clipboard!",
+        status: "error",
+        ...TOAST_CONFIG,
+      });
+    }
+  };
+
+  /*//////////////////////////////////////////////////////////////
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -797,11 +818,7 @@ function App() {
   );
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys(
-    "ctrl+c",
-    () => copyMessagesToClipboard(selectedNodeLineage, settings),
-    HOTKEY_CONFIG
-  );
+  useHotkeys("ctrl+c", async () => {}, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -872,10 +889,7 @@ function App() {
                   undo={undo}
                   redo={redo}
                   onClear={onClear}
-                  copyMessagesToClipboard={copyMessagesToClipboard(
-                    selectedNodeLineage,
-                    settings
-                  )}
+                  copyMessagesToClipboard={copyMessagesToClipboard}
                   moveToParent={moveToParent}
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}

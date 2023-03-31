@@ -77,19 +77,6 @@ export function Prompt({
     setIsEditing(promptNodeType === FluxNodeType.User);
   }, [promptNode.id]);
 
-  // adjust height when edit mode changes
-  // ensures no unsightly scrollbars, the intended effect of TextareaAutosize.
-  useEffect(() => {
-    if (isEditing) {
-      const promptBox = document.getElementById(
-        "promptBox"
-      ) as HTMLTextAreaElement | null;
-      if (promptBox) {
-        promptBox.style.height = "inherit";
-        promptBox.style.height = `${promptBox.scrollHeight}px`;
-      }
-    }
-  }, [isEditing]);
 
   /*//////////////////////////////////////////////////////////////
                               APP

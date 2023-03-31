@@ -1,15 +1,20 @@
-import { useState, useEffect, useRef } from "react";
 import { Node } from "reactflow";
+
+import { useState, useEffect, useRef } from "react";
+
 import { Spinner, Text, Button } from "@chakra-ui/react";
-import { EditIcon, CheckIcon } from "@chakra-ui/icons";
+
+import { EditIcon, ViewIcon } from "@chakra-ui/icons";
+
 import TextareaAutosize from "react-textarea-autosize";
+
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { displayNameFromFluxNodeType } from "../utils/fluxNode";
 import { LabeledSlider } from "./utils/LabeledInputs";
 import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
-import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 
 export function Prompt({
   lineage,
@@ -100,10 +105,13 @@ export function Prompt({
               crossAxisAlignment="flex-start"
               borderRadius="6px"
               borderLeftWidth={isLast ? "4px" : "0px"}
+              _hover={{
+                boxShadow: isLast ? "none" : "0 0 0 0.5px #1a192b",
+              }}
+              borderColor={getFluxNodeTypeDarkColor(data.fluxNodeType)}
               position="relative"
               onMouseEnter={() => setHoveredNodeId(node.id)}
               onMouseLeave={() => setHoveredNodeId(null)}
-              borderColor={getFluxNodeTypeDarkColor(data.fluxNodeType)}
               bg={getFluxNodeTypeColor(data.fluxNodeType)}
               key={node.id}
               {...(!isLast
@@ -142,10 +150,10 @@ export function Prompt({
                     zIndex={10}
                     variant="outline"
                     border="0px"
-                    _hover={{ bg: "transparent" }}
+                    _hover={{ background: "none" }}
                     p="1"
                   >
-                    {isEditing ? <CheckIcon boxSize={4} /> : <EditIcon boxSize={4} />}
+                    {isEditing ? <ViewIcon boxSize={4} /> : <EditIcon boxSize={4} />}
                   </Button>
                   <Text fontWeight="bold" width="auto" whiteSpace="nowrap">
                     {displayNameFromFluxNodeType(data.fluxNodeType)}
@@ -153,7 +161,7 @@ export function Prompt({
                   </Text>
                   <Column
                     width="100%"
-                    marginRight="35px"
+                    marginRight="30px"
                     whiteSpace="pre-wrap"
                     mainAxisAlignment="flex-start"
                     crossAxisAlignment="flex-start"

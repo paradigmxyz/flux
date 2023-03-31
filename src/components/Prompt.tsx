@@ -109,7 +109,6 @@ export function Prompt({
             <Row
               mb={2}
               p={3}
-              whiteSpace="pre-wrap" // Preserve newlines.
               mainAxisAlignment="flex-start"
               crossAxisAlignment="flex-start"
               borderRadius="6px"
@@ -171,7 +170,7 @@ export function Prompt({
                   <Column
                     width="100%"
                     marginRight="30px"
-                    whiteSpace="pre-wrap"
+                    whiteSpace="pre-wrap" // Preserve newlines.
                     mainAxisAlignment="flex-start"
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"

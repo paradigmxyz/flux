@@ -42,7 +42,7 @@ const CopyCodeButton = ({ code }: { code: string }) => {
       onClick={handleCopyButtonClick}
       size="sm"
       variant="ghost"
-      _hover={{ background: "none" }}
+      _hover={{ background: "#EEEEEE" }}
     >
       <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
     </Button>

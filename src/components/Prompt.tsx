@@ -134,6 +134,7 @@ export function Prompt({
                       // We don't want to trigger the selection
                       // if they're just selecting/copying text.
                       if (selection?.isCollapsed) {
+                        // TODO: Note this is basically broken because of codeblocks.
                         textOffsetRef.current = selection.anchorOffset ?? 0;
 
                         selectNode(node.id);

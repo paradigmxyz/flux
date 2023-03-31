@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { MouseEvent, useState, useEffect } from "react";
 import { Button, Box } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row } from "../../utils/chakra";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { CODE_BLOCK_DETECT_REGEX, CODE_BLOCK_LANGUAGE_DETECT_REGEX } from "../../utils/constants";
+import {
+  CODE_BLOCK_DETECT_REGEX,
+  CODE_BLOCK_LANGUAGE_DETECT_REGEX,
+} from "../../utils/constants";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 
 interface CodeBlockProps {
@@ -38,7 +41,12 @@ const CopyCodeButton = ({ code }: { code: string }) => {
   }, [copied]);
 
   return (
-    <Button onClick={handleCopyButtonClick} size="sm">
+    <Button
+      onClick={handleCopyButtonClick}
+      size="sm"
+      variant="ghost"
+      _hover={{ background: "none" }}
+    >
       <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
     </Button>
   );
@@ -55,8 +63,8 @@ const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
       padding="5px 10px"
       backgroundColor="#f5f5f5"
       borderBottom="1px solid #eee"
-      marginTop="1em"
-      borderRadius="4px 4px 0 0"
+      marginTop={4}
+      borderRadius="6px"
     >
       {language ? <Box>{language}</Box> : <Box>plaintext</Box>}
       <CopyCodeButton code={code} />

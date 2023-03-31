@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Node } from "reactflow";
-import { Spinner, Text, Button, Box, IconButton } from "@chakra-ui/react";
+import { Spinner, Text, Button } from "@chakra-ui/react";
 import { EditIcon, CheckIcon } from "@chakra-ui/icons";
 import TextareaAutosize from "react-textarea-autosize";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
@@ -46,7 +46,7 @@ export function Prompt({
                               STATE
   //////////////////////////////////////////////////////////////*/
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(promptNodeType === FluxNodeType.User);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   /*//////////////////////////////////////////////////////////////
@@ -54,6 +54,10 @@ export function Prompt({
   //////////////////////////////////////////////////////////////*/
 
   const textOffsetRef = useRef<number>(-1);
+
+  useEffect(() => {
+    setIsEditing(promptNodeType === FluxNodeType.User);
+  }, [promptNode.id]);
 
   // Scroll to the prompt buttons
   // when the bottom node is swapped.
@@ -78,7 +82,9 @@ export function Prompt({
   // ensures no unsightly scrollbars, the intended effect of TextareaAutosize.
   useEffect(() => {
     if (isEditing) {
-      const promptBox = document.getElementById("promptBox") as HTMLTextAreaElement | null;
+      const promptBox = document.getElementById(
+        "promptBox"
+      ) as HTMLTextAreaElement | null;
       if (promptBox) {
         promptBox.style.height = "inherit";
         promptBox.style.height = `${promptBox.scrollHeight}px`;
@@ -110,12 +116,8 @@ export function Prompt({
               borderRadius="6px"
               borderLeftWidth={isLast ? "4px" : "0px"}
               position="relative"
-              onMouseEnter={() =>
-                data.fluxNodeType !== FluxNodeType.User && setHoveredNodeId(node.id)
-              }
-              onMouseLeave={() =>
-                data.fluxNodeType !== FluxNodeType.User && setHoveredNodeId(null)
-              }
+              onMouseEnter={() => setHoveredNodeId(node.id)}
+              onMouseLeave={() => setHoveredNodeId(null)}
               borderColor={getFluxNodeTypeDarkColor(data.fluxNodeType)}
               bg={getFluxNodeTypeColor(data.fluxNodeType)}
               key={node.id}
@@ -143,7 +145,7 @@ export function Prompt({
               ) : (
                 <>
                   <Button
-                    display={hoveredNodeId === node.id ? "block" : "none"}
+                    display={hoveredNodeId === promptNode.id && promptNode.id === node.id ? "block" : "none"}
                     onClick={() => setIsEditing(!isEditing)}
                     position="absolute"
                     top={1}
@@ -151,9 +153,14 @@ export function Prompt({
                     zIndex={10}
                     variant="outline"
                     border="0px"
+                    _hover={{ bg: "transparent" }}
                     p="1"
                   >
-                    {(isEditing && hoveredNodeId === node.id) ? <CheckIcon boxSize={4} /> : <EditIcon boxSize={4} />}
+                    {isEditing ? (
+                      <CheckIcon boxSize={4} />
+                    ) : (
+                      <EditIcon boxSize={4} />
+                    )}
                   </Button>
                   <Text fontWeight="bold" width="auto" whiteSpace="nowrap">
                     {displayNameFromFluxNodeType(data.fluxNodeType)}
@@ -168,7 +175,7 @@ export function Prompt({
                     borderRadius="6px"
                   >
                     {isLast ? (
-                      isEditing || data.fluxNodeType === FluxNodeType.User ? (
+                      isEditing ? (
                         <TextareaAutosize
                           id="promptBox"
                           style={{

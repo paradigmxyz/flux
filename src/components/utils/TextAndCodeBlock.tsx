@@ -1,23 +1,18 @@
 import { MouseEvent, useState, useEffect } from "react";
-import { Button, Box } from "@chakra-ui/react";
-import { CopyIcon } from "@chakra-ui/icons";
-import { Row } from "../../utils/chakra";
+
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+import { Button, Box } from "@chakra-ui/react";
+
+import { CopyIcon } from "@chakra-ui/icons";
+
 import {
   CODE_BLOCK_DETECT_REGEX,
   CODE_BLOCK_LANGUAGE_DETECT_REGEX,
 } from "../../utils/constants";
+import { Row } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
-
-interface CodeBlockProps {
-  text: string;
-}
-
-interface TitleBarProps {
-  language?: string;
-  code: string;
-}
 
 const getNextCodeBlockMatch = (text: string) => {
   return CODE_BLOCK_DETECT_REGEX.exec(text);
@@ -54,7 +49,7 @@ const CopyCodeButton = ({ code }: { code: string }) => {
   );
 };
 
-const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
+const TitleBar = ({ language, code }: { language?: string; code: string }) => {
   return (
     <Row
       mainAxisAlignment="flex-start"
@@ -74,7 +69,7 @@ const TitleBar: React.FC<TitleBarProps> = ({ language, code }) => {
   );
 };
 
-export const TextAndCodeBlock: React.FC<CodeBlockProps> = ({ text }) => {
+export const TextAndCodeBlock = ({ text }: { text: string }) => {
   const match = getNextCodeBlockMatch(text);
 
   if (!match) {

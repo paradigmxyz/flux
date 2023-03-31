@@ -377,9 +377,11 @@ function App() {
                   id: correspondingNodeId,
                   text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
                 });
-              // If the stream ID does not match, it is stale and we ignore.
+              // If the stream ID does not match, it is stale and we should cancel it.
               } else {
-                // console.log(`Skipping update for node ${correspondingNodeId} because ${thisStreamId} !== ${currentNodeStreamId}`);
+                // console.log(`Cancelling stream for node ${correspondingNodeId} because ${thisStreamId} doesn't match ${currentNodeStreamId}`);
+                
+                if (!stream.locked) stream.cancel()
                 return newerNodes;
               }
             });

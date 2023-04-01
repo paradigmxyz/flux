@@ -1,7 +1,19 @@
 import { UseToastOptions } from "@chakra-ui/toast";
+
 import { Options } from "react-hotkeys-hook";
 
-import { Settings } from "./types";
+import { NodeProps } from "reactflow";
+
+import { ReactFlowNodeTypes, Settings } from "./types";
+
+import { LabelUpdaterNode } from "../components/nodes/LabelUpdaterNode";
+
+export const REACT_FLOW_NODE_TYPES: Record<
+  ReactFlowNodeTypes,
+  (args: NodeProps) => JSX.Element
+> = {
+  LabelUpdater: LabelUpdaterNode,
+};
 
 export const SUPPORTED_MODELS = ["gpt-3.5-turbo", "gpt-4"];
 

@@ -1,7 +1,7 @@
 import { Node, Edge } from "reactflow";
 
 import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
-import { FluxNodeType, FluxNodeData } from "./types";
+import { FluxNodeType, FluxNodeData, ReactFlowNodeTypes } from "./types";
 import { getFluxNodeTypeColor } from "./color";
 import { generateNodeId } from "./nodeId";
 
@@ -107,7 +107,24 @@ export function addUserNodeLinkedToASystemNode(
   return nodesCopy;
 }
 
-export function modifyFluxNode(
+export function modifyReactFlowNodeProperties(
+  existingNodes: Node<FluxNodeData>[],
+  {
+    id,
+    type,
+    draggable,
+  }: { id: string; type: ReactFlowNodeTypes | undefined; draggable: boolean }
+): Node<FluxNodeData>[] {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    const copy = { ...node, data: { ...node.data }, type, draggable };
+
+    return copy;
+  });
+}
+
+export function modifyFluxNodeText(
   existingNodes: Node<FluxNodeData>[],
   { asHuman, id, text }: { asHuman: boolean; id: string; text: string }
 ): Node<FluxNodeData>[] {
@@ -127,8 +144,25 @@ export function modifyFluxNode(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
-      copy.data.label = displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
+      copy.data.label = displayNameFromFluxNodeType(
+        FluxNodeType.TweakedGPT,
+        undefined,
+        copy.data.label
+      );
     }
+
+    return copy;
+  });
+}
+
+export function modifyFluxNodeLabel(
+  existingNodes: Node<FluxNodeData>[],
+  { id, type, label }: { id: string; type?: FluxNodeType; label: string }
+): Node<FluxNodeData>[] {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    const copy = { ...node, data: { ...node.data, label }, type, draggable: undefined };
 
     return copy;
   });
@@ -291,7 +325,8 @@ export function isFluxNodeInLineage(
 
 export function displayNameFromFluxNodeType(
   fluxNodeType: FluxNodeType,
-  isGPT4?: boolean
+  isGPT4?: boolean,
+  overrideLabel?: string
 ) {
   switch (fluxNodeType) {
     case FluxNodeType.User:
@@ -299,11 +334,7 @@ export function displayNameFromFluxNodeType(
     case FluxNodeType.GPT:
       return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
     case FluxNodeType.TweakedGPT:
-      return isGPT4 === undefined
-        ? "GPT (edited)"
-        : isGPT4
-        ? "GPT-4 (edited)"
-        : "GPT-3.5 (edited)";
+      return `${overrideLabel} (edited)`;
     case FluxNodeType.System:
       return "System";
   }

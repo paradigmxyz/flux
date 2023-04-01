@@ -64,42 +64,48 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
 };
 
 export const TextAndCodeBlock = memo(({ text }: { text: string }) => {
-  const match = CODE_BLOCK_DETECT_REGEX.exec(text);
+  let remainingText = text;
 
-  if (!match) {
-    return <Text>{text}</Text>;
-  }
+  const elements: React.ReactNode[] = [];
 
-  const before = text.substring(0, match.index);
+  while (remainingText.length > 0) {
+    const match = CODE_BLOCK_DETECT_REGEX.exec(remainingText);
 
-  const languageLine = CODE_BLOCK_LANGUAGE_DETECT_REGEX.exec(match[1]);
-  const language = languageLine ? languageLine[0].substring(3) : "plaintext";
-  const code = match[2].trim();
+    if (!match) {
+      elements.push(<Text key={elements.length}>{remainingText}</Text>);
+      break;
+    }
 
-  const after = text.substring(match.index + match[0].length);
+    const before = remainingText.substring(0, match.index);
+    const language =
+      CODE_BLOCK_LANGUAGE_DETECT_REGEX.exec(match[1])?.[0]?.substring(3) || "plaintext";
+    const code = match[2].trim();
+    const after = remainingText.substring(match.index + match[0].length);
 
-  return (
-    <Box width="100%">
-      {before.length > 0 ? <Text mb={4}>{before}</Text> : null}
-      <Box borderRadius="4px" overflow="hidden">
+    if (before.length > 0)
+      elements.push(
+        <Text key={elements.length} mb={4}>
+          {before}
+        </Text>
+      );
+
+    elements.push(
+      <Box key={elements.length} borderRadius="4px" overflow="hidden">
         <TitleBar language={language} code={code} />
         <SyntaxHighlighter
           language={language}
-          wrapLongLines={true}
+          wrapLongLines
           style={coy}
-          codeTagProps={{
-            style: { wordBreak: "break-word" },
-          }}
-          customStyle={{
-            padding: "10px",
-            margin: "0px",
-            borderRadius: "0 0 4px 4px",
-          }}
+          codeTagProps={{ style: { wordBreak: "break-word" } }}
+          customStyle={{ padding: "10px", margin: "0px", borderRadius: "0 0 4px 4px" }}
         >
           {code}
         </SyntaxHighlighter>
       </Box>
-      <TextAndCodeBlock text={after} />
-    </Box>
-  );
+    );
+
+    remainingText = after;
+  }
+
+  return <Box width="100%">{elements}</Box>;
 });

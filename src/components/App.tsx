@@ -278,7 +278,7 @@ function App() {
 
   // Takes a prompt, submits it to the GPT API with n responses,
   // then creates a child node for each response under the selected node.
-  const submitPrompt = async () => {
+  const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
 
     if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
@@ -298,10 +298,10 @@ function App() {
     let firstCompletionId: string | undefined;
 
     // Update newNodes, adding new child nodes as
-    // needed, re-using existing ones wherever possible.
+    // needed, re-using existing ones wherever possible if overrideExistingIfPossible is set.
     for (let i = 0; i < responses; i++) {
-      // If we have enough children, we'll just re-use one.
-      if (i < currentNodeChildren.length) {
+      // If we have enough children, and overrideExistingIfPossible is true, we'll just re-use one.
+      if (overrideExistingIfPossible && i < currentNodeChildren.length) {
         const childNode = currentNodeChildren[i];
 
         if (i === 0) firstCompletionId = childNode.id;
@@ -336,7 +336,17 @@ function App() {
             // such that the middle response is right below the current node.
             // Note that node x y coords are the top left corner of the node,
             // so we need to offset by at the width of the node (150px).
-            x: currentNode.position.x + (i - (responses - 1) / 2) * 180,
+            x:
+              (currentNodeChildren.length > 0
+                ? // If there are already children we want to put the
+                  // next child to the right of the furthest right one.
+                  currentNodeChildren.reduce((prev, current) =>
+                    prev.position.x > current.position.x ? prev : current
+                  ).position.x +
+                  (responses / 2) * 180 +
+                  90
+                : currentNode.position.x) +
+              (i - (responses - 1) / 2) * 180,
             // Add OVERLAP_RANDOMNESS_MAX of randomness to the y position so that nodes don't overlap.
             y: currentNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
             fluxNodeType: FluxNodeType.GPT,
@@ -382,7 +392,7 @@ function App() {
 
           const correspondingNodeId =
             // If we re-used a node we have to pull it from children array.
-            choice.index < currentNodeChildren.length
+            overrideExistingIfPossible && choice.index < currentNodeChildren.length
               ? currentNodeChildren[choice.index].id
               : newNodes[newNodes.length - responses + choice.index].id;
 
@@ -418,7 +428,7 @@ function App() {
       // Mark all the edges as no longer animated.
       for (let i = 0; i < responses; i++) {
         const correspondingNodeId =
-          i < currentNodeChildren.length
+          overrideExistingIfPossible && i < currentNodeChildren.length
             ? currentNodeChildren[i].id
             : newNodes[newNodes.length - responses + i].id;
 
@@ -451,7 +461,7 @@ function App() {
       for (let i = 0; i < responses; i++) {
         // Update the links between
         // re-used nodes if necessary.
-        if (i < currentNodeChildren.length) {
+        if (overrideExistingIfPossible && i < currentNodeChildren.length) {
           const childId = currentNodeChildren[i].id;
 
           const idx = newEdges.findIndex(
@@ -592,7 +602,9 @@ function App() {
           id,
           x:
             selectedNodeChildren.length > 0
-              ? selectedNodeChildren.reduce((prev, current) =>
+              ? // If there are already children we want to put the
+                // next child to the right of the furthest right one.
+                selectedNodeChildren.reduce((prev, current) =>
                   prev.position.x > current.position.x ? prev : current
                 ).position.x + 180
               : selectedNode.position.x,
@@ -859,12 +871,8 @@ function App() {
   useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
   useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
   useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", submitPrompt, HOTKEY_CONFIG);
-  useHotkeys(
-    "meta+shift+return",
-    () => newConnectedToSelectedNode(FluxNodeType.GPT),
-    HOTKEY_CONFIG
-  );
+  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
   useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
@@ -933,7 +941,8 @@ function App() {
                   }
                   newConnectedToSelectedNode={newConnectedToSelectedNode}
                   deleteSelectedNodes={deleteSelectedNodes}
-                  submitPrompt={submitPrompt}
+                  submitPrompt={() => submitPrompt(false)}
+                  regenerate={() => submitPrompt(true)}
                   completeNextWords={completeNextWords}
                   undo={undo}
                   redo={redo}
@@ -1018,7 +1027,7 @@ function App() {
                     })
                   );
                 }}
-                submitPrompt={submitPrompt}
+                submitPrompt={() => submitPrompt(false)}
               />
             ) : (
               <Column

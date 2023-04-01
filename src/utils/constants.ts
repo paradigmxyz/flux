@@ -1,7 +1,19 @@
+import { UseToastOptions } from "@chakra-ui/toast";
+
 import { Options } from "react-hotkeys-hook";
+
+import { NodeProps } from "reactflow";
+
+import { ReactFlowNodeTypes, Settings } from "./types";
+
 import { LabelUpdaterNode } from "../components/nodes/LabelUpdaterNode";
 
-import { NodeTypes, Settings } from "./types";
+export const reactFlowNodeTypes: Record<
+  ReactFlowNodeTypes,
+  (args: NodeProps) => JSX.Element
+> = {
+  LabelUpdater: LabelUpdaterNode,
+};
 
 export const SUPPORTED_MODELS = ["gpt-3.5-turbo", "gpt-4"];
 
@@ -20,6 +32,12 @@ export const HOTKEY_CONFIG: Options = {
   enableOnFormTags: true,
 };
 
+export const TOAST_CONFIG: UseToastOptions = {
+  isClosable: true,
+  variant: "left-accent",
+  position: "bottom-left",
+};
+
 export const MAX_HISTORY_SIZE = 256;
 
 export const OVERLAP_RANDOMNESS_MAX = 20;
@@ -36,6 +54,6 @@ export const FIT_VIEW_SETTINGS = { padding: 0.1, duration: 200 };
 
 export const NEW_TREE_X_OFFSET = 600;
 
-export const nodeTypes: NodeTypes = {
-  LabelUpdater: LabelUpdaterNode,
-};
+export const CODE_BLOCK_DETECT_REGEX =
+  /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
+export const CODE_BLOCK_LANGUAGE_DETECT_REGEX = /^```[a-zA-Z0-9-]*$/m;

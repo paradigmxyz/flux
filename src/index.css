@@ -7,6 +7,10 @@
   border-width: 0px;
 }
 
+.react-flow__node:not(.selected):hover {
+  box-shadow: 0 0 0 0.5px #1a192b !important;
+}
+
 /* Enable if you
 want bigger handles:
 .react-flow__handle {

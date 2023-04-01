@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { Flex, FlexProps } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 /* Typings */
 export type MainAxisAlignmentStrings =
@@ -165,8 +165,7 @@ export const Column = ({
       flexDirection="column"
       justifyContent={mainAxisAlignment}
       alignItems={crossAxisAlignment}
-      {...others}
-    >
+      {...others}>
       {children}
     </Flex>
   );
@@ -206,8 +205,7 @@ export const Row = ({
       flexDirection="row"
       justifyContent={mainAxisAlignment}
       alignItems={crossAxisAlignment}
-      {...others}
-    >
+      {...others}>
       {children}
     </Flex>
   );
@@ -239,8 +237,7 @@ export const RowOnDesktopColumnOnMobile = ({
       flexDirection={{ md: "row", base: "column" }}
       justifyContent={mainAxisAlignment}
       alignItems={crossAxisAlignment}
-      {...others}
-    >
+      {...others}>
       {children}
     </Flex>
   );
@@ -273,8 +270,7 @@ export const RowOrColumn = ({
       flexDirection={isRow ? "row" : "column"}
       justifyContent={mainAxisAlignment}
       alignItems={crossAxisAlignment}
-      {...others}
-    >
+      {...others}>
       {children}
     </Flex>
   );
@@ -395,7 +391,7 @@ export function useSpacedLayout({
 }) {
   const isMobile = useIsMobile();
 
-  let parentMinusSpacingAndFixedChildSizes =
+  const parentMinusSpacingAndFixedChildSizes =
     parentHeight -
     spacing * (childSizes.length - 1) -
     childSizes.reduce((past, value) => {
@@ -411,7 +407,7 @@ export function useSpacedLayout({
       }
     }, 0);
 
-  let spacedChildren: PixelMeasurement[] = [];
+  const spacedChildren: PixelMeasurement[] = [];
 
   for (const size of childSizes) {
     if (

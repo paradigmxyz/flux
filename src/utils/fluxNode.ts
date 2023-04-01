@@ -1,9 +1,9 @@
-import { Node, Edge } from "reactflow";
+import { Edge, Node } from "reactflow";
 
-import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
-import { FluxNodeType, FluxNodeData } from "./types";
 import { getFluxNodeTypeColor } from "./color";
+import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
 import { generateNodeId } from "./nodeId";
+import { FluxNodeData, FluxNodeType } from "./types";
 
 /*//////////////////////////////////////////////////////////////
                          CONSTRUCTORS

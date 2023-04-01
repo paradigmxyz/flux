@@ -1,18 +1,15 @@
-import { MouseEvent, useState, useEffect, memo } from "react";
-
+import { CopyIcon } from "@chakra-ui/icons";
+import { Box, Button, Text } from "@chakra-ui/react";
+import { MouseEvent, memo, useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import { Button, Box, Text } from "@chakra-ui/react";
-
-import { CopyIcon } from "@chakra-ui/icons";
-
+import { Row } from "../../utils/chakra";
+import { copySnippetToClipboard } from "../../utils/clipboard";
 import {
   CODE_BLOCK_DETECT_REGEX,
   CODE_BLOCK_LANGUAGE_DETECT_REGEX,
 } from "../../utils/constants";
-import { Row } from "../../utils/chakra";
-import { copySnippetToClipboard } from "../../utils/clipboard";
 
 const CopyCodeButton = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
@@ -36,8 +33,7 @@ const CopyCodeButton = ({ code }: { code: string }) => {
       size="xs"
       variant="ghost"
       px="5px"
-      _hover={{ background: "#EEEEEE" }}
-    >
+      _hover={{ background: "#EEEEEE" }}>
       <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
     </Button>
   );
@@ -55,8 +51,7 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
       py="5px"
       backgroundColor="#f5f5f5"
       borderBottom="1px solid #eee"
-      borderRadius="6px"
-    >
+      borderRadius="6px">
       <Box>{language || "plaintext"}</Box>
       <CopyCodeButton code={code} />
     </Row>
@@ -97,8 +92,7 @@ export const TextAndCodeBlock = memo(({ text }: { text: string }) => {
           wrapLongLines
           style={coy}
           codeTagProps={{ style: { wordBreak: "break-word" } }}
-          customStyle={{ padding: "10px", margin: "0px", borderRadius: "0 0 4px 4px" }}
-        >
+          customStyle={{ padding: "10px", margin: "0px", borderRadius: "0 0 4px 4px" }}>
           {code}
         </SyntaxHighlighter>
       </Box>

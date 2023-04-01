@@ -1,20 +1,16 @@
+import { EditIcon, ViewIcon } from "@chakra-ui/icons";
+import { Button, Spinner, Text } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
 import { Node } from "reactflow";
 
-import { useState, useEffect, useRef } from "react";
-
-import { Spinner, Text, Button } from "@chakra-ui/react";
-
-import { EditIcon, ViewIcon } from "@chakra-ui/icons";
-
-import TextareaAutosize from "react-textarea-autosize";
-
+import { Center, Column, Row } from "../utils/chakra";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
-import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
-import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { displayNameFromFluxNodeType } from "../utils/fluxNode";
-import { LabeledSlider } from "./utils/LabeledInputs";
-import { Row, Center, Column } from "../utils/chakra";
+import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { BigButton } from "./utils/BigButton";
+import { LabeledSlider } from "./utils/LabeledInputs";
+import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 
 export function Prompt({
   lineage,
@@ -142,8 +138,7 @@ export function Prompt({
                       }
                     }
               }
-              cursor={isLast && isEditing ? "text" : "pointer"}
-            >
+              cursor={isLast && isEditing ? "text" : "pointer"}>
               {data.generating && data.text === "" ? (
                 <Center expand>
                   <Spinner />
@@ -164,8 +159,7 @@ export function Prompt({
                     variant="outline"
                     border="0px"
                     _hover={{ background: "none" }}
-                    p={1}
-                  >
+                    p={1}>
                     {isEditing ? <ViewIcon boxSize={4} /> : <EditIcon boxSize={4} />}
                   </Button>
                   <Text fontWeight="bold" width="auto" whiteSpace="nowrap">
@@ -180,8 +174,7 @@ export function Prompt({
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"
                     wordBreak="break-word"
-                    onClick={isEditing ? undefined : () => setIsEditing(true)}
-                  >
+                    onClick={isEditing ? undefined : () => setIsEditing(true)}>
                     {isLast && isEditing ? (
                       <TextareaAutosize
                         id="promptBox"
@@ -215,16 +208,14 @@ export function Prompt({
         crossAxisAlignment="stretch"
         width="100%"
         height="100px"
-        id="promptButtons"
-      >
+        id="promptButtons">
         <BigButton
           tooltip={promptNodeType === FluxNodeType.User ? "⌘⏎" : "⌘P"}
           onClick={onMainButtonClick}
           color={getFluxNodeTypeDarkColor(promptNodeType)}
           width="100%"
           height="100%"
-          fontSize="lg"
-        >
+          fontSize="lg">
           {promptNodeType === FluxNodeType.User ? "Generate" : "Compose"}
           <Text fontWeight="extrabold">
             &nbsp;

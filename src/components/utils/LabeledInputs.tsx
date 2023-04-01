@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
   Box,
   BoxProps,
@@ -15,14 +14,15 @@ import {
   SliderTrack,
   Textarea,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+
 import { Row } from "../../utils/chakra";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 export function LabeledSlider({
   label,
   value,
   setValue,
-  color,
+
   max,
   min,
   step,
@@ -31,7 +31,6 @@ export function LabeledSlider({
   label: string;
   value: number;
   setValue: (value: number) => void;
-  color: string;
   max: number;
   min: number;
   step: number;
@@ -46,10 +45,9 @@ export function LabeledSlider({
         onChange={(v) => setValue(v)}
         max={max}
         min={min}
-        step={step}
-      >
+        step={step}>
         <SliderTrack>
-          <SliderFilledTrack bg={color} />
+          <SliderFilledTrack bg="green" />
         </SliderTrack>
 
         <SliderThumb />
@@ -103,14 +101,14 @@ export function LabeledPasswordInputWithLink({
           href={link}
           isExternal
           fontSize="sm"
-          color="green"
-        >
+          color="green">
           {linkLabel}
           <ExternalLinkIcon ml="5px" mb="3px" />
         </Link>
       </Row>
       <InputGroup size="md" borderBottom="0px" borderColor="#EEF2F6" mt={1}>
         <Input
+          autoFocus
           type={show ? "text" : "password"}
           value={value}
           placeholder={placeholder}
@@ -123,8 +121,7 @@ export function LabeledPasswordInputWithLink({
             size="sm"
             bgColor="#EEEEEE"
             mr="6px"
-            onClick={() => setShow(!show)}
-          >
+            onClick={() => setShow(!show)}>
             {show ? "Hide" : "Show"}
           </Button>
         </InputRightElement>

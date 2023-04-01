@@ -1,8 +1,6 @@
-import React from "react";
-
 import {
   Button,
-  Text,
+  Checkbox,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -10,15 +8,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Checkbox,
 } from "@chakra-ui/react";
+import React from "react";
 
-import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
-
-import { APIKeyInput } from "../utils/APIKeyInput";
-import { Settings, FluxNodeType } from "../../utils/types";
-import { getFluxNodeTypeDarkColor } from "../../utils/color";
 import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
+import { Settings } from "../../utils/types";
+import { APIKeyInput } from "../utils/APIKeyInput";
+import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
 
 export const SettingsModal = React.memo(function SettingsModal({
   isOpen,
@@ -81,7 +77,6 @@ export const SettingsModal = React.memo(function SettingsModal({
             label="Temperature (randomness)"
             value={settings.temp}
             setValue={(v) => setSettings({ ...settings, temp: v })}
-            color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={1.25}
             min={0}
             step={0.01}
@@ -92,7 +87,6 @@ export const SettingsModal = React.memo(function SettingsModal({
             label="Number of Responses"
             value={settings.n}
             setValue={(v) => setSettings({ ...settings, n: v })}
-            color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={10}
             min={1}
             step={1}
@@ -102,11 +96,9 @@ export const SettingsModal = React.memo(function SettingsModal({
             mt={3}
             fontWeight="bold"
             isChecked={settings.autoZoom}
-            colorScheme="gray"
             onChange={(event) =>
               setSettings({ ...settings, autoZoom: event.target.checked })
-            }
-          >
+            }>
             Auto Zoom
           </Checkbox>
         </ModalBody>

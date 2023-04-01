@@ -1,6 +1,5 @@
-import { Node } from "reactflow";
-
 import { ChatCompletionRequestMessage } from "openai-streams";
+import { Node } from "reactflow";
 
 import { FluxNodeData, FluxNodeType, Settings } from "./types";
 
@@ -66,8 +65,6 @@ export function promptFromLineage(
       prompt += "\n\n";
     }
   });
-
-  console.log(prompt);
 
   return prompt;
 }

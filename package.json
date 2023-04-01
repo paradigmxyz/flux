@@ -6,7 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint --ignore-path .gitignore \"src/**/*.+(ts|js|tsx)\"",
+    "format": "prettier --ignore-path .gitignore \"src/**/*.+(ts|js|tsx)\" --write",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "./src/**/*.{ts,js,jsx,tsx}": [
+      "eslint --ignore-path .gitignore --fix",
+      "prettier --ignore-path .gitignore --write"
+    ]
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.17",
@@ -29,14 +39,26 @@
     "yield-stream": "^2.3.0"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^17.4.4",
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/mixpanel-browser": "^2.38.1",
     "@types/node": "^18.14.2",
     "@types/react": "^18.0.27",
     "@types/react-beforeunload": "^2.1.1",
     "@types/react-dom": "^18.0.10",
     "@types/react-syntax-highlighter": "^15.5.6",
+    "@typescript-eslint/eslint-plugin": "5.57.0",
+    "@typescript-eslint/parser": "5.57.0",
     "@vitejs/plugin-react-swc": "^3.0.0",
+    "eslint": "8.37.0",
+    "eslint-config-prettier": "8.8.0",
+    "eslint-config-react-app": "7.0.1",
+    "eslint-plugin-prettier": "4.2.1",
+    "husky": "8.0.3",
+    "lint-staged": "13.2.0",
+    "prettier": "2.8.7",
     "typescript": "^4.9.3",
-    "vite": "^4.1.0"
+    "vite": "^4.1.0",
+    "vite-plugin-eslint": "1.8.1"
   }
 }

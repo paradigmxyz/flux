@@ -1,4 +1,4 @@
-import { ButtonProps, Button, Tooltip } from "@chakra-ui/react";
+import { Button, ButtonProps, Tooltip } from "@chakra-ui/react";
 
 import { adjustColor } from "../../utils/color";
 

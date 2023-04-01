@@ -1,11 +1,9 @@
+import { Heading, Link, Modal, ModalContent, ModalOverlay, Text } from "@chakra-ui/react";
 import mixpanel from "mixpanel-browser";
 
-import { Modal, ModalOverlay, ModalContent, Link, Text } from "@chakra-ui/react";
-
 import { MIXPANEL_TOKEN } from "../../main";
-
-import { Column } from "../../utils/chakra";
 import { isValidAPIKey } from "../../utils/apikey";
+import { Column } from "../../utils/chakra";
 import { APIKeyInput } from "../utils/APIKeyInput";
 
 export function APIKeyModal({
@@ -33,11 +31,14 @@ export function APIKeyModal({
       onClose={() => {}}
       size="3xl"
       isCentered={true}
-      motionPreset="none"
-    >
+      motionPreset="none">
       <ModalOverlay />
       <ModalContent>
-        <Column mainAxisAlignment="center" crossAxisAlignment="center" height="500px">
+        <Column mainAxisAlignment="center" crossAxisAlignment="center" height="450px">
+          <Heading textAlign="center" mb={3}>
+            Welcome to Flux 👋
+          </Heading>
+          <Text mb={10}>To start paste your OpenAI API key below.</Text>
           <APIKeyInput apiKey={apiKey} setApiKey={setApiKeyTracked} />
           <Text mt={5} width="80%" textAlign="center" fontSize="md">
             We will <u>never</u> upload, log, or store your API key outside of your

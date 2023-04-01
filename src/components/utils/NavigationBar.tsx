@@ -1,25 +1,24 @@
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
-  Menu,
-  MenuButton,
-  Button,
-  MenuList,
-  MenuGroup,
-  MenuItem,
-  MenuDivider,
-  Box,
-  Text,
   Avatar,
   AvatarGroup,
+  Box,
+  Button,
   Link,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  Text,
 } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@chakra-ui/icons";
 
 import { Row } from "../../utils/chakra";
 import { FluxNodeType } from "../../utils/types";
-
 import dave from "/dave.jpg";
-import t11s from "/t11s.jpg";
 import paradigm from "/paradigm.svg";
+import t11s from "/t11s.jpg";
 
 export function NavigationBar({
   newUserNodeLinkedToANewSystemNode,
@@ -60,14 +59,12 @@ export function NavigationBar({
       crossAxisAlignment="center"
       height="100%"
       width="auto"
-      overflowX="auto"
-    >
+      overflowX="auto">
       <Row
         mainAxisAlignment="flex-start"
         crossAxisAlignment="center"
         height="100%"
-        width="auto"
-      >
+        width="auto">
         <Text whiteSpace="nowrap">
           <b>Flux</b> by
         </Text>
@@ -110,8 +107,7 @@ export function NavigationBar({
             rightIcon={<ChevronDownIcon />}
             variant="ghost"
             height="80%"
-            px="5px"
-          >
+            px="5px">
             File
           </MenuButton>
           <MenuList width="300px">
@@ -126,15 +122,13 @@ export function NavigationBar({
             <MenuGroup title="Nodes">
               <MenuItem
                 command="⌘P"
-                onClick={() => newConnectedToSelectedNode(FluxNodeType.User)}
-              >
+                onClick={() => newConnectedToSelectedNode(FluxNodeType.User)}>
                 New user node
               </MenuItem>
 
               <MenuItem
                 command="⌘U"
-                onClick={() => newConnectedToSelectedNode(FluxNodeType.System)}
-              >
+                onClick={() => newConnectedToSelectedNode(FluxNodeType.System)}>
                 New system node
               </MenuItem>
             </MenuGroup>
@@ -159,8 +153,7 @@ export function NavigationBar({
             variant="ghost"
             height="80%"
             px="5px"
-            ml="11px"
-          >
+            ml="11px">
             Edit
           </MenuButton>
           <MenuList width="300px">
@@ -202,12 +195,11 @@ export function NavigationBar({
             variant="ghost"
             height="80%"
             px="5px"
-            ml="11px"
-          >
+            ml="11px">
             Navigate
           </MenuButton>
           <MenuList width="300px">
-            <MenuGroup title="Parents/Children">
+            <MenuGroup title="Vertical">
               <MenuItem command="⌘↑" onClick={moveToParent}>
                 Up to parent node
               </MenuItem>
@@ -218,7 +210,7 @@ export function NavigationBar({
 
             <MenuDivider />
 
-            <MenuGroup title="Siblings">
+            <MenuGroup title="Horizontal">
               <MenuItem command="⌘←" onClick={moveToLeftSibling}>
                 Left to sibling node
               </MenuItem>
@@ -241,8 +233,7 @@ export function NavigationBar({
           height="80%"
           px="5px"
           ml="11px"
-          onClick={onOpenSettingsModal}
-        >
+          onClick={onOpenSettingsModal}>
           Settings
         </Button>
         <Button
@@ -252,7 +243,7 @@ export function NavigationBar({
           ml="16px"
           as="a"
           href="https://twitter.com/transmissions11/status/1640775967856803840"
-        >
+          target="_blank">
           About
         </Button>
       </Row>

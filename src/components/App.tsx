@@ -1,69 +1,32 @@
+import { CheckCircleIcon } from "@chakra-ui/icons";
+import { Box, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
+import mixpanel from "mixpanel-browser";
+import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
+import { Resizable } from "re-resizable";
 import { useEffect, useState } from "react";
-
+import { useBeforeunload } from "react-beforeunload";
+import { useHotkeys } from "react-hotkeys-hook";
 import ReactFlow, {
-  addEdge,
   Background,
   Connection,
-  Node,
   Edge,
-  useEdgesState,
-  useNodesState,
-  SelectionMode,
+  Node,
   ReactFlowInstance,
   ReactFlowJsonObject,
+  SelectionMode,
+  addEdge,
+  useEdgesState,
+  useNodesState,
   useReactFlow,
 } from "reactflow";
-
 import "reactflow/dist/style.css";
-
-import mixpanel from "mixpanel-browser";
-
-import { Resizable } from "re-resizable";
-
 import { yieldStream } from "yield-stream";
 
-import { useHotkeys } from "react-hotkeys-hook";
-
-import { useBeforeunload } from "react-beforeunload";
-
-import { CheckCircleIcon } from "@chakra-ui/icons";
-import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
-
-import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
-
-import { Prompt } from "./Prompt";
-
-import { APIKeyModal } from "./modals/APIKeyModal";
-import { SettingsModal } from "./modals/SettingsModal";
-
 import { MIXPANEL_TOKEN } from "../main";
-
-import {
-  getFluxNode,
-  getFluxNodeGPTChildren,
-  displayNameFromFluxNodeType,
-  newFluxNode,
-  appendTextToFluxNodeAsGPT,
-  getFluxNodeLineage,
-  isFluxNodeInLineage,
-  addFluxNode,
-  modifyFluxNode,
-  getFluxNodeChildren,
-  getFluxNodeParent,
-  getFluxNodeSiblings,
-  markOnlyNodeAsSelected,
-  deleteFluxNode,
-  deleteSelectedFluxNodes,
-  addUserNodeLinkedToASystemNode,
-  markFluxNodeAsDoneGenerating,
-} from "../utils/fluxNode";
-import {
-  FluxNodeData,
-  FluxNodeType,
-  HistoryItem,
-  Settings,
-  CreateChatCompletionStreamResponseChoicesInner,
-} from "../utils/types";
+import { isValidAPIKey } from "../utils/apikey";
+import { Column, Row } from "../utils/chakra";
+import { copySnippetToClipboard } from "../utils/clipboard";
+import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import {
   API_KEY_LOCAL_STORAGE_KEY,
   DEFAULT_SETTINGS,
@@ -77,20 +40,45 @@ import {
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
 } from "../utils/constants";
-import { mod } from "../utils/mod";
-import { BigButton } from "./utils/BigButton";
-import { Column, Row } from "../utils/chakra";
-import { isValidAPIKey } from "../utils/apikey";
-import { generateNodeId } from "../utils/nodeId";
-import { useLocalStorage } from "../utils/lstore";
-import { NavigationBar } from "./utils/NavigationBar";
 import { useDebouncedEffect } from "../utils/debounce";
-import { useDebouncedWindowResize } from "../utils/resize";
-import { getQueryParam, resetURL } from "../utils/qparams";
-import { copySnippetToClipboard } from "../utils/clipboard";
+import { addFluxEdge, modifyFluxEdge, newFluxEdge } from "../utils/fluxEdge";
+import {
+  addFluxNode,
+  addUserNodeLinkedToASystemNode,
+  appendTextToFluxNodeAsGPT,
+  deleteFluxNode,
+  deleteSelectedFluxNodes,
+  displayNameFromFluxNodeType,
+  getFluxNode,
+  getFluxNodeChildren,
+  getFluxNodeGPTChildren,
+  getFluxNodeLineage,
+  getFluxNodeParent,
+  getFluxNodeSiblings,
+  isFluxNodeInLineage,
+  markFluxNodeAsDoneGenerating,
+  markOnlyNodeAsSelected,
+  modifyFluxNode,
+  newFluxNode,
+} from "../utils/fluxNode";
+import { useLocalStorage } from "../utils/lstore";
+import { mod } from "../utils/mod";
+import { generateNodeId } from "../utils/nodeId";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
-import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
-import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { getQueryParam, resetURL } from "../utils/qparams";
+import { useDebouncedWindowResize } from "../utils/resize";
+import {
+  CreateChatCompletionStreamResponseChoicesInner,
+  FluxNodeData,
+  FluxNodeType,
+  HistoryItem,
+  Settings,
+} from "../utils/types";
+import { Prompt } from "./Prompt";
+import { APIKeyModal } from "./modals/APIKeyModal";
+import { SettingsModal } from "./modals/SettingsModal";
+import { BigButton } from "./utils/BigButton";
+import { NavigationBar } from "./utils/NavigationBar";
 
 function App() {
   const toast = useToast();
@@ -190,8 +178,6 @@ function App() {
         REACT_FLOW_LOCAL_STORAGE_KEY,
         JSON.stringify(reactFlow.toObject())
       );
-
-      console.log("Saved React Flow state!");
     }
   };
 
@@ -213,8 +199,6 @@ function App() {
       const content = getQueryParam(NEW_TREE_CONTENT_QUERY_PARAM);
 
       if (flow) {
-        console.log("Restoring react flow from local storage.");
-
         setEdges(flow.edges || []);
         setViewport(flow.viewport);
 
@@ -417,7 +401,7 @@ function App() {
     setSelectedNodeId(firstCompletionId);
 
     setEdges((edges) => {
-      let newEdges = [...edges];
+      const newEdges = [...edges];
 
       for (let i = 0; i < responses; i++) {
         // Update the links between
@@ -651,7 +635,7 @@ function App() {
     if (children.length > 0) {
       selectNode(
         lastSelectedNodeId !== null &&
-          children.some((node) => node.id == lastSelectedNodeId)
+          children.some((node) => node.id === lastSelectedNodeId)
           ? lastSelectedNodeId
           : children[0].id
       );
@@ -678,7 +662,7 @@ function App() {
     const siblings = getFluxNodeSiblings(nodes, edges, selectedNodeId!);
 
     if (siblings.length > 1) {
-      const currentIndex = siblings.findIndex((node) => node.id == selectedNodeId!)!;
+      const currentIndex = siblings.findIndex((node) => node.id === selectedNodeId!)!;
 
       selectNode(siblings[mod(currentIndex - 1, siblings.length)].id);
 
@@ -692,7 +676,7 @@ function App() {
     const siblings = getFluxNodeSiblings(nodes, edges, selectedNodeId!);
 
     if (siblings.length > 1) {
-      const currentIndex = siblings.findIndex((node) => node.id == selectedNodeId!)!;
+      const currentIndex = siblings.findIndex((node) => node.id === selectedNodeId!)!;
 
       selectNode(siblings[mod(currentIndex + 1, siblings.length)].id);
 
@@ -717,8 +701,6 @@ function App() {
     const rawSettings = localStorage.getItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY);
 
     if (rawSettings !== null) {
-      console.log("Restoring settings from local storage.");
-
       return JSON.parse(rawSettings) as Settings;
     } else {
       return DEFAULT_SETTINGS;
@@ -730,8 +712,6 @@ function App() {
   // Auto save.
   const isSavingSettings = useDebouncedEffect(
     () => {
-      console.log("Saved settings!");
-
       localStorage.setItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY, JSON.stringify(settings));
     },
     1000, // 1 second.
@@ -839,8 +819,7 @@ function App() {
         mainAxisAlignment="center"
         crossAxisAlignment="center"
         height="100vh"
-        width="100%"
-      >
+        width="100%">
         <Row mainAxisAlignment="flex-start" crossAxisAlignment="stretch" expand>
           <Resizable
             maxWidth="75%"
@@ -859,15 +838,13 @@ function App() {
               bottomLeft: false,
               topLeft: false,
             }}
-            onResizeStop={autoZoomIfNecessary}
-          >
+            onResizeStop={autoZoomIfNecessary}>
             <Column
               mainAxisAlignment="center"
               crossAxisAlignment="center"
               borderRightColor="#EEEEEE"
               borderRightWidth="1px"
-              expand
-            >
+              expand>
               <Row
                 mainAxisAlignment="space-between"
                 crossAxisAlignment="center"
@@ -875,8 +852,7 @@ function App() {
                 height="50px"
                 px="20px"
                 borderBottomColor="#EEEEEE"
-                borderBottomWidth="1px"
-              >
+                borderBottomWidth="1px">
                 <NavigationBar
                   newUserNodeLinkedToANewSystemNode={() =>
                     newUserNodeLinkedToANewSystemNode()
@@ -902,9 +878,9 @@ function App() {
 
                 <Box ml="20px">
                   {isAnythingLoading ? (
-                    <Spinner size="sm" mt="6px" color={"#404040"} />
+                    <Spinner size="sm" mt="6px" color="green" />
                   ) : (
-                    <CheckCircleIcon color={"#404040"} />
+                    <CheckCircleIcon color="green" />
                   )}
                 </Box>
               </Row>
@@ -937,8 +913,7 @@ function App() {
                 onNodeClick={(_, node) => {
                   setLastSelectedNodeId(selectedNodeId);
                   setSelectedNodeId(node.id);
-                }}
-              >
+                }}>
                 <Background />
               </ReactFlow>
             </Column>
@@ -970,16 +945,14 @@ function App() {
                 expand
                 textAlign="center"
                 mainAxisAlignment={"center"}
-                crossAxisAlignment={"center"}
-              >
+                crossAxisAlignment={"center"}>
                 <BigButton
                   tooltip="⇧⌘P"
                   width="400px"
                   height="100px"
                   fontSize="xl"
                   onClick={() => newUserNodeLinkedToANewSystemNode()}
-                  color={getFluxNodeTypeDarkColor(FluxNodeType.GPT)}
-                >
+                  color={getFluxNodeTypeDarkColor(FluxNodeType.GPT)}>
                   Create a new conversation tree
                 </BigButton>
               </Column>

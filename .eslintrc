@@ -1,0 +1,43 @@
+{
+  "plugins": ["prettier"],
+  "extends": ["react-app", "prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "camelcase": "off",
+    " /prefer-default-export": "off",
+    "react/jsx-filename-extension": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/no-unused-prop-types": "off",
+    "react/require-default-props": "off",
+    "react/no-unescaped-entities": "off",
+    "quotes": "off"
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "overrides": [
+    {
+      "files": "**/*.+(ts|tsx)",
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint/eslint-plugin"],
+      "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-use-before-define": [1],
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "react-hooks/exhaustive-deps": "off",
+        "no-use-before-define": [0],
+        "no-restricted-globals": "off"
+      }
+    }
+  ]
+}

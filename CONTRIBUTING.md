@@ -2,7 +2,7 @@
 
 Thanks for your interest in improving Flux!
 
-There are multiple opportunities to contribute at any level. It doesn't matter if you are just getting started with Rust or are the most weathered expert, we can use your help.
+There are multiple opportunities to contribute at any level. It doesn't matter if you are just getting started with LLMs or are the most weathered expert, we can use your help.
 
 **No contribution is too small and all contributions are valued.**
 
@@ -40,10 +40,10 @@ just fill in what you can. Contributors will ask follow-up questions if somethin
 
 The most important pieces of information we need in a bug report are:
 
--   The OS you are on (Windows, macOS, or Linux)
--   The Browser you have (Chrome, Safari, etc)
--   Concrete steps to reproduce the bug
--   What you expect to happen instead
+- The OS you are on (Windows, macOS, or Linux)
+- The Browser you have (Chrome, Safari, etc)
+- Concrete steps to reproduce the bug
+- What you expect to happen instead
 
 ### Submitting a feature request
 

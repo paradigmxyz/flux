@@ -1,5 +1,5 @@
 import { ChatCompletionResponseMessage } from "openai-streams";
-import { Node, Edge } from "reactflow";
+import { Edge, Node } from "reactflow";
 
 export type FluxNodeData = {
   label: string;

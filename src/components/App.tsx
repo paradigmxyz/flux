@@ -46,7 +46,6 @@ import {
   newFluxNode,
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
-  isFluxNodeInLineage,
   addFluxNode,
   modifyFluxNode,
   getFluxNodeChildren,
@@ -57,6 +56,7 @@ import {
   deleteSelectedFluxNodes,
   addUserNodeLinkedToASystemNode,
   markFluxNodeAsDoneGenerating,
+  getConnectionAllowed,
 } from "../utils/fluxNode";
 import {
   FluxNodeData,
@@ -171,7 +171,11 @@ function App() {
   }, []);
 
   const onEdgeUpdate = useCallback((oldEdge: Edge<any>, newConnection: Connection) => {
-    if (getFluxNodeParent(nodes, edges, newConnection.target!) !== undefined) {
+    const connectionAllowed = getConnectionAllowed(nodes, edges, {
+      source: newConnection.source!,
+      target: newConnection.target!
+    });
+    if (!connectionAllowed) {
       return;
     }
 
@@ -188,18 +192,13 @@ function App() {
   }, []);
 
   const onConnect = (connection: Edge<any> | Connection) => {
-    
-    if (
-      // Check the lineage of the source node to make
-      // sure we aren't creating a recursive connection.
-      isFluxNodeInLineage(nodes, edges, {
-        nodeToCheck: connection.target!,
-        nodeToGetLineageOf: connection.source!,
-      }) ||
-      // Check if the target node already has a parent.
-      getFluxNodeParent(nodes, edges, connection.target!) !== undefined
-    )
+    const connectionAllowed = getConnectionAllowed(nodes, edges, {
+      source: connection.source!,
+      target: connection.target!
+    });
+    if (!connectionAllowed) {
       return;
+    }
 
     takeSnapshot();
     setEdges((eds) => addEdge({ ...connection }, eds));

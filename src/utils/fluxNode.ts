@@ -80,8 +80,8 @@ export function addUserNodeLinkedToASystemNode(
     x:
       nodesCopy.length > 0
         ? nodesCopy.reduce((prev, current) =>
-          prev.position.x > current.position.x ? prev : current
-        ).position.x + NEW_TREE_X_OFFSET
+            prev.position.x > current.position.x ? prev : current
+          ).position.x + NEW_TREE_X_OFFSET
         : window.innerWidth / 2 / 2 - 75,
     y: 500,
     fluxNodeType: FluxNodeType.System,
@@ -322,7 +322,7 @@ export function isFluxNodeInLineage(
 export function getConnectionAllowed(
   existingNodes: Node<FluxNodeData>[],
   existingEdges: Edge[],
-  { source, target }: { source: string, target: string }
+  { source, target }: { source: string; target: string }
 ): boolean {
   return (
     // Check the lineage of the source node to make

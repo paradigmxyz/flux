@@ -12,7 +12,7 @@ import ReactFlow, {
   ReactFlowInstance,
   ReactFlowJsonObject,
   useReactFlow,
-  updateEdge
+  updateEdge,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -173,18 +173,18 @@ function App() {
     edgeUpdateSuccessful.current = false;
   }, []);
 
-  const onEdgeUpdate = useCallback((oldEdge: Edge<any>, newConnection: Connection) => {
-    const connectionAllowed = getConnectionAllowed(nodes, edges, {
-      source: newConnection.source!,
-      target: newConnection.target!
-    });
-    if (!connectionAllowed) {
+  const onEdgeUpdate = (oldEdge: Edge<any>, newConnection: Connection) => {
+    if (
+      !getConnectionAllowed(nodes, edges, {
+        source: newConnection.source!,
+        target: newConnection.target!,
+      })
+    )
       return;
-    }
 
     edgeUpdateSuccessful.current = true;
     setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
-  }, [nodes, edges]);
+  };
 
   const onEdgeUpdateEnd = useCallback((_: unknown, edge: Edge<any>) => {
     if (!edgeUpdateSuccessful.current) {
@@ -195,13 +195,13 @@ function App() {
   }, []);
 
   const onConnect = (connection: Edge<any> | Connection) => {
-    const connectionAllowed = getConnectionAllowed(nodes, edges, {
-      source: connection.source!,
-      target: connection.target!
-    });
-    if (!connectionAllowed) {
+    if (
+      !getConnectionAllowed(nodes, edges, {
+        source: connection.source!,
+        target: connection.target!,
+      })
+    )
       return;
-    }
 
     takeSnapshot();
     setEdges((eds) => addEdge({ ...connection }, eds));

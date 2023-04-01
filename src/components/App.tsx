@@ -179,7 +179,7 @@ function App() {
     setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
   }, [nodes, edges]);
 
-  const onEdgeUpdateEnd = useCallback((_: React.MouseEvent, edge: Edge<any>) => {
+  const onEdgeUpdateEnd = useCallback((_: unknown, edge: Edge<any>) => {
     if (!edgeUpdateSuccessful.current) {
       setEdges((edges) => edges.filter((e) => e.id !== edge.id));
     }

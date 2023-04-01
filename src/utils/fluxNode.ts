@@ -326,7 +326,7 @@ export function isFluxNodeInLineage(
 export function displayNameFromFluxNodeType(
   fluxNodeType: FluxNodeType,
   isGPT4?: boolean,
-  label?: string
+  overrideLabel?: string
 ) {
   switch (fluxNodeType) {
     case FluxNodeType.User:
@@ -334,7 +334,7 @@ export function displayNameFromFluxNodeType(
     case FluxNodeType.GPT:
       return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
     case FluxNodeType.TweakedGPT:
-      return `${label} (edited)`;
+      return `${overrideLabel} (edited)`;
     case FluxNodeType.System:
       return "System";
   }

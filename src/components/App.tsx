@@ -307,7 +307,17 @@ function App() {
             // such that the middle response is right below the current node.
             // Note that node x y coords are the top left corner of the node,
             // so we need to offset by at the width of the node (150px).
-            x: currentNode.position.x + (i - (responses - 1) / 2) * 180,
+            x:
+              (currentNodeChildren.length > 0
+                ? // If there are already children we want to put the
+                  // next child to the right of the furthest right one.
+                  currentNodeChildren.reduce((prev, current) =>
+                    prev.position.x > current.position.x ? prev : current
+                  ).position.x +
+                  (responses / 2) * 180 +
+                  90
+                : currentNode.position.x) +
+              (i - (responses - 1) / 2) * 180,
             // Add OVERLAP_RANDOMNESS_MAX of randomness to the y position so that nodes don't overlap.
             y: currentNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
             fluxNodeType: FluxNodeType.GPT,
@@ -563,7 +573,9 @@ function App() {
           id,
           x:
             selectedNodeChildren.length > 0
-              ? selectedNodeChildren.reduce((prev, current) =>
+              ? // If there are already children we want to put the
+                // next child to the right of the furthest right one.
+                selectedNodeChildren.reduce((prev, current) =>
                   prev.position.x > current.position.x ? prev : current
                 ).position.x + 180
               : selectedNode.position.x,

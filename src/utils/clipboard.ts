@@ -1,5 +1,3 @@
-
-
 export const copySnippetToClipboard = async (text: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(text);

@@ -319,6 +319,22 @@ export function isFluxNodeInLineage(
   return lineage.some((node) => node.id === nodeToCheck);
 }
 
+export function getConnectionAllowed(
+  existingNodes: Node<FluxNodeData>[],
+  existingEdges: Edge[],
+  { source, target }: { source: string; target: string }
+): boolean {
+  return (
+    // Check the lineage of the source node to make
+    // sure we aren't creating a recursive connection.
+    !isFluxNodeInLineage(existingNodes, existingEdges, {
+      nodeToCheck: target,
+      nodeToGetLineageOf: source,
+      // Check if the target node already has a parent.
+    }) && getFluxNodeParent(existingNodes, existingEdges, target) === undefined
+  );
+}
+
 /*//////////////////////////////////////////////////////////////
                             RENDERERS
 //////////////////////////////////////////////////////////////*/

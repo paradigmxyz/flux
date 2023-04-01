@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 import ReactFlow, {
   addEdge,
@@ -12,6 +12,7 @@ import ReactFlow, {
   ReactFlowInstance,
   ReactFlowJsonObject,
   useReactFlow,
+  updateEdge,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -45,7 +46,6 @@ import {
   newFluxNode,
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
-  isFluxNodeInLineage,
   addFluxNode,
   modifyFluxNodeText,
   modifyReactFlowNodeProperties,
@@ -57,6 +57,7 @@ import {
   deleteSelectedFluxNodes,
   addUserNodeLinkedToASystemNode,
   markFluxNodeAsDoneGenerating,
+  getConnectionAllowed,
 } from "../utils/fluxNode";
 import {
   FluxNodeData,
@@ -166,13 +167,38 @@ function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const onConnect = (connection: Edge<any> | Connection) => {
-    // Check the lineage of the source node to make
-    // sure we aren't creating a recursive connection.
+  const edgeUpdateSuccessful = useRef(true);
+
+  const onEdgeUpdateStart = useCallback(() => {
+    edgeUpdateSuccessful.current = false;
+  }, []);
+
+  const onEdgeUpdate = (oldEdge: Edge<any>, newConnection: Connection) => {
     if (
-      isFluxNodeInLineage(nodes, edges, {
-        nodeToCheck: connection.target!,
-        nodeToGetLineageOf: connection.source!,
+      !getConnectionAllowed(nodes, edges, {
+        source: newConnection.source!,
+        target: newConnection.target!,
+      })
+    )
+      return;
+
+    edgeUpdateSuccessful.current = true;
+    setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
+  };
+
+  const onEdgeUpdateEnd = useCallback((_: unknown, edge: Edge<any>) => {
+    if (!edgeUpdateSuccessful.current) {
+      setEdges((edges) => edges.filter((e) => e.id !== edge.id));
+    }
+
+    edgeUpdateSuccessful.current = true;
+  }, []);
+
+  const onConnect = (connection: Edge<any> | Connection) => {
+    if (
+      !getConnectionAllowed(nodes, edges, {
+        source: connection.source!,
+        target: connection.target!,
       })
     )
       return;
@@ -945,6 +971,9 @@ function App() {
                 onEdgesChange={onEdgesChange}
                 onEdgesDelete={takeSnapshot}
                 onNodesDelete={takeSnapshot}
+                onEdgeUpdateStart={onEdgeUpdateStart}
+                onEdgeUpdate={onEdgeUpdate}
+                onEdgeUpdateEnd={onEdgeUpdateEnd}
                 onConnect={onConnect}
                 nodeTypes={REACT_FLOW_NODE_TYPES}
                 // Causes clicks to also trigger auto zoom.

@@ -11,7 +11,7 @@ It should be considered as a guide to help you navigate the process.
 
 ### Code of Conduct
 
-Flux adheres to the [Rust Code of Conduct][rust-coc]. This code of conduct describes the _minimum_ behavior expected from all contributors.
+Flux adheres to the [Rust Code of Conduct][https://www.rust-lang.org/policies/code-of-conduct] (even though it's not a Rust project). This code of conduct describes the _minimum_ behavior expected from all contributors.
 
 Instances of violations of the Code of Conduct can be reported by contacting the team at [t11s@paradigm.xyz](mailto:t11s@paradigm.xyz).
 

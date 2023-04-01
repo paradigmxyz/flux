@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import ReactFlow, {
   addEdge,
@@ -246,10 +246,6 @@ function App() {
                           AI PROMPT CALLBACKS
   //////////////////////////////////////////////////////////////*/
 
-  // This prevents us from getting responses from old streams.
-  // This is mapped by the id of the node and an incrementing stream id.
-  const nodeStreamIdMapRef = useRef<Map<string, number>>(new Map());
-
   // Takes a prompt, submits it to the GPT API with n responses,
   // then creates a child node for each response under the selected node.
   const submitPrompt = async () => {
@@ -268,6 +264,8 @@ function App() {
 
     const currentNode = getFluxNode(newNodes, parentNodeId)!;
     const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNodeId);
+
+    const thisStreamId = generateNodeId()
 
     let firstCompletionId: string | undefined;
 
@@ -290,6 +288,7 @@ function App() {
             label: displayNameFromFluxNodeType(FluxNodeType.GPT),
             fluxNodeType: FluxNodeType.GPT,
             generating: true,
+            streamId: thisStreamId,
           },
           style: {
             ...childNode.style,
@@ -298,6 +297,8 @@ function App() {
         };
       } else {
         const id = generateNodeId();
+
+        console.log("Generated new node id: " + id)
 
         if (i === 0) firstCompletionId = id;
 
@@ -316,6 +317,7 @@ function App() {
             fluxNodeType: FluxNodeType.GPT,
             text: "",
             generating: true,
+            streamId: thisStreamId,
           })
         );
       }
@@ -323,10 +325,7 @@ function App() {
 
     if (firstCompletionId === undefined) throw new Error("No first completion id!");
 
-    // Update the current stream identifier
-    const currentNodeStreamId = (nodeStreamIdMapRef.current.get(parentNodeId) || 0) + 1;
-    nodeStreamIdMapRef.current.set(parentNodeId, currentNodeStreamId);
-    const thisStreamId = currentNodeStreamId;
+    // setNodes((newerNodes) => setStreamIdToFluxNode(newerNodes, { id: firstCompletionId || 'completion-id', streamId: thisStreamId || 'new' }));
 
     (async () => {
       const stream = await OpenAI(
@@ -342,7 +341,13 @@ function App() {
 
       const DECODER = new TextDecoder();
 
-      for await (const chunk of yieldStream(stream)) {
+      const abortController = new AbortController();
+
+      let streamCancelled = false;
+
+      for await (const chunk of yieldStream(stream, abortController)) {
+        if (streamCancelled) break;
+
         try {
           const decoded = JSON.parse(DECODER.decode(chunk));
 
@@ -369,22 +374,32 @@ function App() {
           // choice with only a role delta and no content.
           if (choice.delta?.content) {
             setNodes((newerNodes) => {
-              const currentNodeStreamId = nodeStreamIdMapRef.current.get(parentNodeId);
+              const currentNodeStreamId = getFluxNode(newerNodes, correspondingNodeId)?.data.streamId;
+              // console.log(`Received stream for node ${correspondingNodeId} with stream ID ${currentNodeStreamId} and this stream ID ${thisStreamId}`);
 
-              // If the stream ID is up to date, then we can update the node.
-              if (currentNodeStreamId && currentNodeStreamId === thisStreamId) {
+              if (currentNodeStreamId === thisStreamId) {
                 return appendTextToFluxNodeAsGPT(newerNodes, {
                   id: correspondingNodeId,
                   text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
                 });
-              // If the stream ID does not match, it is stale and we should cancel it.
+                // If the stream ID does not match, it is stale and we should cancel it.
               } else {
-                // console.log(`Cancelling stream for node ${correspondingNodeId} because ${thisStreamId} doesn't match ${currentNodeStreamId}`);
-                
-                if (!stream.locked) stream.cancel()
+                console.log(`Cancelling stream for node ${correspondingNodeId} because ${thisStreamId} doesn't match ${currentNodeStreamId}`);
+
+                streamCancelled = true
+                abortController.abort();
+
                 return newerNodes;
               }
             });
+          }
+
+          // We cannot return within the loop, and we do not want to execute the code below. So we break.
+          // It is possible to do modify the if statement below to check for streamCancelled, but if we add
+          // more code other than the choice.finish_reason check, it might be forgotten and this is more explicit.
+          if (streamCancelled) {
+            // console.log(`Left the stream loop for node ${correspondingNodeId}, now breaking because stream was cancelled`);
+            break;
           }
 
           // If the choice has a finish reason, then it's the final
@@ -585,15 +600,15 @@ function App() {
           x:
             selectedNodeChildren.length > 0
               ? selectedNodeChildren.reduce((prev, current) =>
-                  prev.position.x > current.position.x ? prev : current
-                ).position.x + 180
+                prev.position.x > current.position.x ? prev : current
+              ).position.x + 180
               : selectedNode.position.x,
           // Add OVERLAP_RANDOMNESS_MAX of randomness to
           // the y position so that nodes don't overlap.
           y: selectedNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
           fluxNodeType: type,
           text: "",
-          generating: false,
+          generating: false
         })
       );
 

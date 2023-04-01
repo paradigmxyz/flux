@@ -16,6 +16,7 @@ export function newFluxNode({
   fluxNodeType,
   text,
   generating,
+  streamId,
 }: {
   id?: string;
   x: number;
@@ -23,6 +24,7 @@ export function newFluxNode({
   fluxNodeType: FluxNodeType;
   text: string;
   generating: boolean;
+  streamId?: string
 }): Node<FluxNodeData> {
   return {
     id: id ?? generateNodeId(),
@@ -35,6 +37,7 @@ export function newFluxNode({
       fluxNodeType,
       text,
       generating,
+      streamId
     },
   };
 }
@@ -52,6 +55,7 @@ export function addFluxNode(
     fluxNodeType,
     text,
     generating,
+    streamId
   }: {
     id?: string;
     x: number;
@@ -59,9 +63,10 @@ export function addFluxNode(
     fluxNodeType: FluxNodeType;
     text: string;
     generating: boolean;
+    streamId?: string
   }
 ): Node<FluxNodeData>[] {
-  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, generating });
+  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, generating, streamId: 'newStream' });
 
   return [...existingNodes, newNode];
 }

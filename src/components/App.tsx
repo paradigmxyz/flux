@@ -47,7 +47,8 @@ import {
   appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
   addFluxNode,
-  modifyFluxNode,
+  modifyFluxNodeText,
+  modifyReactFlowNodeProperties,
   getFluxNodeChildren,
   getFluxNodeParent,
   getFluxNodeSiblings,
@@ -64,6 +65,7 @@ import {
   HistoryItem,
   Settings,
   CreateChatCompletionStreamResponseChoicesInner,
+  ReactFlowNodeTypes,
 } from "../utils/types";
 import {
   API_KEY_LOCAL_STORAGE_KEY,
@@ -74,6 +76,7 @@ import {
   MODEL_SETTINGS_LOCAL_STORAGE_KEY,
   NEW_TREE_CONTENT_QUERY_PARAM,
   OVERLAP_RANDOMNESS_MAX,
+  REACT_FLOW_NODE_TYPES,
   REACT_FLOW_LOCAL_STORAGE_KEY,
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
@@ -800,6 +803,25 @@ function App() {
   };
 
   /*//////////////////////////////////////////////////////////////
+                         RENAME NODE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  const showRenameInput = () => {
+    const selectedNode = nodes.find((node) => node.selected);
+    const nodeId = selectedNode?.id ?? selectedNodeId;
+
+    if (nodeId) {
+      setNodes((nodes) =>
+        modifyReactFlowNodeProperties(nodes, {
+          id: nodeId,
+          type: ReactFlowNodeTypes.LabelUpdater,
+          draggable: false,
+        })
+      );
+    }
+  };
+
+  /*//////////////////////////////////////////////////////////////
                         WINDOW RESIZE LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -830,6 +852,8 @@ function App() {
 
   useHotkeys("meta+z", undo, HOTKEY_CONFIG);
   useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
+
+  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
 
   useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
   useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
@@ -915,6 +939,7 @@ function App() {
                   redo={redo}
                   onClear={onClear}
                   copyMessagesToClipboard={copyMessagesToClipboard}
+                  showRenameInput={showRenameInput}
                   moveToParent={moveToParent}
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}
@@ -950,6 +975,7 @@ function App() {
                 onEdgeUpdate={onEdgeUpdate}
                 onEdgeUpdateEnd={onEdgeUpdateEnd}
                 onConnect={onConnect}
+                nodeTypes={REACT_FLOW_NODE_TYPES}
                 // Causes clicks to also trigger auto zoom.
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}
@@ -985,7 +1011,7 @@ function App() {
                 onType={(text: string) => {
                   takeSnapshot();
                   setNodes((nodes) =>
-                    modifyFluxNode(nodes, {
+                    modifyFluxNodeText(nodes, {
                       asHuman: true,
                       id: selectedNodeId!,
                       text,

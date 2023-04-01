@@ -14,10 +14,6 @@ import {
 import { Row } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 
-const getNextCodeBlockMatch = (text: string) => {
-  return CODE_BLOCK_DETECT_REGEX.exec(text);
-};
-
 const CopyCodeButton = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
 
@@ -37,8 +33,9 @@ const CopyCodeButton = ({ code }: { code: string }) => {
   return (
     <Button
       onClick={handleCopyButtonClick}
-      size="sm"
+      size="xs"
       variant="ghost"
+      px="5px"
       _hover={{ background: "#EEEEEE" }}
     >
       <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
@@ -54,19 +51,20 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
       expand
       justifyContent="space-between"
       alignItems="center"
-      padding="5px 10px"
+      px="10px"
+      py="5px"
       backgroundColor="#f5f5f5"
       borderBottom="1px solid #eee"
       borderRadius="6px"
     >
-      {language ? <Box>{language}</Box> : <Box>plaintext</Box>}
+      <Box>{language || "plaintext"}</Box>
       <CopyCodeButton code={code} />
     </Row>
   );
 };
 
 export const TextAndCodeBlock = memo(({ text }: { text: string }) => {
-  const match = getNextCodeBlockMatch(text);
+  const match = CODE_BLOCK_DETECT_REGEX.exec(text);
 
   if (!match) {
     return <Text>{text}</Text>;

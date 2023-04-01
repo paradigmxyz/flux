@@ -12,7 +12,6 @@ import ReactFlow, {
   ReactFlowInstance,
   ReactFlowJsonObject,
   useReactFlow,
-  Controls,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -845,7 +844,7 @@ function App() {
         <Row mainAxisAlignment="flex-start" crossAxisAlignment="stretch" expand>
           <Resizable
             maxWidth="75%"
-            minWidth="20%"
+            minWidth="15%"
             defaultSize={{
               width: "50%",
               height: "auto",
@@ -941,7 +940,6 @@ function App() {
                 }}
               >
                 <Background />
-                <Controls position="top-right" showInteractive={false} />
               </ReactFlow>
             </Column>
           </Resizable>

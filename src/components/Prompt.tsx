@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 
 import { Spinner, Text, Button } from "@chakra-ui/react";
 
-import { EditIcon, ViewIcon } from "@chakra-ui/icons";
+import { EditIcon, ViewIcon, CloseIcon } from "@chakra-ui/icons";
 
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -45,6 +45,10 @@ export function Prompt({
     } else {
       newConnectedToSelectedNode(FluxNodeType.User);
     }
+  };
+
+  const stopGenerating = () => {
+    // TODO
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -156,7 +160,9 @@ export function Prompt({
                         ? "block"
                         : "none"
                     }
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() =>
+                      data.generating ? stopGenerating() : setIsEditing(!isEditing)
+                    }
                     position="absolute"
                     top={1}
                     right={1}
@@ -166,7 +172,13 @@ export function Prompt({
                     _hover={{ background: "none" }}
                     p={1}
                   >
-                    {isEditing ? <ViewIcon boxSize={4} /> : <EditIcon boxSize={4} />}
+                    {data.generating ? (
+                      <CloseIcon boxSize={4} />
+                    ) : isEditing ? (
+                      <ViewIcon boxSize={4} />
+                    ) : (
+                      <EditIcon boxSize={4} />
+                    )}
                   </Button>
                   <Text fontWeight="bold" width="auto" whiteSpace="nowrap">
                     {displayNameFromFluxNodeType(data.fluxNodeType)}

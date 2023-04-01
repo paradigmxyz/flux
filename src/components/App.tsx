@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 import ReactFlow, {
   addEdge,
@@ -12,6 +12,7 @@ import ReactFlow, {
   ReactFlowInstance,
   ReactFlowJsonObject,
   useReactFlow,
+  updateEdge
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -162,6 +163,29 @@ function App() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const edgeUpdateSuccessful = useRef(true);
+
+  const onEdgeUpdateStart = useCallback(() => {
+    edgeUpdateSuccessful.current = false;
+  }, []);
+
+  const onEdgeUpdate = useCallback((oldEdge: Edge<any>, newConnection: Connection) => {
+    if (getFluxNodeParent(nodes, edges, newConnection.target!) !== undefined) {
+      return;
+    }
+
+    edgeUpdateSuccessful.current = true;
+    setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
+  }, [nodes, edges]);
+
+  const onEdgeUpdateEnd = useCallback((_: React.MouseEvent, edge: Edge<any>) => {
+    if (!edgeUpdateSuccessful.current) {
+      setEdges((edges) => edges.filter((e) => e.id !== edge.id));
+    }
+
+    edgeUpdateSuccessful.current = true;
+  }, []);
 
   const onConnect = (connection: Edge<any> | Connection) => {
     
@@ -923,6 +947,9 @@ function App() {
                 onEdgesChange={onEdgesChange}
                 onEdgesDelete={takeSnapshot}
                 onNodesDelete={takeSnapshot}
+                onEdgeUpdateStart={onEdgeUpdateStart}
+                onEdgeUpdate={onEdgeUpdate}
+                onEdgeUpdateEnd={onEdgeUpdateEnd}
                 onConnect={onConnect}
                 // Causes clicks to also trigger auto zoom.
                 // onNodeDragStop={autoZoomIfNecessary}

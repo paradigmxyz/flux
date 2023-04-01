@@ -164,13 +164,16 @@ function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const onConnect = (connection: Edge<any> | Connection) => {
-    // Check the lineage of the source node to make
-    // sure we aren't creating a recursive connection.
+    
     if (
+      // Check the lineage of the source node to make
+      // sure we aren't creating a recursive connection.
       isFluxNodeInLineage(nodes, edges, {
         nodeToCheck: connection.target!,
         nodeToGetLineageOf: connection.source!,
-      })
+      }) ||
+      // Check if the target node already has a parent.
+      getFluxNodeParent(nodes, edges, connection.target!) !== undefined
     )
       return;
 

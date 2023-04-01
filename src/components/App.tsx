@@ -75,7 +75,7 @@ import {
   MODEL_SETTINGS_LOCAL_STORAGE_KEY,
   NEW_TREE_CONTENT_QUERY_PARAM,
   OVERLAP_RANDOMNESS_MAX,
-  reactFlowNodeTypes,
+  REACT_FLOW_NODE_TYPES,
   REACT_FLOW_LOCAL_STORAGE_KEY,
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
@@ -946,7 +946,7 @@ function App() {
                 onEdgesDelete={takeSnapshot}
                 onNodesDelete={takeSnapshot}
                 onConnect={onConnect}
-                nodeTypes={reactFlowNodeTypes}
+                nodeTypes={REACT_FLOW_NODE_TYPES}
                 // Causes clicks to also trigger auto zoom.
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}

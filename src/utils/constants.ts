@@ -8,7 +8,7 @@ import { ReactFlowNodeTypes, Settings } from "./types";
 
 import { LabelUpdaterNode } from "../components/nodes/LabelUpdaterNode";
 
-export const reactFlowNodeTypes: Record<
+export const REACT_FLOW_NODE_TYPES: Record<
   ReactFlowNodeTypes,
   (args: NodeProps) => JSX.Element
 > = {

@@ -25,7 +25,9 @@ export function LabelUpdaterNode({
   useEffect(() => {
     const input = document.getElementById("renameInput") as HTMLInputElement | null;
 
-    input?.select();
+    // Have to do this with a bit of a delay to
+    // ensure it works when triggered via navbar.
+    setTimeout(() => input?.select(), 50);
   }, []);
 
   const cancel = () => {

@@ -781,8 +781,6 @@ function App() {
   //////////////////////////////////////////////////////////////*/
 
   const showRenameInput = () => {
-    takeSnapshot();
-
     const selectedNode = nodes.find((node) => node.selected);
     const nodeId = selectedNode?.id ?? selectedNodeId;
 
@@ -829,6 +827,8 @@ function App() {
   useHotkeys("meta+z", undo, HOTKEY_CONFIG);
   useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
 
+  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
+
   useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
   useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
   useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
@@ -842,7 +842,6 @@ function App() {
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
   useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
-  useHotkeys("ctrl+r", showRenameInput, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP

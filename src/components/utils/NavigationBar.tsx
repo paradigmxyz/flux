@@ -190,15 +190,17 @@ export function NavigationBar({
 
             <MenuDivider />
 
+            <MenuGroup title="Rename">
+              <MenuItem command="⌘E" onClick={showRenameInput}>
+                Rename selected node
+              </MenuItem>
+            </MenuGroup>
+
+            <MenuDivider />
+
             <MenuGroup title="Copy">
               <MenuItem command="Ctrl+C" onClick={copyMessagesToClipboard}>
                 Copy messages to clipboard
-              </MenuItem>
-            </MenuGroup>
-            <MenuDivider />
-            <MenuGroup title="Rename">
-              <MenuItem command="Ctrl+R" onClick={showRenameInput}>
-                Rename selected node
               </MenuItem>
             </MenuGroup>
           </MenuList>

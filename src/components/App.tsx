@@ -48,7 +48,7 @@ import {
   isFluxNodeInLineage,
   addFluxNode,
   modifyFluxNodeText,
-  modifyFluxNodeType,
+  modifyReactFlowNodeProperties,
   getFluxNodeChildren,
   getFluxNodeParent,
   getFluxNodeSiblings,
@@ -64,6 +64,7 @@ import {
   HistoryItem,
   Settings,
   CreateChatCompletionStreamResponseChoicesInner,
+  ReactFlowNodeTypes,
 } from "../utils/types";
 import {
   API_KEY_LOCAL_STORAGE_KEY,
@@ -73,8 +74,8 @@ import {
   MAX_HISTORY_SIZE,
   MODEL_SETTINGS_LOCAL_STORAGE_KEY,
   NEW_TREE_CONTENT_QUERY_PARAM,
-  nodeTypes,
   OVERLAP_RANDOMNESS_MAX,
+  reactFlowNodeTypes,
   REACT_FLOW_LOCAL_STORAGE_KEY,
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
@@ -787,9 +788,9 @@ function App() {
 
     if (nodeId) {
       setNodes((nodes) =>
-        modifyFluxNodeType(nodes, {
+        modifyReactFlowNodeProperties(nodes, {
           id: nodeId,
-          type: "LabelUpdater",
+          type: ReactFlowNodeTypes.LabelUpdater,
           draggable: false,
         })
       );
@@ -946,7 +947,7 @@ function App() {
                 onEdgesDelete={takeSnapshot}
                 onNodesDelete={takeSnapshot}
                 onConnect={onConnect}
-                nodeTypes={nodeTypes}
+                nodeTypes={reactFlowNodeTypes}
                 // Causes clicks to also trigger auto zoom.
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}

@@ -1,7 +1,7 @@
 import { Node, Edge } from "reactflow";
 
 import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
-import { FluxNodeType, FluxNodeData, NodeTypeNames } from "./types";
+import { FluxNodeType, FluxNodeData, ReactFlowNodeTypeNames } from "./types";
 import { getFluxNodeTypeColor } from "./color";
 import { generateNodeId } from "./nodeId";
 
@@ -107,13 +107,13 @@ export function addUserNodeLinkedToASystemNode(
   return nodesCopy;
 }
 
-export function modifyFluxNodeType(
+export function modifyReactFlowNodeProperties(
   existingNodes: Node<FluxNodeData>[],
   {
     id,
     type,
-    draggable = true,
-  }: { id: string; type?: NodeTypeNames; draggable?: boolean }
+    draggable,
+  }: { id: string; type: ReactFlowNodeTypeNames | undefined; draggable: boolean }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;

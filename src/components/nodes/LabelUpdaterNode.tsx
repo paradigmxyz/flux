@@ -1,12 +1,12 @@
-import { CloseIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
+
 import { Box, Input } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+
 import { Handle, Position, useReactFlow } from "reactflow";
+
 import { Row } from "../../utils/chakra";
-import { modifyFluxNodeLabel, modifyFluxNodeType } from "../../utils/fluxNode";
 import { FluxNodeData } from "../../utils/types";
-import { useHotkeys } from "react-hotkeys-hook";
-import { HOTKEY_CONFIG } from "../../utils/constants";
+import { modifyFluxNodeLabel, modifyReactFlowNodeProperties } from "../../utils/fluxNode";
 
 export function LabelUpdaterNode({
   id,
@@ -20,19 +20,27 @@ export function LabelUpdaterNode({
   const { setNodes } = useReactFlow();
 
   const [renameLabel, setRenameLabel] = useState(data.label);
-  const renameBlockRef = useRef<HTMLInputElement>(null);
-  const renameInputId = `rename-${id}`;
+
+  // Select the input element on mount.
+  useEffect(() => {
+    const input = document.getElementById("renameInput") as HTMLInputElement | null;
+
+    input?.select();
+  }, []);
 
   const cancel = () => {
     setNodes((nodes) =>
-      // Reset the node type to the original type
-      modifyFluxNodeType(nodes, {
+      // Reset the node type to the default
+      // type and make it draggable again.
+      modifyReactFlowNodeProperties(nodes, {
         id,
+        type: undefined,
+        draggable: true,
       })
     );
   };
 
-  const renameNode = () => {
+  const submit = () => {
     setNodes((nodes) =>
       modifyFluxNodeLabel(nodes, {
         id,
@@ -41,45 +49,24 @@ export function LabelUpdaterNode({
     );
   };
 
-  useHotkeys("return", renameNode, HOTKEY_CONFIG);
-  useHotkeys("escape", cancel, HOTKEY_CONFIG);
-
-  useEffect(() => {
-    function handleClick(event: any) {
-      if (renameBlockRef.current && !renameBlockRef.current.contains(event.target)) {
-        cancel();
-      }
-    }
-
-    // Bind the event listener
-    document.addEventListener("mousedown", handleClick);
-    return () => {
-      // Unbind the event listener on clean up
-      document.removeEventListener("mousedown", handleClick);
-    };
-  }, [renameBlockRef]);
-
-  useEffect(() => {
-    // select the input element on mount
-    const input = document.getElementById(renameInputId) as HTMLInputElement;
-    input.select();
-  }, []);
-
   return (
-    <Box width={150} height={38} ref={renameBlockRef}>
+    <Box width="150px" height="38px">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
+
       <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
         <Input
-          id={renameInputId}
+          onBlur={cancel}
+          id="renameInput"
           value={renameLabel}
           onChange={(e: any) => setRenameLabel(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          className="nodrag" // https://reactflow.dev/docs/api/nodes/custom-nodes/#prevent-dragging--selecting
           textAlign="center"
           size="xs"
-          px={6}
-          className="nodrag"
+          // px={6}
         />
 
-        <Row
+        {/* <Row
           mainAxisAlignment="center"
           crossAxisAlignment="center"
           position="absolute"
@@ -92,10 +79,10 @@ export function LabelUpdaterNode({
             rounded="sm"
             p={1}
             cursor="pointer"
-            _hover={{ backgroundColor: "gray.300" }}
+            _hover={{ backgroundColor: "none" }}
             onClick={cancel}
           />
-        </Row>
+        </Row> */}
       </Row>
 
       <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} />

@@ -325,8 +325,6 @@ function App() {
 
     if (firstCompletionId === undefined) throw new Error("No first completion id!");
 
-    // setNodes((newerNodes) => setStreamIdToFluxNode(newerNodes, { id: firstCompletionId || 'completion-id', streamId: thisStreamId || 'new' }));
-
     (async () => {
       const stream = await OpenAI(
         "chat",

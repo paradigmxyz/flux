@@ -45,8 +45,6 @@ The most important pieces of information we need in a bug report are:
 -   Concrete steps to reproduce the bug
 -   What you expect to happen instead
 
-See [this guide][mcve] on how to create a minimal, complete, and verifiable example.
-
 ### Submitting a feature request
 
 When adding a feature request in the issue tracker, you will be presented with a basic form to fill out.

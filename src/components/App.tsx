@@ -249,7 +249,7 @@ function App() {
 
   // Takes a prompt, submits it to the GPT API with n responses,
   // then creates a child node for each response under the selected node.
-  const submitPrompt = async () => {
+  const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
 
     if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
@@ -269,10 +269,10 @@ function App() {
     let firstCompletionId: string | undefined;
 
     // Update newNodes, adding new child nodes as
-    // needed, re-using existing ones wherever possible.
+    // needed, re-using existing ones wherever possible if overrideExistingIfPossible is set.
     for (let i = 0; i < responses; i++) {
-      // If we have enough children, we'll just re-use one.
-      if (i < currentNodeChildren.length) {
+      // If we have enough children, and overrideExistingIfPossible is true, we'll just re-use one.
+      if (overrideExistingIfPossible && i < currentNodeChildren.length) {
         const childNode = currentNodeChildren[i];
 
         if (i === 0) firstCompletionId = childNode.id;
@@ -353,7 +353,7 @@ function App() {
 
           const correspondingNodeId =
             // If we re-used a node we have to pull it from children array.
-            choice.index < currentNodeChildren.length
+            overrideExistingIfPossible && choice.index < currentNodeChildren.length
               ? currentNodeChildren[choice.index].id
               : newNodes[newNodes.length - responses + choice.index].id;
 
@@ -389,7 +389,7 @@ function App() {
       // Mark all the edges as no longer animated.
       for (let i = 0; i < responses; i++) {
         const correspondingNodeId =
-          i < currentNodeChildren.length
+          overrideExistingIfPossible && i < currentNodeChildren.length
             ? currentNodeChildren[i].id
             : newNodes[newNodes.length - responses + i].id;
 
@@ -422,7 +422,7 @@ function App() {
       for (let i = 0; i < responses; i++) {
         // Update the links between
         // re-used nodes if necessary.
-        if (i < currentNodeChildren.length) {
+        if (overrideExistingIfPossible && i < currentNodeChildren.length) {
           const childId = currentNodeChildren[i].id;
 
           const idx = newEdges.findIndex(
@@ -809,12 +809,8 @@ function App() {
   useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
   useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
   useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", submitPrompt, HOTKEY_CONFIG);
-  useHotkeys(
-    "meta+shift+return",
-    () => newConnectedToSelectedNode(FluxNodeType.GPT),
-    HOTKEY_CONFIG
-  );
+  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
   useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
@@ -883,7 +879,8 @@ function App() {
                   }
                   newConnectedToSelectedNode={newConnectedToSelectedNode}
                   deleteSelectedNodes={deleteSelectedNodes}
-                  submitPrompt={submitPrompt}
+                  submitPrompt={() => submitPrompt(false)}
+                  regenerate={() => submitPrompt(true)}
                   completeNextWords={completeNextWords}
                   undo={undo}
                   redo={redo}
@@ -963,7 +960,7 @@ function App() {
                     })
                   );
                 }}
-                submitPrompt={submitPrompt}
+                submitPrompt={() => submitPrompt(false)}
               />
             ) : (
               <Column

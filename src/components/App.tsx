@@ -819,6 +819,8 @@ function App() {
   //////////////////////////////////////////////////////////////*/
 
   const showRenameInput = () => {
+    takeSnapshot();
+
     const selectedNode = nodes.find((node) => node.selected);
     const nodeId = selectedNode?.id ?? selectedNodeId;
 

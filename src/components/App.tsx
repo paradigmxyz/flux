@@ -752,13 +752,7 @@ function App() {
   });
 
   /*//////////////////////////////////////////////////////////////
-                        WINDOW RESIZE LOGIC
-  //////////////////////////////////////////////////////////////*/
-
-  useDebouncedWindowResize(autoZoomIfNecessary, 100);
-
-  /*//////////////////////////////////////////////////////////////
-                        MESSAGE COPY LOGIC
+                        COPY MESSAGES LOGIC
   //////////////////////////////////////////////////////////////*/
 
   const copyMessagesToClipboard = async () => {
@@ -778,6 +772,12 @@ function App() {
       });
     }
   };
+
+  /*//////////////////////////////////////////////////////////////
+                        WINDOW RESIZE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  useDebouncedWindowResize(autoZoomIfNecessary, 100);
 
   /*//////////////////////////////////////////////////////////////
                           HOTKEYS LOGIC
@@ -817,7 +817,7 @@ function App() {
   );
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys("ctrl+c", async () => {}, HOTKEY_CONFIG);
+  useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP

@@ -66,7 +66,7 @@ export function addFluxNode(
     streamId?: string
   }
 ): Node<FluxNodeData>[] {
-  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, generating, streamId: 'newStream' });
+  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, generating, streamId: '' });
 
   return [...existingNodes, newNode];
 }

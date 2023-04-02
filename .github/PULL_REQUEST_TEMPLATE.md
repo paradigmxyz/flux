@@ -17,3 +17,12 @@ thought of as being the motivation for your change.
 Summarize the solution and provide any necessary context needed to understand
 the code change.
 -->
+
+## Checklist
+
+<!--
+Please ensure fill out and complete the actions below before opening your PR.
+-->
+
+- [ ] Tested in Chrome
+- [ ] Tested in Safari

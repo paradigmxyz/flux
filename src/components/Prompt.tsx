@@ -1,18 +1,20 @@
-import { Node } from "reactflow";
+import { Node, useReactFlow } from "reactflow";
 
 import { useState, useEffect, useRef } from "react";
 
 import { Spinner, Text, Button } from "@chakra-ui/react";
 
-import { EditIcon, ViewIcon } from "@chakra-ui/icons";
+import { EditIcon, ViewIcon, NotAllowedIcon } from "@chakra-ui/icons";
 
 import TextareaAutosize from "react-textarea-autosize";
 
+import { displayNameFromFluxNodeType, setFluxNodeStreamId } from "../utils/fluxNode";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+
 import { getPlatformModifierKeyText } from "../utils/platform";
 import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
-import { displayNameFromFluxNodeType } from "../utils/fluxNode";
+import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 import { LabeledSlider } from "./utils/LabeledInputs";
 import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
@@ -36,6 +38,8 @@ export function Prompt({
   settings: Settings;
   setSettings: (settings: Settings) => void;
 }) {
+  const { setNodes } = useReactFlow();
+
   const promptNode = lineage[0];
 
   const promptNodeType = promptNode.data.fluxNodeType;
@@ -46,6 +50,13 @@ export function Prompt({
     } else {
       newConnectedToSelectedNode(FluxNodeType.User);
     }
+  };
+
+  const stopGenerating = () => {
+    // Reset the stream id.
+    setNodes((nodes) =>
+      setFluxNodeStreamId(nodes, { id: promptNode.id, streamId: undefined })
+    );
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -126,28 +137,29 @@ export function Prompt({
               onMouseLeave={() => setHoveredNodeId(null)}
               bg={getFluxNodeTypeColor(data.fluxNodeType)}
               key={node.id}
-              onClick={
-                isLast
-                  ? isEditing
-                    ? undefined
-                    : () => setIsEditing(true)
-                  : () => {
-                      const selection = window.getSelection();
+              onClick={() => {
+                const selection = window.getSelection();
 
-                      // We don't want to trigger the selection
-                      // if they're just selecting/copying text.
-                      if (selection?.isCollapsed) {
-                        // TODO: Note this is basically broken because of codeblocks.
-                        textOffsetRef.current = selection.anchorOffset ?? 0;
+                // We don't want to trigger the selection
+                // if they're just selecting/copying text.
+                if (selection?.isCollapsed) {
+                  if (isLast) {
+                    if (data.streamId) {
+                      stopGenerating();
+                      setIsEditing(true);
+                    } else if (!isEditing) setIsEditing(true);
+                  } else {
+                    // TODO: Note this is basically broken because of codeblocks.
+                    textOffsetRef.current = selection.anchorOffset ?? 0;
 
-                        selectNode(node.id);
-                        setIsEditing(true);
-                      }
-                    }
-              }
+                    selectNode(node.id);
+                    setIsEditing(true);
+                  }
+                }
+              }}
               cursor={isLast && isEditing ? "text" : "pointer"}
             >
-              {data.generating && data.text === "" ? (
+              {data.streamId && data.text === "" ? (
                 <Center expand>
                   <Spinner />
                 </Center>
@@ -159,7 +171,9 @@ export function Prompt({
                         ? "block"
                         : "none"
                     }
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() =>
+                      data.streamId ? stopGenerating() : setIsEditing(!isEditing)
+                    }
                     position="absolute"
                     top={1}
                     right={1}
@@ -169,7 +183,13 @@ export function Prompt({
                     _hover={{ background: "none" }}
                     p={1}
                   >
-                    {isEditing ? <ViewIcon boxSize={4} /> : <EditIcon boxSize={4} />}
+                    {data.streamId ? (
+                      <NotAllowedIcon boxSize={4} />
+                    ) : isEditing ? (
+                      <ViewIcon boxSize={4} />
+                    ) : (
+                      <EditIcon boxSize={4} />
+                    )}
                   </Button>
                   <Text fontWeight="bold" width="auto" whiteSpace="nowrap">
                     {displayNameFromFluxNodeType(data.fluxNodeType)}

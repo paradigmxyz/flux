@@ -20,6 +20,7 @@ export function LabelUpdaterNode({
   const { setNodes } = useReactFlow();
 
   const [renameLabel, setRenameLabel] = useState(data.label);
+
   const inputId = `renameInput-${id}`;
 
   // Select the input element on mount.

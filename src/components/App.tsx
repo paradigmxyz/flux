@@ -323,7 +323,7 @@ function App() {
           data: {
             ...childNode.data,
             text: "",
-            label: displayNameFromFluxNodeType(FluxNodeType.GPT),
+            label: childNode.data.label ?? displayNameFromFluxNodeType(FluxNodeType.GPT),
             fluxNodeType: FluxNodeType.GPT,
             streamId,
           },

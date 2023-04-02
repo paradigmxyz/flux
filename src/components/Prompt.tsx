@@ -131,7 +131,9 @@ export function Prompt({
               key={node.id}
               onClick={
                 isLast
-                  ? undefined
+                  ? isEditing
+                    ? undefined
+                    : () => setIsEditing(true)
                   : () => {
                       const selection = window.getSelection();
 
@@ -148,7 +150,7 @@ export function Prompt({
               }
               cursor={isLast && isEditing ? "text" : "pointer"}
             >
-              {data.generating && data.text === "" ? (
+              {data.streamId && data.text === "" ? (
                 <Center expand>
                   <Spinner />
                 </Center>
@@ -192,7 +194,6 @@ export function Prompt({
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"
                     wordBreak="break-word"
-                    onClick={isEditing ? undefined : () => setIsEditing(true)}
                   >
                     {isLast && isEditing ? (
                       <TextareaAutosize

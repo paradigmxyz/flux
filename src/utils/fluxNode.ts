@@ -1,7 +1,7 @@
 import { Node, Edge } from "reactflow";
 
 import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
-import { FluxNodeType, FluxNodeData } from "./types";
+import { FluxNodeType, FluxNodeData, ReactFlowNodeTypes } from "./types";
 import { getFluxNodeTypeColor } from "./color";
 import { generateNodeId } from "./nodeId";
 
@@ -15,14 +15,14 @@ export function newFluxNode({
   y,
   fluxNodeType,
   text,
-  generating,
+  streamId,
 }: {
   id?: string;
   x: number;
   y: number;
   fluxNodeType: FluxNodeType;
   text: string;
-  generating: boolean;
+  streamId?: string;
 }): Node<FluxNodeData> {
   return {
     id: id ?? generateNodeId(),
@@ -34,7 +34,7 @@ export function newFluxNode({
       label: displayNameFromFluxNodeType(fluxNodeType),
       fluxNodeType,
       text,
-      generating,
+      streamId,
     },
   };
 }
@@ -51,17 +51,17 @@ export function addFluxNode(
     y,
     fluxNodeType,
     text,
-    generating,
+    streamId,
   }: {
     id?: string;
     x: number;
     y: number;
     fluxNodeType: FluxNodeType;
     text: string;
-    generating: boolean;
+    streamId?: string;
   }
 ): Node<FluxNodeData>[] {
-  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, generating });
+  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, streamId });
 
   return [...existingNodes, newNode];
 }
@@ -86,7 +86,6 @@ export function addUserNodeLinkedToASystemNode(
     y: 500,
     fluxNodeType: FluxNodeType.System,
     text: systemNodeText,
-    generating: false,
   });
 
   nodesCopy.push(systemNode);
@@ -100,14 +99,30 @@ export function addUserNodeLinkedToASystemNode(
       y: systemNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
       fluxNodeType: FluxNodeType.User,
       text: userNodeText ?? "",
-      generating: false,
     })
   );
 
   return nodesCopy;
 }
 
-export function modifyFluxNode(
+export function modifyReactFlowNodeProperties(
+  existingNodes: Node<FluxNodeData>[],
+  {
+    id,
+    type,
+    draggable,
+  }: { id: string; type: ReactFlowNodeTypes | undefined; draggable: boolean }
+): Node<FluxNodeData>[] {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    const copy = { ...node, data: { ...node.data }, type, draggable };
+
+    return copy;
+  });
+}
+
+export function modifyFluxNodeText(
   existingNodes: Node<FluxNodeData>[],
   { asHuman, id, text }: { asHuman: boolean; id: string; text: string }
 ): Node<FluxNodeData>[] {
@@ -127,36 +142,57 @@ export function modifyFluxNode(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
-      copy.data.label = displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
+      copy.data.label =
+        copy.data.label != displayNameFromFluxNodeType(FluxNodeType.GPT)
+          ? copy.data.label // Preserve custom labels if necessary.
+          : displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
     }
 
     return copy;
   });
 }
 
-export function appendTextToFluxNodeAsGPT(
+export function modifyFluxNodeLabel(
   existingNodes: Node<FluxNodeData>[],
-  { id, text }: { id: string; text: string }
+  { id, type, label }: { id: string; type?: FluxNodeType; label: string }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
+
+    const copy = { ...node, data: { ...node.data, label }, type, draggable: undefined };
+
+    return copy;
+  });
+}
+
+export function setFluxNodeStreamId(
+  existingNodes: Node<FluxNodeData>[],
+  { id, streamId }: { id: string; streamId: string | undefined }
+) {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    return { ...node, data: { ...node.data, streamId } };
+  });
+}
+
+export function appendTextToFluxNodeAsGPT(
+  existingNodes: Node<FluxNodeData>[],
+  { id, text, streamId }: { id: string; text: string; streamId: string }
+): Node<FluxNodeData>[] {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    // If the node's streamId does not match the one
+    // passed, we're appending text from a stale stream.
+    // Throw to alert the caller they should abort the stream.
+    if (node.data.streamId !== streamId) throw new Error("STALE_STREAM_ID");
 
     const copy = { ...node, data: { ...node.data } };
 
     copy.data.text += text;
 
     return copy;
-  });
-}
-
-export function markFluxNodeAsDoneGenerating(
-  existingNodes: Node<FluxNodeData>[],
-  id: string
-): Node<FluxNodeData>[] {
-  return existingNodes.map((node) => {
-    if (node.id !== id) return node;
-
-    return { ...node, data: { ...node.data, generating: false } };
   });
 }
 
@@ -285,6 +321,22 @@ export function isFluxNodeInLineage(
   return lineage.some((node) => node.id === nodeToCheck);
 }
 
+export function getConnectionAllowed(
+  existingNodes: Node<FluxNodeData>[],
+  existingEdges: Edge[],
+  { source, target }: { source: string; target: string }
+): boolean {
+  return (
+    // Check the lineage of the source node to make
+    // sure we aren't creating a recursive connection.
+    !isFluxNodeInLineage(existingNodes, existingEdges, {
+      nodeToCheck: target,
+      nodeToGetLineageOf: source,
+      // Check if the target node already has a parent.
+    }) && getFluxNodeParent(existingNodes, existingEdges, target) === undefined
+  );
+}
+
 /*//////////////////////////////////////////////////////////////
                             RENDERERS
 //////////////////////////////////////////////////////////////*/
@@ -292,18 +344,14 @@ export function isFluxNodeInLineage(
 export function displayNameFromFluxNodeType(
   fluxNodeType: FluxNodeType,
   isGPT4?: boolean
-) {
+): string {
   switch (fluxNodeType) {
     case FluxNodeType.User:
       return "User";
     case FluxNodeType.GPT:
       return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
     case FluxNodeType.TweakedGPT:
-      return isGPT4 === undefined
-        ? "GPT (edited)"
-        : isGPT4
-        ? "GPT-4 (edited)"
-        : "GPT-3.5 (edited)";
+      return displayNameFromFluxNodeType(FluxNodeType.GPT, isGPT4) + " (edited)";
     case FluxNodeType.System:
       return "System";
   }

@@ -531,7 +531,6 @@ function App() {
     });
 
     // Generate auto-label for parentNode, if unset
-
     if (parentNode.data.label === parentNode.data.fluxNodeType) {
       const autoLabel =
         parentNode.data.text.length > MAX_AUTOLABEL_LENGTH

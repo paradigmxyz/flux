@@ -201,7 +201,7 @@ export function appendTextToFluxNodeAsGPT(
     // To reduce complexity we assume auto-labels either end with " ..." or are equal to the generated text.
     const isTruncated = copy.data.label.endsWith(" ...");
     const isPreviousAutoLabel = isTruncated || copy.data.label === copy.data.text;
-    const isNewPrompt = copy.data.text.length === 0;
+    const isFirstToken = copy.data.text.length === 0;
 
     copy.data.text += text;
 
@@ -214,7 +214,7 @@ export function appendTextToFluxNodeAsGPT(
 
     // If label hasn't reached max length or it's a new prompt, set from text.
     // Once label reaches max length, truncate it.
-    if (copy.data.label.length < MAX_AUTOLABEL_CHARS || isNewPrompt) {
+    if (copy.data.label.length < MAX_AUTOLABEL_CHARS || isFirstToken) {
       copy.data.label = copy.data.text;
     } else if (!isTruncated) {
       copy.data.label += " ...";

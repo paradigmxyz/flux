@@ -95,6 +95,7 @@ import { copySnippetToClipboard } from "../utils/clipboard";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
 
 function App() {
   const toast = useToast();
@@ -847,39 +848,42 @@ function App() {
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  useHotkeys("meta+s", save, HOTKEY_CONFIG);
+  const modifierKey = getPlatformModifierKey();
+  const modifierKeyText = getPlatformModifierKeyText();
+
+  useHotkeys(`${modifierKey}+s`, save, HOTKEY_CONFIG);
 
   useHotkeys(
-    "meta+p",
+    `${modifierKey}+p`,
     () => newConnectedToSelectedNode(FluxNodeType.User),
     HOTKEY_CONFIG
   );
   useHotkeys(
-    "meta+u",
+    `${modifierKey}+u`,
     () => newConnectedToSelectedNode(FluxNodeType.System),
     HOTKEY_CONFIG
   );
 
-  useHotkeys("meta+shift+p", () => newUserNodeLinkedToANewSystemNode(), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+s`, () => newUserNodeLinkedToANewSystemNode(), HOTKEY_CONFIG);
 
-  useHotkeys("meta+.", () => fitView(FIT_VIEW_SETTINGS), HOTKEY_CONFIG);
-  useHotkeys("meta+/", onToggleSettingsModal, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+backspace", onClear, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+.`, () => fitView(FIT_VIEW_SETTINGS), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+/`, onToggleSettingsModal, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+backspace`, onClear, HOTKEY_CONFIG);
 
-  useHotkeys("meta+z", undo, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+z`, undo, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+z`, redo, HOTKEY_CONFIG);
 
-  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+e`, showRenameInput, HOTKEY_CONFIG);
 
-  useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
-  useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
-  useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
-  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
-  useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
-  useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+up`, moveToParent, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+down`, moveToChild, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+left`, moveToLeftSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+right`, moveToRightSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+return`, () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -1041,7 +1045,7 @@ function App() {
                 crossAxisAlignment={"center"}
               >
                 <BigButton
-                  tooltip="⇧⌘P"
+                  tooltip={`⇧ ${modifierKeyText} P`}
                   width="400px"
                   height="100px"
                   fontSize="xl"

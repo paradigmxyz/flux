@@ -9,6 +9,7 @@ import { EditIcon, ViewIcon } from "@chakra-ui/icons";
 import TextareaAutosize from "react-textarea-autosize";
 
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { getPlatformModifierKeyText } from "../utils/platform";
 import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { displayNameFromFluxNodeType } from "../utils/fluxNode";
@@ -59,7 +60,7 @@ export function Prompt({
   /*//////////////////////////////////////////////////////////////
                               EFFECTS
   //////////////////////////////////////////////////////////////*/
-
+  const modifierKeyText = getPlatformModifierKeyText();
   const textOffsetRef = useRef<number>(-1);
 
   // Scroll to the prompt buttons
@@ -219,7 +220,7 @@ export function Prompt({
         id="promptButtons"
       >
         <BigButton
-          tooltip={promptNodeType === FluxNodeType.User ? "⌘⏎" : "⌘P"}
+          tooltip={promptNodeType === FluxNodeType.User ? `${modifierKeyText} ⏎` : `${modifierKeyText} P`}
           onClick={onMainButtonClick}
           color={getFluxNodeTypeDarkColor(promptNodeType)}
           width="100%"

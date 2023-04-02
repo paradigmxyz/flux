@@ -429,6 +429,7 @@ function App() {
           // If the choice has a finish reason, then it's the final
           // choice and we can mark it as no longer animated right now.
           if (choice.finish_reason !== null) {
+            // Reset the stream id.
             setNodes((nodes) =>
               setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
             );
@@ -588,7 +589,7 @@ function App() {
 
       // If the stream wasn't forcibly canceled.
       if (!abortController.signal.aborted)
-        // Reset the streamId.
+        // Reset the stream id.
         setNodes((nodes) =>
           setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId: undefined })
         );

@@ -1,6 +1,7 @@
 import { Node, Edge } from "reactflow";
 
 import {
+  MAX_AUTOLABEL_LENGTH,
   NEW_TREE_X_OFFSET,
   OVERLAP_RANDOMNESS_MAX,
   STALE_STREAM_ERROR_MESSAGE,
@@ -197,7 +198,27 @@ export function appendTextToFluxNodeAsGPT(
 
     const copy = { ...node, data: { ...node.data } };
 
+    // To reduce complexity we assume auto-labels either end with " ..." or are equal to the generated text.
+    const isTruncated = copy.data.label.endsWith(" ...");
+    const isPreviousAutoLabel = isTruncated || copy.data.label === copy.data.text;
+    const isNewPrompt = copy.data.text.length === 0;
+
     copy.data.text += text;
+
+    // Preserve custom labels
+    if (
+      copy.data.label !== displayNameFromFluxNodeType(FluxNodeType.GPT) &&
+      !isPreviousAutoLabel
+    )
+      return copy;
+
+    // If label hasn't reached max length or it's a new prompt, set from text.
+    // Once label reaches max length, truncate it.
+    if (copy.data.label.length < MAX_AUTOLABEL_LENGTH || isNewPrompt) {
+      copy.data.label = copy.data.text;
+    } else if (!isTruncated) {
+      copy.data.label += " ...";
+    }
 
     return copy;
   });

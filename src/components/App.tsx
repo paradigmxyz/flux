@@ -530,7 +530,7 @@ function App() {
 
     const streamId = generateStreamId();
 
-    // Set the node's streamId to it will accept the incoming text.
+    // Set the node's streamId so it will accept the incoming text.
     setNodes((nodes) => setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId }));
 
     (async () => {

@@ -29,7 +29,7 @@ export function LabelUpdaterNode({
 
     // Have to do this with a bit of a delay to
     // ensure it works when triggered via navbar.
-    setTimeout(() => input?.select(), 0);
+    setTimeout(() => input?.select(), 50);
   }, []);
 
   const cancel = () => {

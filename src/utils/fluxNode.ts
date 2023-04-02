@@ -1,6 +1,11 @@
 import { Node, Edge } from "reactflow";
 
-import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
+import {
+  NEW_TREE_X_OFFSET,
+  OVERLAP_RANDOMNESS_MAX,
+  STALE_STREAM_ERROR_MESSAGE,
+  STREAM_CANCELED_ERROR_MESSAGE,
+} from "./constants";
 import { FluxNodeType, FluxNodeData, ReactFlowNodeTypes } from "./types";
 import { getFluxNodeTypeColor } from "./color";
 import { generateNodeId } from "./nodeId";
@@ -183,10 +188,12 @@ export function appendTextToFluxNodeAsGPT(
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
 
-    // If the node's streamId does not match the one
-    // passed, we're appending text from a stale stream.
-    // Throw to alert the caller they should abort the stream.
-    if (node.data.streamId !== streamId) throw new Error("STALE_STREAM_ID");
+    // If the node's streamId is now undefined, the stream has been canceled.
+    if (node.data.streamId === undefined) throw new Error(STREAM_CANCELED_ERROR_MESSAGE);
+
+    // If the node's streamId is not undefined but does
+    // not match the provided id, the stream is now stale.
+    if (node.data.streamId !== streamId) throw new Error(STALE_STREAM_ERROR_MESSAGE);
 
     const copy = { ...node, data: { ...node.data } };
 

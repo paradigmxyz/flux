@@ -82,7 +82,7 @@ import {
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
   STREAM_CANCELED_ERROR_MESSAGE,
-  MAX_AUTOLABEL_LENGTH,
+  MAX_AUTOLABEL_CHARS,
 } from "../utils/constants";
 import { mod } from "../utils/mod";
 import { BigButton } from "./utils/BigButton";
@@ -533,9 +533,9 @@ function App() {
     // Generate auto-label for parentNode, if unset
     if (parentNode.data.label === parentNode.data.fluxNodeType) {
       const autoLabel =
-        parentNode.data.text.length > MAX_AUTOLABEL_LENGTH
+        parentNode.data.text.length > MAX_AUTOLABEL_CHARS
           ? parentNode.data.text
-              .slice(0, MAX_AUTOLABEL_LENGTH)
+              .slice(0, MAX_AUTOLABEL_CHARS)
               .split(" ")
               .slice(0, -1)
               .join(" ") + " ..."

@@ -62,4 +62,4 @@ export const STREAM_CANCELED_ERROR_MESSAGE = "STREAM_CANCELED";
 export const STALE_STREAM_ERROR_MESSAGE = "STALE_STREAM";
 
 // Lucky number to almost always make auto-label text stay in two lines
-export const MAX_AUTOLABEL_LENGTH = 32;
+export const MAX_AUTOLABEL_CHARS = 32;

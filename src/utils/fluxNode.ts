@@ -1,7 +1,7 @@
 import { Node, Edge } from "reactflow";
 
 import {
-  MAX_AUTOLABEL_LENGTH,
+  MAX_AUTOLABEL_CHARS,
   NEW_TREE_X_OFFSET,
   OVERLAP_RANDOMNESS_MAX,
   STALE_STREAM_ERROR_MESSAGE,
@@ -214,7 +214,7 @@ export function appendTextToFluxNodeAsGPT(
 
     // If label hasn't reached max length or it's a new prompt, set from text.
     // Once label reaches max length, truncate it.
-    if (copy.data.label.length < MAX_AUTOLABEL_LENGTH || isNewPrompt) {
+    if (copy.data.label.length < MAX_AUTOLABEL_CHARS || isNewPrompt) {
       copy.data.label = copy.data.text;
     } else if (!isTruncated) {
       copy.data.label += " ...";

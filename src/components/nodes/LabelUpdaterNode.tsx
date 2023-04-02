@@ -61,7 +61,9 @@ export function LabelUpdaterNode({
           id="renameInput"
           value={renameLabel}
           onChange={(e: any) => setRenameLabel(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
+          onKeyDown={(e) =>
+            e.key === "Enter" ? submit() : e.key === "Escape" && cancel()
+          }
           className="nodrag" // https://reactflow.dev/docs/api/nodes/custom-nodes/#prevent-dragging--selecting
           textAlign="center"
           size="xs"

@@ -80,6 +80,7 @@ import {
   REACT_FLOW_LOCAL_STORAGE_KEY,
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
+  STREAM_CANCELED_ERROR_MESSAGE,
 } from "../utils/constants";
 import { mod } from "../utils/mod";
 import { BigButton } from "./utils/BigButton";
@@ -412,10 +413,10 @@ function App() {
                   text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
                   streamId, // This will cause a throw if the streamId has changed.
                 });
-              } catch (e) {
+              } catch (e: any) {
                 // If the stream id does not match,
                 // it is stale and we should abort.
-                abortController.abort();
+                abortController.abort(e.message);
 
                 return newerNodes;
               }
@@ -447,8 +448,11 @@ function App() {
         }
       }
 
-      // If the stream wasn't forcibly canceled.
-      if (!abortController.signal.aborted) {
+      // If the stream wasn't aborted or was aborted due to a cancelation.
+      if (
+        !abortController.signal.aborted ||
+        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+      ) {
         // Mark all the edges as no longer animated.
         for (let i = 0; i < responses; i++) {
           const correspondingNodeId =
@@ -456,6 +460,7 @@ function App() {
               ? currentNodeChildren[i].id
               : newNodes[newNodes.length - responses + i].id;
 
+          // Reset the stream id.
           setNodes((nodes) =>
             setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
           );
@@ -574,10 +579,10 @@ function App() {
                 text: choice.text ?? UNDEFINED_RESPONSE_STRING,
                 streamId, // This will cause a throw if the streamId has changed.
               });
-            } catch (e) {
+            } catch (e: any) {
               // If the stream id does not match,
               // it is stale and we should abort.
-              abortController.abort();
+              abortController.abort(e.message);
 
               return newerNodes;
             }
@@ -587,12 +592,16 @@ function App() {
         }
       }
 
-      // If the stream wasn't forcibly canceled.
-      if (!abortController.signal.aborted)
+      // If the stream wasn't aborted or was aborted due to a cancelation.
+      if (
+        !abortController.signal.aborted ||
+        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+      ) {
         // Reset the stream id.
         setNodes((nodes) =>
           setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId: undefined })
         );
+      }
     })().catch((err) => console.error(err));
   };
 

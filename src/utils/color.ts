@@ -1,4 +1,4 @@
-import { FluxNodeType, Settings } from "./types";
+import { FluxNodeType } from "./types";
 
 export function adjustColor(color: string, amount: number) {
   return (

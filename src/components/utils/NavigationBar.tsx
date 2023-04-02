@@ -82,6 +82,7 @@ export function NavigationBar({
             as={Link}
             isExternal
             href="https://twitter.com/transmissions11"
+            _hover={{ position: "relative", bottom: "1px" }}
           />
           <Avatar
             bg="#6B2E80"
@@ -91,6 +92,7 @@ export function NavigationBar({
             as={Link}
             isExternal
             href="https://twitter.com/_Dave__White_"
+            _hover={{ position: "relative", bottom: "1px" }}
           />
           <Avatar
             bg="white"
@@ -100,6 +102,7 @@ export function NavigationBar({
             as={Link}
             isExternal
             href="https://twitter.com/paradigm"
+            _hover={{ position: "relative", bottom: "1px" }}
           />
         </AvatarGroup>
 

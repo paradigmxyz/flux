@@ -192,6 +192,7 @@ function App() {
   const onEdgeUpdateEnd = (_: unknown, edge: Edge<any>) => {
     if (!edgeUpdateSuccessful.current) {
       takeSnapshot();
+
       setEdges((edges) => edges.filter((e) => e.id !== edge.id));
     }
 

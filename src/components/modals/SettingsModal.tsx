@@ -1,8 +1,7 @@
-import React from "react";
+import { memo } from "react";
 
 import {
   Button,
-  Text,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -20,7 +19,7 @@ import { Settings, FluxNodeType } from "../../utils/types";
 import { getFluxNodeTypeDarkColor } from "../../utils/color";
 import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
 
-export const SettingsModal = React.memo(function SettingsModal({
+export const SettingsModal = memo(function SettingsModal({
   isOpen,
   onClose,
   settings,

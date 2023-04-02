@@ -182,8 +182,10 @@ function App() {
     )
       return;
 
-    edgeUpdateSuccessful.current = true;
     takeSnapshot();
+
+    edgeUpdateSuccessful.current = true;
+
     setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
   };
 

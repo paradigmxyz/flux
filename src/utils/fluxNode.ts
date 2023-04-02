@@ -15,7 +15,6 @@ export function newFluxNode({
   y,
   fluxNodeType,
   text,
-  generating,
   streamId,
 }: {
   id?: string;
@@ -23,8 +22,7 @@ export function newFluxNode({
   y: number;
   fluxNodeType: FluxNodeType;
   text: string;
-  generating: boolean;
-  streamId?: string
+  streamId?: string;
 }): Node<FluxNodeData> {
   return {
     id: id ?? generateNodeId(),
@@ -36,8 +34,7 @@ export function newFluxNode({
       label: displayNameFromFluxNodeType(fluxNodeType),
       fluxNodeType,
       text,
-      generating,
-      streamId
+      streamId,
     },
   };
 }
@@ -54,19 +51,17 @@ export function addFluxNode(
     y,
     fluxNodeType,
     text,
-    generating,
-    streamId
+    streamId,
   }: {
     id?: string;
     x: number;
     y: number;
     fluxNodeType: FluxNodeType;
     text: string;
-    generating: boolean;
-    streamId?: string
+    streamId?: string;
   }
 ): Node<FluxNodeData>[] {
-  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, generating, streamId: '' });
+  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, streamId });
 
   return [...existingNodes, newNode];
 }
@@ -91,7 +86,6 @@ export function addUserNodeLinkedToASystemNode(
     y: 500,
     fluxNodeType: FluxNodeType.System,
     text: systemNodeText,
-    generating: false,
   });
 
   nodesCopy.push(systemNode);
@@ -105,7 +99,6 @@ export function addUserNodeLinkedToASystemNode(
       y: systemNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
       fluxNodeType: FluxNodeType.User,
       text: userNodeText ?? "",
-      generating: false,
     })
   );
 
@@ -149,11 +142,10 @@ export function modifyFluxNodeText(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
-      copy.data.label = displayNameFromFluxNodeType(
-        FluxNodeType.TweakedGPT,
-        undefined,
-        copy.data.label
-      );
+      copy.data.label =
+        copy.data.label != displayNameFromFluxNodeType(FluxNodeType.GPT)
+          ? copy.data.label // Preserve custom labels if necessary.
+          : displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
     }
 
     return copy;
@@ -173,29 +165,34 @@ export function modifyFluxNodeLabel(
   });
 }
 
+export function setFluxNodeStreamId(
+  existingNodes: Node<FluxNodeData>[],
+  { id, streamId }: { id: string; streamId: string | undefined }
+) {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    return { ...node, data: { ...node.data, streamId } };
+  });
+}
+
 export function appendTextToFluxNodeAsGPT(
   existingNodes: Node<FluxNodeData>[],
-  { id, text }: { id: string; text: string }
+  { id, text, streamId }: { id: string; text: string; streamId: string }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
+
+    // If the node's streamId does not match the one
+    // passed, we're appending text from a stale stream.
+    // Throw to alert the caller they should abort the stream.
+    if (node.data.streamId !== streamId) throw new Error("STALE_STREAM_ID");
 
     const copy = { ...node, data: { ...node.data } };
 
     copy.data.text += text;
 
     return copy;
-  });
-}
-
-export function markFluxNodeAsDoneGenerating(
-  existingNodes: Node<FluxNodeData>[],
-  id: string
-): Node<FluxNodeData>[] {
-  return existingNodes.map((node) => {
-    if (node.id !== id) return node;
-
-    return { ...node, data: { ...node.data, generating: false } };
   });
 }
 
@@ -346,16 +343,15 @@ export function getConnectionAllowed(
 
 export function displayNameFromFluxNodeType(
   fluxNodeType: FluxNodeType,
-  isGPT4?: boolean,
-  overrideLabel?: string
-) {
+  isGPT4?: boolean
+): string {
   switch (fluxNodeType) {
     case FluxNodeType.User:
       return "User";
     case FluxNodeType.GPT:
       return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
     case FluxNodeType.TweakedGPT:
-      return `${overrideLabel} (edited)`;
+      return displayNameFromFluxNodeType(FluxNodeType.GPT, isGPT4) + " (edited)";
     case FluxNodeType.System:
       return "System";
   }

@@ -146,7 +146,7 @@ export function Prompt({
               }
               cursor={isLast && isEditing ? "text" : "pointer"}
             >
-              {data.generating && data.text === "" ? (
+              {data.streamId && data.text === "" ? (
                 <Center expand>
                   <Spinner />
                 </Center>

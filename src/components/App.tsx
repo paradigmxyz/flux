@@ -202,28 +202,6 @@ function App() {
       })
     )
       return;
-    }
-
-    edgeUpdateSuccessful.current = true;
-    setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
-  }, [nodes, edges]);
-
-  const onEdgeUpdateEnd = useCallback((_: unknown, edge: Edge<any>) => {
-    if (!edgeUpdateSuccessful.current) {
-      setEdges((edges) => edges.filter((e) => e.id !== edge.id));
-    }
-
-    edgeUpdateSuccessful.current = true;
-  }, []);
-
-  const onConnect = (connection: Edge<any> | Connection) => {
-    const connectionAllowed = getConnectionAllowed(nodes, edges, {
-      source: connection.source!,
-      target: connection.target!
-    });
-    if (!connectionAllowed) {
-      return;
-    }
 
     takeSnapshot();
     setEdges((eds) => addEdge({ ...connection }, eds));

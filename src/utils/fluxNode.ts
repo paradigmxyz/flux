@@ -322,7 +322,7 @@ export function isFluxNodeInLineage(
 export function getConnectionAllowed(
   existingNodes: Node<FluxNodeData>[],
   existingEdges: Edge[],
-  { source, target }: { source: string, target: string }
+  { source, target }: { source: string; target: string }
 ): boolean {
   return (
     // Check the lineage of the source node to make

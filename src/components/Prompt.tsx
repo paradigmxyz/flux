@@ -127,7 +127,9 @@ export function Prompt({
               key={node.id}
               onClick={
                 isLast
-                  ? undefined
+                  ? isEditing
+                    ? undefined
+                    : () => setIsEditing(true)
                   : () => {
                       const selection = window.getSelection();
 
@@ -180,7 +182,6 @@ export function Prompt({
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"
                     wordBreak="break-word"
-                    onClick={isEditing ? undefined : () => setIsEditing(true)}
                   >
                     {isLast && isEditing ? (
                       <TextareaAutosize

@@ -183,16 +183,18 @@ function App() {
       return;
 
     edgeUpdateSuccessful.current = true;
+    takeSnapshot();
     setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
   };
 
-  const onEdgeUpdateEnd = useCallback((_: unknown, edge: Edge<any>) => {
+  const onEdgeUpdateEnd = (_: unknown, edge: Edge<any>) => {
     if (!edgeUpdateSuccessful.current) {
+      takeSnapshot();
       setEdges((edges) => edges.filter((e) => e.id !== edge.id));
     }
 
     edgeUpdateSuccessful.current = true;
-  }, []);
+  };
 
   const onConnect = (connection: Edge<any> | Connection) => {
     if (

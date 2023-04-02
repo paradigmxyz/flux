@@ -3,7 +3,7 @@ import { Box, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
 import mixpanel from "mixpanel-browser";
 import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
 import { Resizable } from "re-resizable";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useBeforeunload } from "react-beforeunload";
 import { useHotkeys } from "react-hotkeys-hook";
 import ReactFlow, {
@@ -15,6 +15,7 @@ import ReactFlow, {
   ReactFlowJsonObject,
   SelectionMode,
   addEdge,
+  updateEdge,
   useEdgesState,
   useNodesState,
   useReactFlow,
@@ -37,6 +38,8 @@ import {
   NEW_TREE_CONTENT_QUERY_PARAM,
   OVERLAP_RANDOMNESS_MAX,
   REACT_FLOW_LOCAL_STORAGE_KEY,
+  REACT_FLOW_NODE_TYPES,
+  STREAM_CANCELED_ERROR_MESSAGE,
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
 } from "../utils/constants";
@@ -49,24 +52,26 @@ import {
   deleteFluxNode,
   deleteSelectedFluxNodes,
   displayNameFromFluxNodeType,
+  getConnectionAllowed,
   getFluxNode,
   getFluxNodeChildren,
   getFluxNodeGPTChildren,
   getFluxNodeLineage,
   getFluxNodeParent,
   getFluxNodeSiblings,
-  isFluxNodeInLineage,
-  markFluxNodeAsDoneGenerating,
   markOnlyNodeAsSelected,
-  modifyFluxNode,
+  modifyFluxNodeText,
+  modifyReactFlowNodeProperties,
   newFluxNode,
+  setFluxNodeStreamId,
 } from "../utils/fluxNode";
 import { useLocalStorage } from "../utils/lstore";
 import { mod } from "../utils/mod";
-import { generateNodeId } from "../utils/nodeId";
+import { generateNodeId, generateStreamId } from "../utils/nodeId";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { getQueryParam, resetURL } from "../utils/qparams";
 import { useDebouncedWindowResize } from "../utils/resize";
+import { ReactFlowNodeTypes } from "../utils/types";
 import {
   CreateChatCompletionStreamResponseChoicesInner,
   FluxNodeData,
@@ -151,13 +156,38 @@ function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const onConnect = (connection: Edge<any> | Connection) => {
-    // Check the lineage of the source node to make
-    // sure we aren't creating a recursive connection.
+  const edgeUpdateSuccessful = useRef(true);
+
+  const onEdgeUpdateStart = useCallback(() => {
+    edgeUpdateSuccessful.current = false;
+  }, []);
+
+  const onEdgeUpdate = (oldEdge: Edge<any>, newConnection: Connection) => {
     if (
-      isFluxNodeInLineage(nodes, edges, {
-        nodeToCheck: connection.target!,
-        nodeToGetLineageOf: connection.source!,
+      !getConnectionAllowed(nodes, edges, {
+        source: newConnection.source!,
+        target: newConnection.target!,
+      })
+    )
+      return;
+
+    edgeUpdateSuccessful.current = true;
+    setEdges((edges) => updateEdge(oldEdge, newConnection, edges));
+  };
+
+  const onEdgeUpdateEnd = useCallback((_: unknown, edge: Edge<any>) => {
+    if (!edgeUpdateSuccessful.current) {
+      setEdges((edges) => edges.filter((e) => e.id !== edge.id));
+    }
+
+    edgeUpdateSuccessful.current = true;
+  }, []);
+
+  const onConnect = (connection: Edge<any> | Connection) => {
+    if (
+      !getConnectionAllowed(nodes, edges, {
+        source: connection.source!,
+        target: connection.target!,
       })
     )
       return;
@@ -233,7 +263,7 @@ function App() {
 
   // Takes a prompt, submits it to the GPT API with n responses,
   // then creates a child node for each response under the selected node.
-  const submitPrompt = async () => {
+  const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
 
     if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
@@ -250,13 +280,15 @@ function App() {
     const currentNode = getFluxNode(newNodes, parentNodeId)!;
     const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNodeId);
 
+    const streamId = generateStreamId();
+
     let firstCompletionId: string | undefined;
 
     // Update newNodes, adding new child nodes as
-    // needed, re-using existing ones wherever possible.
+    // needed, re-using existing ones wherever possible if overrideExistingIfPossible is set.
     for (let i = 0; i < responses; i++) {
-      // If we have enough children, we'll just re-use one.
-      if (i < currentNodeChildren.length) {
+      // If we have enough children, and overrideExistingIfPossible is true, we'll just re-use one.
+      if (overrideExistingIfPossible && i < currentNodeChildren.length) {
         const childNode = currentNodeChildren[i];
 
         if (i === 0) firstCompletionId = childNode.id;
@@ -270,7 +302,7 @@ function App() {
             text: "",
             label: displayNameFromFluxNodeType(FluxNodeType.GPT),
             fluxNodeType: FluxNodeType.GPT,
-            generating: true,
+            streamId,
           },
           style: {
             ...childNode.style,
@@ -291,12 +323,22 @@ function App() {
             // such that the middle response is right below the current node.
             // Note that node x y coords are the top left corner of the node,
             // so we need to offset by at the width of the node (150px).
-            x: currentNode.position.x + (i - (responses - 1) / 2) * 180,
+            x:
+              (currentNodeChildren.length > 0
+                ? // If there are already children we want to put the
+                  // next child to the right of the furthest right one.
+                  currentNodeChildren.reduce((prev, current) =>
+                    prev.position.x > current.position.x ? prev : current
+                  ).position.x +
+                  (responses / 2) * 180 +
+                  90
+                : currentNode.position.x) +
+              (i - (responses - 1) / 2) * 180,
             // Add OVERLAP_RANDOMNESS_MAX of randomness to the y position so that nodes don't overlap.
             y: currentNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
             fluxNodeType: FluxNodeType.GPT,
             text: "",
-            generating: true,
+            streamId,
           })
         );
       }
@@ -318,7 +360,11 @@ function App() {
 
       const DECODER = new TextDecoder();
 
-      for await (const chunk of yieldStream(stream)) {
+      const abortController = new AbortController();
+
+      for await (const chunk of yieldStream(stream, abortController)) {
+        if (abortController.signal.aborted) break;
+
         try {
           const decoded = JSON.parse(DECODER.decode(chunk));
 
@@ -337,7 +383,7 @@ function App() {
 
           const correspondingNodeId =
             // If we re-used a node we have to pull it from children array.
-            choice.index < currentNodeChildren.length
+            overrideExistingIfPossible && choice.index < currentNodeChildren.length
               ? currentNodeChildren[choice.index].id
               : newNodes[newNodes.length - responses + choice.index].id;
 
@@ -345,17 +391,33 @@ function App() {
           // choice with only a role delta and no content.
           if (choice.delta?.content) {
             setNodes((newerNodes) => {
-              return appendTextToFluxNodeAsGPT(newerNodes, {
-                id: correspondingNodeId,
-                text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
-              });
+              try {
+                return appendTextToFluxNodeAsGPT(newerNodes, {
+                  id: correspondingNodeId,
+                  text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
+                  streamId, // This will cause a throw if the streamId has changed.
+                });
+              } catch (e: any) {
+                // If the stream id does not match,
+                // it is stale and we should abort.
+                abortController.abort(e.message);
+
+                return newerNodes;
+              }
             });
           }
+
+          // We cannot return within the loop, and we do
+          // not want to execute the code below, so we break.
+          if (abortController.signal.aborted) break;
 
           // If the choice has a finish reason, then it's the final
           // choice and we can mark it as no longer animated right now.
           if (choice.finish_reason !== null) {
-            setNodes((nodes) => markFluxNodeAsDoneGenerating(nodes, correspondingNodeId));
+            // Reset the stream id.
+            setNodes((nodes) =>
+              setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
+            );
 
             setEdges((edges) =>
               modifyFluxEdge(edges, {
@@ -370,22 +432,31 @@ function App() {
         }
       }
 
-      // Mark all the edges as no longer animated.
-      for (let i = 0; i < responses; i++) {
-        const correspondingNodeId =
-          i < currentNodeChildren.length
-            ? currentNodeChildren[i].id
-            : newNodes[newNodes.length - responses + i].id;
+      // If the stream wasn't aborted or was aborted due to a cancelation.
+      if (
+        !abortController.signal.aborted ||
+        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+      ) {
+        // Mark all the edges as no longer animated.
+        for (let i = 0; i < responses; i++) {
+          const correspondingNodeId =
+            overrideExistingIfPossible && i < currentNodeChildren.length
+              ? currentNodeChildren[i].id
+              : newNodes[newNodes.length - responses + i].id;
 
-        setNodes((nodes) => markFluxNodeAsDoneGenerating(nodes, correspondingNodeId));
+          // Reset the stream id.
+          setNodes((nodes) =>
+            setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
+          );
 
-        setEdges((edges) =>
-          modifyFluxEdge(edges, {
-            source: parentNodeId,
-            target: correspondingNodeId,
-            animated: false,
-          })
-        );
+          setEdges((edges) =>
+            modifyFluxEdge(edges, {
+              source: parentNodeId,
+              target: correspondingNodeId,
+              animated: false,
+            })
+          );
+        }
       }
     })().catch((err) =>
       toast({
@@ -406,7 +477,7 @@ function App() {
       for (let i = 0; i < responses; i++) {
         // Update the links between
         // re-used nodes if necessary.
-        if (i < currentNodeChildren.length) {
+        if (overrideExistingIfPossible && i < currentNodeChildren.length) {
           const childId = currentNodeChildren[i].id;
 
           const idx = newEdges.findIndex(
@@ -444,27 +515,37 @@ function App() {
 
     const temp = settings.temp;
 
-    const parentNodeLineage = selectedNodeLineage;
-    const parentNodeId = parentNodeLineage[0].id;
+    const lineage = selectedNodeLineage;
+    const selectedNodeId = lineage[0].id;
+
+    const streamId = generateStreamId();
+
+    // Set the node's streamId so it will accept the incoming text.
+    setNodes((nodes) => setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId }));
 
     (async () => {
-      // TODO: Stop sequences for user/assistant/etc? min tokens?
-      // Select between instruction and auto completer?
+      // TODO: Stop sequences for user/assistant/etc?
+      // TODO: Select between instruction and auto raw base models?
       const stream = await OpenAI(
         "completions",
         {
-          model: "text-davinci-003", // TODO: Allow customizing.
-          temperature: temp, // TODO: Allow customizing.
-          prompt: promptFromLineage(parentNodeLineage, settings),
-          max_tokens: 250, // Allow customizing.
-          stop: ["\n\n", "assistant:", "user:"], // TODO: Allow customizing.
+          // TODO: Allow customizing.
+          model: "text-davinci-003",
+          temperature: temp,
+          prompt: promptFromLineage(lineage, settings),
+          max_tokens: 250,
+          stop: ["\n\n", "assistant:", "user:"],
         },
         { apiKey: apiKey!, mode: "raw" }
       );
 
       const DECODER = new TextDecoder();
 
-      for await (const chunk of yieldStream(stream)) {
+      const abortController = new AbortController();
+
+      for await (const chunk of yieldStream(stream, abortController)) {
+        if (abortController.signal.aborted) break;
+
         try {
           const decoded = JSON.parse(DECODER.decode(chunk));
 
@@ -475,15 +556,35 @@ function App() {
 
           const choice: CreateCompletionResponseChoicesInner = decoded.choices[0];
 
-          setNodes((newNodes) =>
-            appendTextToFluxNodeAsGPT(newNodes, {
-              id: parentNodeId,
-              text: choice.text ?? UNDEFINED_RESPONSE_STRING,
-            })
-          );
+          setNodes((newerNodes) => {
+            try {
+              return appendTextToFluxNodeAsGPT(newerNodes, {
+                id: selectedNodeId,
+                text: choice.text ?? UNDEFINED_RESPONSE_STRING,
+                streamId, // This will cause a throw if the streamId has changed.
+              });
+            } catch (e: any) {
+              // If the stream id does not match,
+              // it is stale and we should abort.
+              abortController.abort(e.message);
+
+              return newerNodes;
+            }
+          });
         } catch (err) {
           console.error(err);
         }
+      }
+
+      // If the stream wasn't aborted or was aborted due to a cancelation.
+      if (
+        !abortController.signal.aborted ||
+        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+      ) {
+        // Reset the stream id.
+        setNodes((nodes) =>
+          setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId: undefined })
+        );
       }
     })().catch((err) => console.error(err));
   };
@@ -547,7 +648,9 @@ function App() {
           id,
           x:
             selectedNodeChildren.length > 0
-              ? selectedNodeChildren.reduce((prev, current) =>
+              ? // If there are already children we want to put the
+                // next child to the right of the furthest right one.
+                selectedNodeChildren.reduce((prev, current) =>
                   prev.position.x > current.position.x ? prev : current
                 ).position.x + 180
               : selectedNode.position.x,
@@ -556,7 +659,6 @@ function App() {
           y: selectedNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
           fluxNodeType: type,
           text: "",
-          generating: false,
         })
       );
 
@@ -754,6 +856,27 @@ function App() {
   };
 
   /*//////////////////////////////////////////////////////////////
+                         RENAME NODE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  const showRenameInput = () => {
+    takeSnapshot();
+
+    const selectedNode = nodes.find((node) => node.selected);
+    const nodeId = selectedNode?.id ?? selectedNodeId;
+
+    if (nodeId) {
+      setNodes((nodes) =>
+        modifyReactFlowNodeProperties(nodes, {
+          id: nodeId,
+          type: ReactFlowNodeTypes.LabelUpdater,
+          draggable: false,
+        })
+      );
+    }
+  };
+
+  /*//////////////////////////////////////////////////////////////
                         WINDOW RESIZE LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -785,16 +908,14 @@ function App() {
   useHotkeys("meta+z", undo, HOTKEY_CONFIG);
   useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
 
+  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
+
   useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
   useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
   useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
   useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", submitPrompt, HOTKEY_CONFIG);
-  useHotkeys(
-    "meta+shift+return",
-    () => newConnectedToSelectedNode(FluxNodeType.GPT),
-    HOTKEY_CONFIG
-  );
+  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
   useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
   useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
   useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
@@ -859,12 +980,14 @@ function App() {
                   }
                   newConnectedToSelectedNode={newConnectedToSelectedNode}
                   deleteSelectedNodes={deleteSelectedNodes}
-                  submitPrompt={submitPrompt}
+                  submitPrompt={() => submitPrompt(false)}
+                  regenerate={() => submitPrompt(true)}
                   completeNextWords={completeNextWords}
                   undo={undo}
                   redo={redo}
                   onClear={onClear}
                   copyMessagesToClipboard={copyMessagesToClipboard}
+                  showRenameInput={showRenameInput}
                   moveToParent={moveToParent}
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}
@@ -875,7 +998,6 @@ function App() {
                     onOpenSettingsModal();
                   }}
                 />
-
                 <Box ml="20px">
                   {isAnythingLoading ? (
                     <Spinner size="sm" mt="6px" color="green" />
@@ -896,7 +1018,11 @@ function App() {
                 onEdgesChange={onEdgesChange}
                 onEdgesDelete={takeSnapshot}
                 onNodesDelete={takeSnapshot}
+                onEdgeUpdateStart={onEdgeUpdateStart}
+                onEdgeUpdate={onEdgeUpdate}
+                onEdgeUpdateEnd={onEdgeUpdateEnd}
                 onConnect={onConnect}
+                nodeTypes={REACT_FLOW_NODE_TYPES}
                 // Causes clicks to also trigger auto zoom.
                 // onNodeDragStop={autoZoomIfNecessary}
                 onSelectionDragStop={autoZoomIfNecessary}
@@ -931,14 +1057,14 @@ function App() {
                 onType={(text: string) => {
                   takeSnapshot();
                   setNodes((nodes) =>
-                    modifyFluxNode(nodes, {
+                    modifyFluxNodeText(nodes, {
                       asHuman: true,
                       id: selectedNodeId!,
                       text,
                     })
                   );
                 }}
-                submitPrompt={submitPrompt}
+                submitPrompt={() => submitPrompt(false)}
               />
             ) : (
               <Column

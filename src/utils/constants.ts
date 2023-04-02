@@ -1,7 +1,16 @@
 import { UseToastOptions } from "@chakra-ui/toast";
 import { Options } from "react-hotkeys-hook";
+import { NodeProps } from "reactflow";
 
-import { Settings } from "./types";
+import { LabelUpdaterNode } from "../components/nodes/LabelUpdaterNode";
+import { ReactFlowNodeTypes, Settings } from "./types";
+
+export const REACT_FLOW_NODE_TYPES: Record<
+  ReactFlowNodeTypes,
+  (args: NodeProps) => JSX.Element
+> = {
+  LabelUpdater: LabelUpdaterNode,
+};
 
 export const SUPPORTED_MODELS = ["gpt-3.5-turbo", "gpt-4"];
 
@@ -45,3 +54,6 @@ export const NEW_TREE_X_OFFSET = 600;
 export const CODE_BLOCK_DETECT_REGEX =
   /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
 export const CODE_BLOCK_LANGUAGE_DETECT_REGEX = /^```[a-zA-Z0-9-]*$/m;
+
+export const STREAM_CANCELED_ERROR_MESSAGE = "STREAM_CANCELED";
+export const STALE_STREAM_ERROR_MESSAGE = "STALE_STREAM";

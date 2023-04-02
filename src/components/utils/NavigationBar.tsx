@@ -24,11 +24,13 @@ export function NavigationBar({
   newUserNodeLinkedToANewSystemNode,
   newConnectedToSelectedNode,
   submitPrompt,
+  regenerate,
   completeNextWords,
   undo,
   redo,
   onClear,
   copyMessagesToClipboard,
+  showRenameInput,
   deleteSelectedNodes,
   moveToParent,
   moveToChild,
@@ -40,12 +42,14 @@ export function NavigationBar({
   newUserNodeLinkedToANewSystemNode: () => void;
   newConnectedToSelectedNode: (nodeType: FluxNodeType) => void;
   submitPrompt: () => void;
+  regenerate: () => void;
   completeNextWords: () => void;
   deleteSelectedNodes: () => void;
   undo: () => void;
   redo: () => void;
   onClear: () => void;
   copyMessagesToClipboard: () => void;
+  showRenameInput: () => void;
   moveToParent: () => void;
   moveToChild: () => void;
   moveToLeftSibling: () => void;
@@ -137,7 +141,11 @@ export function NavigationBar({
 
             <MenuGroup title="GPT">
               <MenuItem command="⌘⏎" onClick={submitPrompt}>
-                Generate GPT response
+                Generate GPT responses
+              </MenuItem>
+
+              <MenuItem command="⇧⌘⏎" onClick={regenerate}>
+                Regenerate GPT responses
               </MenuItem>
 
               <MenuItem command="⌘K" onClick={completeNextWords}>
@@ -176,6 +184,14 @@ export function NavigationBar({
 
               <MenuItem command="⇧⌘⌫" onClick={onClear}>
                 Delete everything
+              </MenuItem>
+            </MenuGroup>
+
+            <MenuDivider />
+
+            <MenuGroup title="Rename">
+              <MenuItem command="⌘E" onClick={showRenameInput}>
+                Rename selected node
               </MenuItem>
             </MenuGroup>
 

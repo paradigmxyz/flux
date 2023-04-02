@@ -69,7 +69,12 @@ export function LabeledInput({
   return (
     <Box {...others}>
       <b>{label}:</b>
-      <Input mt={1} onChange={(e) => setValue(e.target.value)} value={value} />
+      <Input
+        focusBorderColor="green.500"
+        mt={1}
+        onChange={(e) => setValue(e.target.value)}
+        value={value}
+      />
     </Box>
   );
 }
@@ -108,6 +113,7 @@ export function LabeledPasswordInputWithLink({
       </Row>
       <InputGroup size="md" borderBottom="0px" borderColor="#EEF2F6" mt={1}>
         <Input
+          focusBorderColor="green.500"
           autoFocus
           type={show ? "text" : "password"}
           value={value}

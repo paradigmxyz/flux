@@ -211,6 +211,12 @@ function App() {
     if (settings.autoZoom) autoZoom();
   };
 
+  const trackedAutoZoom = () => {
+    autoZoom();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
+  };
+
   const save = () => {
     if (reactFlow) {
       localStorage.setItem(
@@ -945,16 +951,16 @@ function App() {
     HOTKEY_CONFIG
   );
 
+  useHotkeys(`${modifierKey}+.`, trackedAutoZoom, HOTKEY_CONFIG);
   useHotkeys(
-    `${modifierKey}+.`,
+    `${modifierKey}+/`,
     () => {
-      autoZoom();
+      onToggleSettingsModal();
 
-      if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
+      if (MIXPANEL_TOKEN) mixpanel.track("Toggled settings modal");
     },
     HOTKEY_CONFIG
   );
-  useHotkeys(`${modifierKey}+/`, onToggleSettingsModal, HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+shift+backspace`, onClear, HOTKEY_CONFIG);
 
   useHotkeys(`${modifierKey}+z`, undo, HOTKEY_CONFIG);
@@ -1048,7 +1054,7 @@ function App() {
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}
                   moveToRightSibling={moveToRightSibling}
-                  autoZoom={autoZoom}
+                  autoZoom={trackedAutoZoom}
                   onOpenSettingsModal={() => {
                     onOpenSettingsModal();
 

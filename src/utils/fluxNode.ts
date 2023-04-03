@@ -1,9 +1,14 @@
 import { Edge, Node } from "reactflow";
 
 import { getFluxNodeTypeColor } from "./color";
-import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
+import {
+  NEW_TREE_X_OFFSET,
+  OVERLAP_RANDOMNESS_MAX,
+  STALE_STREAM_ERROR_MESSAGE,
+  STREAM_CANCELED_ERROR_MESSAGE,
+} from "./constants";
 import { generateNodeId } from "./nodeId";
-import { FluxNodeData, FluxNodeType } from "./types";
+import { FluxNodeData, FluxNodeType, ReactFlowNodeTypes } from "./types";
 
 /*//////////////////////////////////////////////////////////////
                          CONSTRUCTORS

@@ -252,8 +252,8 @@ export function Prompt({
         <BigButton
           tooltip={
             promptNodeType === FluxNodeType.User
-              ? `${modifierKeyText} ⏎`
-              : `${modifierKeyText} P`
+              ? `${modifierKeyText}⏎`
+              : `${modifierKeyText}P`
           }
           onClick={onMainButtonClick}
           color={getFluxNodeTypeDarkColor(promptNodeType)}

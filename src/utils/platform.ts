@@ -3,5 +3,5 @@ export function getPlatformModifierKey() {
 }
 
 export function getPlatformModifierKeyText() {
-  return window.navigator.platform === "MacIntel" ? "⌘" : "Ctrl";
+  return window.navigator.platform === "MacIntel" ? "⌘" : " Ctrl ";
 }

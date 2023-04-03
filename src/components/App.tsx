@@ -1126,7 +1126,7 @@ function App() {
                 crossAxisAlignment={"center"}
               >
                 <BigButton
-                  tooltip={`⇧ ${modifierKeyText} P`}
+                  tooltip={`⇧${modifierKeyText}P`}
                   width="400px"
                   height="100px"
                   fontSize="xl"

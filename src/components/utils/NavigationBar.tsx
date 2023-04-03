@@ -123,7 +123,10 @@ export function NavigationBar({
           </MenuButton>
           <MenuList width="300px">
             <MenuGroup title="Trees">
-              <MenuItem command={`⇧ ${modifierKeyText} P`} onClick={newUserNodeLinkedToANewSystemNode}>
+              <MenuItem
+                command={`⇧${modifierKeyText}P`}
+                onClick={newUserNodeLinkedToANewSystemNode}
+              >
                 New conversation tree
               </MenuItem>
             </MenuGroup>
@@ -132,14 +135,14 @@ export function NavigationBar({
 
             <MenuGroup title="Nodes">
               <MenuItem
-                command={`${modifierKeyText} P`}
+                command={`${modifierKeyText}P`}
                 onClick={() => newConnectedToSelectedNode(FluxNodeType.User)}
               >
                 New user node
               </MenuItem>
 
               <MenuItem
-                command={`${modifierKeyText} U`}
+                command={`${modifierKeyText}U`}
                 onClick={() => newConnectedToSelectedNode(FluxNodeType.System)}
               >
                 New system node
@@ -149,15 +152,15 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="GPT">
-              <MenuItem command={`${modifierKeyText} ⏎`} onClick={submitPrompt}>
+              <MenuItem command={`${modifierKeyText}⏎`} onClick={submitPrompt}>
                 Generate GPT responses
               </MenuItem>
 
-              <MenuItem command={`⇧ ${modifierKeyText} ⏎`} onClick={regenerate}>
+              <MenuItem command={`⇧${modifierKeyText}⏎`} onClick={regenerate}>
                 Regenerate GPT responses
               </MenuItem>
 
-              <MenuItem command={`${modifierKeyText} K`} onClick={completeNextWords}>
+              <MenuItem command={`${modifierKeyText}K`} onClick={completeNextWords}>
                 Complete next words
               </MenuItem>
             </MenuGroup>
@@ -176,11 +179,11 @@ export function NavigationBar({
           </MenuButton>
           <MenuList width="300px">
             <MenuGroup title="History">
-              <MenuItem command={`${modifierKeyText} Z`} onClick={undo}>
+              <MenuItem command={`${modifierKeyText}Z`} onClick={undo}>
                 Undo
               </MenuItem>
 
-              <MenuItem command={`⇧ ${modifierKeyText} Z`} onClick={redo}>
+              <MenuItem command={`⇧${modifierKeyText}Z`} onClick={redo}>
                 Redo
               </MenuItem>
             </MenuGroup>
@@ -188,11 +191,11 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Delete">
-              <MenuItem command={`${modifierKeyText} ⌫`} onClick={deleteSelectedNodes}>
+              <MenuItem command={`${modifierKeyText}⌫`} onClick={deleteSelectedNodes}>
                 Delete selected node(s)
               </MenuItem>
 
-              <MenuItem command={`⇧ ${modifierKeyText} ⌫`} onClick={onClear}>
+              <MenuItem command={`⇧${modifierKeyText}⌫`} onClick={onClear}>
                 Delete everything
               </MenuItem>
             </MenuGroup>
@@ -200,7 +203,7 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Rename">
-              <MenuItem command={`${modifierKeyText} E`} onClick={showRenameInput}>
+              <MenuItem command={`${modifierKeyText}E`} onClick={showRenameInput}>
                 Rename selected node
               </MenuItem>
             </MenuGroup>
@@ -208,7 +211,7 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Copy">
-              <MenuItem command={`${modifierKeyText} C`} onClick={copyMessagesToClipboard}>
+              <MenuItem command={`${modifierKeyText}C`} onClick={copyMessagesToClipboard}>
                 Copy messages to clipboard
               </MenuItem>
             </MenuGroup>
@@ -227,10 +230,10 @@ export function NavigationBar({
           </MenuButton>
           <MenuList width="300px">
             <MenuGroup title="Parents/Children">
-              <MenuItem command={`${modifierKeyText} ↑`} onClick={moveToParent}>
+              <MenuItem command={`${modifierKeyText}↑`} onClick={moveToParent}>
                 Up to parent node
               </MenuItem>
-              <MenuItem command={`${modifierKeyText} ↓`} onClick={moveToChild}>
+              <MenuItem command={`${modifierKeyText}↓`} onClick={moveToChild}>
                 Down child node
               </MenuItem>
             </MenuGroup>
@@ -238,10 +241,10 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Siblings">
-              <MenuItem command={`${modifierKeyText} ←`} onClick={moveToLeftSibling}>
+              <MenuItem command={`${modifierKeyText}←`} onClick={moveToLeftSibling}>
                 Left to sibling node
               </MenuItem>
-              <MenuItem command={`${modifierKeyText} →`} onClick={moveToRightSibling}>
+              <MenuItem command={`${modifierKeyText}→`} onClick={moveToRightSibling}>
                 Right to sibling node
               </MenuItem>
             </MenuGroup>
@@ -249,7 +252,7 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Global">
-              <MenuItem command={`${modifierKeyText} .`} onClick={autoZoom}>
+              <MenuItem command={`${modifierKeyText}.`} onClick={autoZoom}>
                 Zoom out & center
               </MenuItem>
             </MenuGroup>

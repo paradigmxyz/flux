@@ -204,7 +204,10 @@ function App() {
     setEdges((eds) => addEdge({ ...connection }, eds));
   };
 
-  const autoZoom = () => setTimeout(() => fitView(FIT_VIEW_SETTINGS), 50);
+  const autoZoom = () => {
+    setTimeout(() => fitView(FIT_VIEW_SETTINGS), 50);
+    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
+  };
 
   const autoZoomIfNecessary = () => {
     if (settings.autoZoom) autoZoom();
@@ -931,14 +934,7 @@ function App() {
 
   useHotkeys("meta+shift+p", () => newUserNodeLinkedToANewSystemNode(), HOTKEY_CONFIG);
 
-  useHotkeys(
-    "meta+.",
-    () => {
-      fitView(FIT_VIEW_SETTINGS);
-      if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
-    },
-    HOTKEY_CONFIG
-  );
+  useHotkeys("meta+.", autoZoom, HOTKEY_CONFIG);
   useHotkeys("meta+/", onToggleSettingsModal, HOTKEY_CONFIG);
   useHotkeys("meta+shift+backspace", onClear, HOTKEY_CONFIG);
 
@@ -1016,7 +1012,9 @@ function App() {
                 borderBottomWidth="1px"
               >
                 <NavigationBar
-                  newUserNodeLinkedToANewSystemNode={newUserNodeLinkedToANewSystemNode}
+                  newUserNodeLinkedToANewSystemNode={() =>
+                    newUserNodeLinkedToANewSystemNode()
+                  }
                   newConnectedToSelectedNode={newConnectedToSelectedNode}
                   deleteSelectedNodes={deleteSelectedNodes}
                   submitPrompt={() => submitPrompt(false)}

@@ -149,9 +149,9 @@ function App() {
   };
 
   const handleOpenSettingsModal = () => {
-    if (MIXPANEL_TOKEN) mixpanel.track("Opened settings modal");
-
     onOpenSettingsModal();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Opened settings modal");
   };
 
   /*//////////////////////////////////////////////////////////////

@@ -522,7 +522,7 @@ function App() {
 
     autoZoomIfNecessary();
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt"); // KPI
   };
 
   const completeNextWords = () => {
@@ -603,7 +603,7 @@ function App() {
       }
     })().catch((err) => console.error(err));
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words"); // KPI
+    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words");
   };
 
   /*//////////////////////////////////////////////////////////////

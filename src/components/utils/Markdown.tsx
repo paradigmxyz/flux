@@ -120,7 +120,7 @@ export function Markdown({ text }: { text: string }) {
     () => (
       <StyledMarkdownWrapper>
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[remarkGfm]} // supports github flavored markdown.
           components={{
             code({ node, inline, className, children, ...props }) {
               const match = /language-(\w+)/.exec(className || "");

@@ -286,6 +286,8 @@ function App() {
   const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
 
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
+
     const responses = settings.n;
     const temp = settings.temp;
     const model = settings.model;

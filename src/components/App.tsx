@@ -946,7 +946,7 @@ function App() {
   );
 
   useHotkeys(
-    `${modifierKey}+shift+s`,
+    `${modifierKey}+shift+p`,
     () => newUserNodeLinkedToANewSystemNode(),
     HOTKEY_CONFIG
   );

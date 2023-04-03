@@ -33,7 +33,7 @@ export function APIKeyModal({
           <Heading textAlign="center" mb={3}>
             Welcome to Flux 👋
           </Heading>
-          <Text mb={10}>To start paste your OpenAI API key below.</Text>
+          <Text mb={10}>To start, paste your OpenAI API key below.</Text>
           <APIKeyInput apiKey={apiKey} setApiKey={setApiKeyTracked} />
           <Text mt={5} width="80%" textAlign="center" fontSize="md">
             We will <u>never</u> upload, log, or store your API key outside of your

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Box, Input } from "@chakra-ui/react";
+import { Box, Input, Tooltip } from "@chakra-ui/react";
 
 import { Handle, Position, useReactFlow } from "reactflow";
 
@@ -21,9 +21,11 @@ export function LabelUpdaterNode({
 
   const [renameLabel, setRenameLabel] = useState(data.label);
 
+  const inputId = `renameInput-${id}`;
+
   // Select the input element on mount.
   useEffect(() => {
-    const input = document.getElementById("renameInput") as HTMLInputElement | null;
+    const input = document.getElementById(inputId) as HTMLInputElement | null;
 
     // Have to do this with a bit of a delay to
     // ensure it works when triggered via navbar.
@@ -52,23 +54,26 @@ export function LabelUpdaterNode({
   };
 
   return (
-    <Box width="150px" height="38px">
-      <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
+    <Tooltip label="⏎">
+      <Box width="150px" height="38px">
+        <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
 
-      <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
-        <Input
-          onBlur={cancel}
-          id="renameInput"
-          value={renameLabel}
-          onChange={(e: any) => setRenameLabel(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          className="nodrag" // https://reactflow.dev/docs/api/nodes/custom-nodes/#prevent-dragging--selecting
-          textAlign="center"
-          size="xs"
-          // px={6}
-        />
+        <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
+          <Input
+            onBlur={cancel}
+            id={inputId}
+            value={renameLabel}
+            onChange={(e: any) => setRenameLabel(e.target.value)}
+            onKeyDown={(e) =>
+              e.key === "Enter" ? submit() : e.key === "Escape" && cancel()
+            }
+            className="nodrag" // https://reactflow.dev/docs/api/nodes/custom-nodes/#prevent-dragging--selecting
+            textAlign="center"
+            size="xs"
+            // px={6}
+          />
 
-        {/* <Row
+          {/* <Row
           mainAxisAlignment="center"
           crossAxisAlignment="center"
           position="absolute"
@@ -85,9 +90,10 @@ export function LabelUpdaterNode({
             onClick={cancel}
           />
         </Row> */}
-      </Row>
+        </Row>
 
-      <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} />
-    </Box>
+        <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} />
+      </Box>
+    </Tooltip>
   );
 }

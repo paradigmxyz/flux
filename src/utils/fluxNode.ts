@@ -148,10 +148,34 @@ export function modifyFluxNodeText(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
+
+      // TODO: This shouldn't apply anymore, as a node now never arrives here being named `FluxNodeType.GPT` due to auto-label. Should we remove the logic, or adapt it?
       copy.data.label =
         copy.data.label != displayNameFromFluxNodeType(FluxNodeType.GPT)
           ? copy.data.label // Preserve custom labels if necessary.
           : displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
+    }
+
+    // TODO: How to differentiate between custom label, when prompt is not changed at the end of the label?
+    const parseLength =
+      copy.data.text.length > MAX_AUTOLABEL_CHARS
+        ? MAX_AUTOLABEL_CHARS
+        : copy.data.text.length - 1; // account for new character being added
+
+    if (
+      copy.data.label.startsWith(copy.data.text.slice(0, parseLength)) ||
+      copy.data.label === displayNameFromFluxNodeType(copy.data.fluxNodeType)
+    ) {
+      const autoLabel =
+        copy.data.text.length > MAX_AUTOLABEL_CHARS
+          ? copy.data.text
+              .slice(0, MAX_AUTOLABEL_CHARS)
+              .split(" ")
+              .slice(0, -1)
+              .join(" ") + " ..."
+          : copy.data.text;
+
+      copy.data.label = autoLabel;
     }
 
     return copy;

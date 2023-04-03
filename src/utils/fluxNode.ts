@@ -1,7 +1,6 @@
 import { Node, Edge } from "reactflow";
 
 import {
-  MAX_AUTOLABEL_CHARS,
   NEW_TREE_X_OFFSET,
   OVERLAP_RANDOMNESS_MAX,
   STALE_STREAM_ERROR_MESSAGE,
@@ -151,13 +150,9 @@ export function modifyFluxNodeText(
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
     }
 
-    // Generate auto label based on prompt text
-    if (
-      !copy.data.hasCustomlabel ||
-      copy.data.label === displayNameFromFluxNodeType(copy.data.fluxNodeType)
-    ) {
+    // Generate auto label based on prompt text, and preserve custom label
+    if (!copy.data.hasCustomlabel) {
       copy.data.label = formatAutoLabel(copy.data.text);
-      copy.data.hasCustomlabel = false;
     }
 
     return copy;
@@ -214,18 +209,12 @@ export function appendTextToFluxNodeAsGPT(
     copy.data.text += text;
 
     // Preserve custom labels
-    if (
-      copy.data.hasCustomlabel ||
-      copy.data.label === displayNameFromFluxNodeType(FluxNodeType.GPT)
-    )
-      return copy;
+    if (copy.data.hasCustomlabel) return copy;
 
     // If label hasn't reached max length or it's a new prompt, set from text.
     // Once label reaches max length, truncate it.
-    if (copy.data.label.length < MAX_AUTOLABEL_CHARS || isFirstToken) {
-      copy.data.label = copy.data.text;
-    } else if (!copy.data.label.endsWith(" ...")) {
-      copy.data.label += " ...";
+    if (!copy.data.label.endsWith(" ...") || isFirstToken) {
+      copy.data.label = formatAutoLabel(copy.data.text);
     }
 
     return copy;

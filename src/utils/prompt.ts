@@ -73,12 +73,13 @@ export function promptFromLineage(
   return prompt;
 }
 
-export function formatAutoLabel(unformattedText: string) {
-  const text = removeInvalidChars(unformattedText);
+export function formatAutoLabel(text: string) {
+  const formattedText = removeInvalidChars(text);
 
-  return text.length > MAX_AUTOLABEL_CHARS
-    ? text.slice(0, MAX_AUTOLABEL_CHARS).split(" ").slice(0, -1).join(" ") + " ..."
-    : text;
+  return formattedText.length > MAX_AUTOLABEL_CHARS
+    ? formattedText.slice(0, MAX_AUTOLABEL_CHARS).split(" ").slice(0, -1).join(" ") +
+        " ..."
+    : formattedText;
 }
 
 function removeInvalidChars(text: string) {
@@ -87,9 +88,9 @@ function removeInvalidChars(text: string) {
   // a-zA-Z0-9: letters and numbers
   // .,?!: common punctuation marks
   // \s: whitespace characters (space, tab, newline, etc.)
-  const regex = /[^a-zA-Z0-9.,?!-\s]+/g;
+  const regex = /[^a-zA-Z0-9.,'?!-\s]+/g;
 
-  // Replace invalid characters with an empty string
+  // Replace `\n` with spaces and remove invalid characters
   const cleanedStr = text.replaceAll("\n", " ").replace(regex, "");
 
   return cleanedStr;

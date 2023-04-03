@@ -691,12 +691,10 @@ function App() {
 
       autoZoomIfNecessary();
 
-      if (MIXPANEL_TOKEN) {
-        if (type === FluxNodeType.User) {
-          mixpanel.track("New user node created");
-        } else {
-          mixpanel.track("New system node created");
-        }
+      if (type === FluxNodeType.User) {
+        if (MIXPANEL_TOKEN) mixpanel.track("New user node created");
+      } else {
+        if (MIXPANEL_TOKEN) mixpanel.track("New system node created");
       }
     }
   };

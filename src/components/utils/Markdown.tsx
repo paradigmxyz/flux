@@ -1,64 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
-import remarkGfm from "remark-gfm";
-import styled from "@emotion/styled";
-import { Button, Box } from "@chakra-ui/react";
+import "highlight.js/styles/a11y-light.css";
+import rehypeHighlight from "rehype-highlight";
+import { Button, Box, Code } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
-import { Row } from "../../utils/chakra";
+import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
-
-// Required to display accurate font sizes for markdown elements.
-const StyledMarkdownWrapper = styled(Box)`
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-size: inherit;
-    font-weight: 500;
-  }
-
-  blockquote {
-    margin: revert;
-  }
-
-  ol,
-  ul {
-    margin-left: 20px;
-  }
-  h1 {
-    font-size: 2em;
-  }
-
-  h2 {
-    font-size: 1.5em;
-  }
-
-  h3 {
-    font-size: 1.17em;
-  }
-
-  h4 {
-    font-size: 1em;
-  }
-
-  h5 {
-    font-size: 0.83em;
-  }
-
-  h6 {
-    font-size: 0.67em;
-  }
-
-  hr {
-    background-color: #000000;
-    height: 2px;
-    border: 0px;
-  }
-`;
 
 const TitleBar = ({ language, code }: { language?: string; code: string }) => {
   return (
@@ -114,44 +61,42 @@ const CopyCodeButton = ({ code }: { code: string }) => {
 export function Markdown({ text }: { text: string }) {
   const markdown = useMemo(
     () => (
-      <StyledMarkdownWrapper>
+      <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]} // supports github flavored markdown.
+          rehypePlugins={[rehypeHighlight]}
           components={{
             code({ node, inline, className, children, style, ...props }) {
               const match = /language-(\w+)/.exec(className || "");
               const code = String(children);
               return !inline ? (
-                <Box
-                  padding={0}
+                <Column
                   borderRadius="0.25rem"
                   overflow="hidden"
-                  css={{
-                    // targets the pre tag inside the code block. This is required to remove the margin between the title bar.
-                    "> pre": { margin: "0 !important" },
-                  }}
-                  {...props}
+                  mainAxisAlignment="flex-start"
+                  crossAxisAlignment="center"
                 >
                   <TitleBar language={match?.[1]} code={code} />
-                  <SyntaxHighlighter
-                    children={code}
-                    style={coy}
-                    language={match?.[1] || "plaintext"}
-                    wrapLongLines
+                  <Code
+                    width="100%"
+                    padding={!match?.[1] ? "10px" : 0} // when no language is specified, inconsistent padding is applied. This fixes that.
+                    className={className}
                     {...props}
-                  />
-                </Box>
+                    style={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {children}
+                  </Code>
+                </Column>
               ) : (
-                <code className={className} {...props}>
+                <Code className={className} {...props} style={{ whiteSpace: "pre-wrap" }}>
                   {children}
-                </code>
+                </Code>
               );
             },
           }}
         >
           {text}
         </ReactMarkdown>
-      </StyledMarkdownWrapper>
+      </Box>
     ),
     [text]
   );

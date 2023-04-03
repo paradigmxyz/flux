@@ -603,7 +603,7 @@ function App() {
       }
     })().catch((err) => console.error(err));
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words");
+    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words"); // KPI
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -1058,7 +1058,7 @@ function App() {
                   onOpenSettingsModal={() => {
                     onOpenSettingsModal();
 
-                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal");
+                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal"); // KPI
                   }}
                 />
 

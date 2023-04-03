@@ -59,7 +59,7 @@ const CopyCodeButton = ({ code }: { code: string }) => {
 };
 
 export function Markdown({ text }: { text: string }) {
-  const markdown = useMemo(
+  return useMemo(
     () => (
       <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
         <ReactMarkdown
@@ -100,6 +100,4 @@ export function Markdown({ text }: { text: string }) {
     ),
     [text]
   );
-
-  return markdown;
 }

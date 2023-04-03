@@ -60,10 +60,6 @@ const StyledMarkdownWrapper = styled(Box)`
   }
 `;
 
-export interface MarkdownProps {
-  text: string;
-}
-
 const TitleBar = ({ language, code }: { language?: string; code: string }) => {
   return (
     <Row
@@ -122,26 +118,25 @@ export function Markdown({ text }: { text: string }) {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]} // supports github flavored markdown.
           components={{
-            code({ node, inline, className, children, ...props }) {
+            code({ node, inline, className, children, style, ...props }) {
               const match = /language-(\w+)/.exec(className || "");
               const code = String(children);
               return !inline ? (
                 <Box
-                  padding="0"
+                  padding={0}
                   borderRadius="0.25rem"
                   overflow="hidden"
                   css={{
-                    "> div": { margin: "0 !important" },
-                    ".fa": { fontStyle: "normal !important" },
+                    // targets the pre tag inside the code block. This is required to remove the margin between the title bar.
+                    "> pre": { margin: "0 !important" },
                   }}
                   {...props}
                 >
                   <TitleBar language={match?.[1]} code={code} />
                   <SyntaxHighlighter
                     children={code}
-                    style={coy as any}
-                    language={match?.[1] || "text"}
-                    PreTag="div"
+                    style={coy}
+                    language={match?.[1] || "plaintext"}
                     wrapLongLines
                     {...props}
                   />

@@ -73,8 +73,24 @@ export function promptFromLineage(
   return prompt;
 }
 
-export function formatAutoLabel(text: string) {
+export function formatAutoLabel(unformattedText: string) {
+  const text = removeInvalidChars(unformattedText);
+
   return text.length > MAX_AUTOLABEL_CHARS
     ? text.slice(0, MAX_AUTOLABEL_CHARS).split(" ").slice(0, -1).join(" ") + " ..."
     : text;
+}
+
+function removeInvalidChars(text: string) {
+  // The regular expression pattern:
+  // ^: not
+  // a-zA-Z0-9: letters and numbers
+  // .,?!: common punctuation marks
+  // \s: whitespace characters (space, tab, newline, etc.)
+  const regex = /[^a-zA-Z0-9.,?!-\s]+/g;
+
+  // Replace invalid characters with an empty string
+  const cleanedStr = text.replaceAll("\n", " ").replace(regex, "");
+
+  return cleanedStr;
 }

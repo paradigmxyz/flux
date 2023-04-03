@@ -224,7 +224,7 @@ export function appendTextToFluxNodeAsGPT(
     // Once label reaches max length, truncate it.
     if (copy.data.label.length < MAX_AUTOLABEL_CHARS || isFirstToken) {
       copy.data.label = copy.data.text;
-    } else if (copy.data.label.endsWith(" ...")) {
+    } else if (!copy.data.label.endsWith(" ...")) {
       copy.data.label += " ...";
     }
 

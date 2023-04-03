@@ -1,12 +1,12 @@
-import styled from "@emotion/styled";
-import ReactMarkdown from "react-markdown";
 import { useState, useEffect, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
+import styled from "@emotion/styled";
 import { Button, Box } from "@chakra-ui/react";
-import { Row } from "../../utils/chakra";
 import { CopyIcon } from "@chakra-ui/icons";
+import { Row } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 
 // Required to display accurate font sizes for markdown elements.

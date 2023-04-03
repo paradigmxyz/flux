@@ -1052,7 +1052,7 @@ function App() {
                   onOpenSettingsModal={() => {
                     onOpenSettingsModal();
 
-                    if (MIXPANEL_TOKEN) mixpanel.track("Opened settings modal");
+                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal");
                   }}
                 />
 

@@ -9,6 +9,7 @@ import {
 import { FluxNodeType, FluxNodeData, ReactFlowNodeTypes } from "./types";
 import { getFluxNodeTypeColor } from "./color";
 import { generateNodeId } from "./nodeId";
+import { formatAutoLabel } from "./prompt";
 
 /*//////////////////////////////////////////////////////////////
                          CONSTRUCTORS
@@ -147,10 +148,13 @@ export function modifyFluxNodeText(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
-      copy.data.label =
-        copy.data.label != displayNameFromFluxNodeType(FluxNodeType.GPT)
-          ? copy.data.label // Preserve custom labels if necessary.
-          : displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
+    }
+
+    // Generate auto label based on prompt text, and preserve custom label
+    if (!copy.data.hasCustomlabel) {
+      copy.data.label = copy.data.text
+        ? formatAutoLabel(copy.data.text)
+        : displayNameFromFluxNodeType(copy.data.fluxNodeType);
     }
 
     return copy;
@@ -164,7 +168,12 @@ export function modifyFluxNodeLabel(
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
 
-    const copy = { ...node, data: { ...node.data, label }, type, draggable: undefined };
+    const copy = {
+      ...node,
+      data: { ...node.data, label, hasCustomlabel: true },
+      type,
+      draggable: undefined,
+    };
 
     return copy;
   });
@@ -197,7 +206,18 @@ export function appendTextToFluxNodeAsGPT(
 
     const copy = { ...node, data: { ...node.data } };
 
+    const isFirstToken = copy.data.text.length === 0;
+
     copy.data.text += text;
+
+    // Preserve custom labels
+    if (copy.data.hasCustomlabel) return copy;
+
+    // If label hasn't reached max length or it's a new prompt, set from text.
+    // Once label reaches max length, truncate it.
+    if (!copy.data.label.endsWith(" ...") || isFirstToken) {
+      copy.data.label = formatAutoLabel(copy.data.text);
+    }
 
     return copy;
   });

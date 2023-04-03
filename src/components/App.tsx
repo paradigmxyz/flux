@@ -294,12 +294,12 @@ function App() {
     const model = settings.model;
 
     const parentNodeLineage = selectedNodeLineage;
-    const parentNodeId = selectedNodeLineage[0].id;
+    const parentNode = selectedNodeLineage[0];
 
     const newNodes = [...nodes];
 
-    const currentNode = getFluxNode(newNodes, parentNodeId)!;
-    const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNodeId);
+    const currentNode = getFluxNode(newNodes, parentNode.id)!;
+    const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNode.id);
 
     const streamId = generateStreamId();
 
@@ -321,7 +321,7 @@ function App() {
           data: {
             ...childNode.data,
             text: "",
-            label: displayNameFromFluxNodeType(FluxNodeType.GPT),
+            label: childNode.data.label ?? displayNameFromFluxNodeType(FluxNodeType.GPT),
             fluxNodeType: FluxNodeType.GPT,
             streamId,
           },
@@ -442,7 +442,7 @@ function App() {
 
             setEdges((edges) =>
               modifyFluxEdge(edges, {
-                source: parentNodeId,
+                source: parentNode.id,
                 target: correspondingNodeId,
                 animated: false,
               })
@@ -472,7 +472,7 @@ function App() {
 
           setEdges((edges) =>
             modifyFluxEdge(edges, {
-              source: parentNodeId,
+              source: parentNode.id,
               target: correspondingNodeId,
               animated: false,
             })
@@ -502,7 +502,7 @@ function App() {
           const childId = currentNodeChildren[i].id;
 
           const idx = newEdges.findIndex(
-            (edge) => edge.source === parentNodeId && edge.target === childId
+            (edge) => edge.source === parentNode.id && edge.target === childId
           );
 
           newEdges[idx] = {
@@ -517,7 +517,7 @@ function App() {
           // Otherwise, add a new edge.
           newEdges.push(
             newFluxEdge({
-              source: parentNodeId,
+              source: parentNode.id,
               target: childId,
               animated: true,
             })

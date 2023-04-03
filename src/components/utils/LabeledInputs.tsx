@@ -114,7 +114,6 @@ export function LabeledPasswordInputWithLink({
       <InputGroup size="md" borderBottom="0px" borderColor="#EEF2F6" mt={1}>
         <Input
           focusBorderColor="green.500"
-          autoFocus
           type={show ? "text" : "password"}
           value={value}
           placeholder={placeholder}

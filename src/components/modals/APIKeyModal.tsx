@@ -26,12 +26,7 @@ export function APIKeyModal({
   };
 
   return (
-    <Modal
-      isOpen={true}
-      onClose={() => {}}
-      size="3xl"
-      isCentered={true}
-      motionPreset="none">
+    <Modal isOpen={true} onClose={() => {}} size="3xl" isCentered motionPreset="none">
       <ModalOverlay />
       <ModalContent>
         <Column mainAxisAlignment="center" crossAxisAlignment="center" height="450px">

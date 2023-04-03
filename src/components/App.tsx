@@ -81,6 +81,7 @@ import {
 } from "../utils/types";
 import { Prompt } from "./Prompt";
 import { APIKeyModal } from "./modals/APIKeyModal";
+import ConfirmModal from "./modals/ConfirmModal";
 import { SettingsModal } from "./modals/SettingsModal";
 import { BigButton } from "./utils/BigButton";
 import { NavigationBar } from "./utils/NavigationBar";
@@ -710,14 +711,19 @@ function App() {
     autoZoomIfNecessary();
   };
 
-  const onClear = () => {
-    if (confirm("Are you sure you want to delete all nodes?")) {
-      takeSnapshot();
+  const onDelete = () => {
+    onCloseConfirmModal();
+    toast({
+      title: "Everything was deleted!",
+      status: "success",
+      ...TOAST_CONFIG,
+    });
 
-      setNodes([]);
-      setEdges([]);
-      setViewport({ x: 0, y: 0, zoom: 1 });
-    }
+    takeSnapshot();
+
+    setNodes([]);
+    setEdges([]);
+    setViewport({ x: 0, y: 0, zoom: 1 });
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -802,6 +808,13 @@ function App() {
     onOpen: onOpenSettingsModal,
     onClose: onCloseSettingsModal,
     onToggle: onToggleSettingsModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: isConfirmModalOpen,
+    onOpen: onOpenConfirmModal,
+    onClose: onCloseConfirmModal,
+    onToggle: onToggleConfirmModal,
   } = useDisclosure();
 
   const [settings, setSettings] = useState<Settings>(() => {
@@ -908,7 +921,7 @@ function App() {
 
   useHotkeys("meta+.", () => fitView(FIT_VIEW_SETTINGS), HOTKEY_CONFIG);
   useHotkeys("meta+/", onToggleSettingsModal, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+backspace", onClear, HOTKEY_CONFIG);
+  useHotkeys("meta+shift+backspace", onToggleConfirmModal, HOTKEY_CONFIG);
 
   useHotkeys("meta+z", undo, HOTKEY_CONFIG);
   useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
@@ -940,6 +953,14 @@ function App() {
         onClose={onCloseSettingsModal}
         apiKey={apiKey}
         setApiKey={setApiKey}
+      />
+      <ConfirmModal
+        title="Really delete?"
+        text="Are you sure you want to delete all nodes?"
+        action="Delete"
+        isOpen={isConfirmModalOpen}
+        onClose={onCloseConfirmModal}
+        onDelete={onDelete}
       />
       <Column
         mainAxisAlignment="center"
@@ -990,7 +1011,7 @@ function App() {
                   completeNextWords={completeNextWords}
                   undo={undo}
                   redo={redo}
-                  onClear={onClear}
+                  onClear={onOpenConfirmModal}
                   copyMessagesToClipboard={copyMessagesToClipboard}
                   showRenameInput={showRenameInput}
                   moveToParent={moveToParent}

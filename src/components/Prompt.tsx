@@ -13,7 +13,6 @@ import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { getPlatformModifierKeyText } from "../utils/platform";
 import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
-import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
 import { LabeledSlider } from "./utils/LabeledInputs";
 import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
@@ -239,7 +238,11 @@ export function Prompt({
         id="promptButtons"
       >
         <BigButton
-          tooltip={promptNodeType === FluxNodeType.User ? `${modifierKeyText} ⏎` : `${modifierKeyText} P`}
+          tooltip={
+            promptNodeType === FluxNodeType.User
+              ? `${modifierKeyText} ⏎`
+              : `${modifierKeyText} P`
+          }
           onClick={onMainButtonClick}
           color={getFluxNodeTypeDarkColor(promptNodeType)}
           width="100%"

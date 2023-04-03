@@ -138,8 +138,6 @@ export function modifyFluxNodeText(
 
     const copy = { ...node, data: { ...node.data } };
 
-    const initText = copy.data.text;
-
     copy.data.text = text;
 
     // If the node's fluxNodeType is GPT and we're changing
@@ -155,10 +153,11 @@ export function modifyFluxNodeText(
 
     // Generate auto label based on prompt text
     if (
-      copy.data.label.startsWith(formatAutoLabel(initText)) ||
+      !copy.data.hasCustomlabel ||
       copy.data.label === displayNameFromFluxNodeType(copy.data.fluxNodeType)
     ) {
       copy.data.label = formatAutoLabel(copy.data.text);
+      copy.data.hasCustomlabel = false;
     }
 
     return copy;
@@ -172,7 +171,12 @@ export function modifyFluxNodeLabel(
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
 
-    const copy = { ...node, data: { ...node.data, label }, type, draggable: undefined };
+    const copy = {
+      ...node,
+      data: { ...node.data, label, hasCustomlabel: true },
+      type,
+      draggable: undefined,
+    };
 
     return copy;
   });
@@ -205,17 +209,14 @@ export function appendTextToFluxNodeAsGPT(
 
     const copy = { ...node, data: { ...node.data } };
 
-    // To reduce complexity we assume auto-labels either end with " ..." or are equal to the generated text.
-    const isTruncated = copy.data.label.endsWith(" ...");
-    const isPreviousAutoLabel = isTruncated || copy.data.label === copy.data.text;
     const isFirstToken = copy.data.text.length === 0;
 
     copy.data.text += text;
 
     // Preserve custom labels
     if (
-      copy.data.label !== displayNameFromFluxNodeType(FluxNodeType.GPT) &&
-      !isPreviousAutoLabel
+      copy.data.hasCustomlabel ||
+      copy.data.label === displayNameFromFluxNodeType(FluxNodeType.GPT)
     )
       return copy;
 
@@ -223,7 +224,7 @@ export function appendTextToFluxNodeAsGPT(
     // Once label reaches max length, truncate it.
     if (copy.data.label.length < MAX_AUTOLABEL_CHARS || isFirstToken) {
       copy.data.label = copy.data.text;
-    } else if (!isTruncated) {
+    } else if (copy.data.label.endsWith(" ...")) {
       copy.data.label += " ...";
     }
 

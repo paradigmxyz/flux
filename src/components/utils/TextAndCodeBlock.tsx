@@ -7,12 +7,16 @@ import { Button, Box, Text } from "@chakra-ui/react";
 
 import { CopyIcon } from "@chakra-ui/icons";
 
+import mixpanel from "mixpanel-browser";
+
 import {
   CODE_BLOCK_DETECT_REGEX,
   CODE_BLOCK_LANGUAGE_DETECT_REGEX,
 } from "../../utils/constants";
 import { Row } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
+
+import { MIXPANEL_TOKEN } from "../../main";
 
 const CopyCodeButton = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
@@ -21,6 +25,8 @@ const CopyCodeButton = ({ code }: { code: string }) => {
     e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
 
     if (await copySnippetToClipboard(code)) setCopied(true);
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Copied code to clipboard");
   };
 
   useEffect(() => {

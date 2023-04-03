@@ -213,6 +213,7 @@ function App() {
 
   const autoZoom = () => {
     setTimeout(() => fitView(FIT_VIEW_SETTINGS), 50);
+
     if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
   };
 
@@ -226,8 +227,6 @@ function App() {
         REACT_FLOW_LOCAL_STORAGE_KEY,
         JSON.stringify(reactFlow.toObject())
       );
-
-      if (MIXPANEL_TOKEN) mixpanel.track("Saved flow state");
     }
   };
 
@@ -885,13 +884,13 @@ function App() {
     const messages = promptFromLineage(selectedNodeLineage, settings);
 
     if (await copySnippetToClipboard(messages)) {
-      if (MIXPANEL_TOKEN) mixpanel.track("Copied messages to clipboard");
-
       toast({
         title: "Copied messages to clipboard!",
         status: "success",
         ...TOAST_CONFIG,
       });
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Copied messages to clipboard");
     } else {
       toast({
         title: "Failed to copy messages to clipboard!",

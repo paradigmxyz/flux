@@ -1,47 +1,65 @@
-import { MouseEvent, useState, useEffect, memo } from "react";
-
+import styled from "@emotion/styled";
+import ReactMarkdown from "react-markdown";
+import { useState, useEffect, useMemo } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
-
-import { Button, Box, Text } from "@chakra-ui/react";
-
-import { CopyIcon } from "@chakra-ui/icons";
-
-import {
-  CODE_BLOCK_DETECT_REGEX,
-  CODE_BLOCK_LANGUAGE_DETECT_REGEX,
-} from "../../utils/constants";
+import remarkGfm from "remark-gfm";
+import { Button, Box } from "@chakra-ui/react";
 import { Row } from "../../utils/chakra";
+import { CopyIcon } from "@chakra-ui/icons";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 
-const CopyCodeButton = ({ code }: { code: string }) => {
-  const [copied, setCopied] = useState(false);
+// Required to display accurate font sizes for markdown elements.
+const StyledMarkdownWrapper = styled(Box)`
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: 500;
+  }
 
-  const handleCopyButtonClick = async (e: MouseEvent) => {
-    e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
+  ol,
+  ul {
+    margin-left: 20px;
+  }
+  h1 {
+    font-size: 2em;
+  }
 
-    if (await copySnippetToClipboard(code)) setCopied(true);
-  };
+  h2 {
+    font-size: 1.5em;
+  }
 
-  useEffect(() => {
-    if (copied) {
-      const timer = setTimeout(() => setCopied(false), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [copied]);
+  h3 {
+    font-size: 1.17em;
+  }
 
-  return (
-    <Button
-      onClick={handleCopyButtonClick}
-      size="xs"
-      variant="ghost"
-      px="5px"
-      _hover={{ background: "#EEEEEE" }}
-    >
-      <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
-    </Button>
-  );
-};
+  h4 {
+    font-size: 1em;
+  }
+
+  h5 {
+    font-size: 0.83em;
+  }
+
+  h6 {
+    font-size: 0.67em;
+  }
+
+  hr {
+    background-color: #000000;
+    height: 2px;
+    border: 0px;
+    // border-color: #00000000;
+  }
+`;
+
+export interface MarkdownProps {
+  text: string;
+}
 
 const TitleBar = ({ language, code }: { language?: string; code: string }) => {
   return (
@@ -63,49 +81,92 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
   );
 };
 
-export const TextAndCodeBlock = memo(({ text }: { text: string }) => {
-  let remainingText = text;
+const CopyCodeButton = ({ code }: { code: string }) => {
+  const [copied, setCopied] = useState(false);
 
-  const elements: React.ReactNode[] = [];
+  const handleCopyButtonClick = async (e: MouseEvent) => {
+    e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
 
-  while (remainingText.length > 0) {
-    const match = CODE_BLOCK_DETECT_REGEX.exec(remainingText);
+    if (await copySnippetToClipboard(code)) setCopied(true);
+  };
 
-    if (!match) {
-      elements.push(<Text key={elements.length}>{remainingText}</Text>);
-      break;
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timer);
     }
+  }, [copied]);
 
-    const before = remainingText.substring(0, match.index);
-    const language =
-      CODE_BLOCK_LANGUAGE_DETECT_REGEX.exec(match[1])?.[0]?.substring(3) || "plaintext";
-    const code = match[2].trim();
-    const after = remainingText.substring(match.index + match[0].length);
+  return (
+    <Button
+      // TODO fix this
+      // @ts-ignore
+      onClick={handleCopyButtonClick}
+      size="xs"
+      variant="ghost"
+      px="5px"
+      _hover={{ background: "#EEEEEE" }}
+    >
+      <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
+    </Button>
+  );
+};
 
-    if (before.length > 0)
-      elements.push(
-        <Text key={elements.length} mb={4}>
-          {before}
-        </Text>
-      );
-
-    elements.push(
-      <Box key={elements.length} borderRadius="4px" overflow="hidden">
-        <TitleBar language={language} code={code} />
-        <SyntaxHighlighter
-          language={language}
-          wrapLongLines
-          style={coy}
-          codeTagProps={{ style: { wordBreak: "break-word" } }}
-          customStyle={{ padding: "10px", margin: "0px", borderRadius: "0 0 4px 4px" }}
+export function TextAndCodeBlock({ text }: { text: string }) {
+  const elem = useMemo(
+    () => (
+      <StyledMarkdownWrapper>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            ol({ start, children }) {
+              return (
+                <ol
+                  start={start ?? 1}
+                  style={{ counterReset: `list-item ${(start || 1) - 1}` }}
+                >
+                  {children}
+                </ol>
+              );
+            },
+            code({ node, inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || "");
+              const code = String(children);
+              return !inline ? (
+                <Box
+                  padding="0"
+                  borderRadius="0.25rem"
+                  overflow="hidden"
+                  css={{
+                    "> div": { margin: "0 !important" },
+                    ".fa": { fontStyle: "normal !important" },
+                  }}
+                  {...props}
+                >
+                  <TitleBar language={match?.[1]} code={code} />
+                  <SyntaxHighlighter
+                    children={code}
+                    style={coy as any}
+                    language={match?.[1] || "text"}
+                    PreTag="div"
+                    wrapLongLines
+                    {...props}
+                  />
+                </Box>
+              ) : (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
+            },
+          }}
         >
-          {code}
-        </SyntaxHighlighter>
-      </Box>
-    );
+          {text}
+        </ReactMarkdown>
+      </StyledMarkdownWrapper>
+    ),
+    [text]
+  );
 
-    remainingText = after;
-  }
-
-  return <Box width="100%">{elements}</Box>;
-});
+  return elem;
+}

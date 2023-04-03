@@ -42,9 +42,11 @@ export function Prompt({
   const onMainButtonClick = () => {
     if (promptNodeType === FluxNodeType.User) {
       submitPrompt();
+
       if (MIXPANEL_TOKEN) mixpanel.track("Generated response");
     } else {
       newConnectedToSelectedNode(FluxNodeType.User);
+
       if (MIXPANEL_TOKEN) mixpanel.track("Composed response");
     }
   };
@@ -54,16 +56,19 @@ export function Prompt({
     setNodes((nodes) =>
       setFluxNodeStreamId(nodes, { id: promptNode.id, streamId: undefined })
     );
+
     if (MIXPANEL_TOKEN) mixpanel.track("Stopped generating response");
   };
 
   const handleSetTemperature = (v: number) => {
     setSettings({ ...settings, temp: v });
+
     if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
   };
 
   const handleSetNumberOfResponses = (v: number) => {
     setSettings({ ...settings, n: v });
+
     if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
   };
 

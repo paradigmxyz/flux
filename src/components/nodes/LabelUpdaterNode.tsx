@@ -41,6 +41,8 @@ export function LabelUpdaterNode({
         draggable: true,
       })
     );
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Canceled renaming");
   };
 
   const submit = () => {
@@ -50,6 +52,7 @@ export function LabelUpdaterNode({
         label: renameLabel,
       })
     );
+
     if (MIXPANEL_TOKEN) mixpanel.track("Node was renamed");
   };
 

@@ -286,8 +286,6 @@ function App() {
   const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
-
     const responses = settings.n;
     const temp = settings.temp;
     const model = settings.model;
@@ -528,6 +526,8 @@ function App() {
     });
 
     autoZoomIfNecessary();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
   };
 
   const completeNextWords = () => {
@@ -696,10 +696,12 @@ function App() {
 
       autoZoomIfNecessary();
 
-      if (type === FluxNodeType.User) {
-        if (MIXPANEL_TOKEN) mixpanel.track("New user node created");
-      } else {
-        if (MIXPANEL_TOKEN) mixpanel.track("New system node created");
+      if (MIXPANEL_TOKEN) {
+        if (type === FluxNodeType.User) {
+          mixpanel.track("New user node created");
+        } else {
+          mixpanel.track("New system node created");
+        }
       }
     }
   };
@@ -883,6 +885,8 @@ function App() {
     const messages = promptFromLineage(selectedNodeLineage, settings);
 
     if (await copySnippetToClipboard(messages)) {
+      if (MIXPANEL_TOKEN) mixpanel.track("Copied messages to clipboard");
+
       toast({
         title: "Copied messages to clipboard!",
         status: "success",
@@ -915,6 +919,8 @@ function App() {
           draggable: false,
         })
       );
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Triggered rename input");
     }
   };
 

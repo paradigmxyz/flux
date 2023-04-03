@@ -41,6 +41,7 @@ export const SettingsModal = memo(function SettingsModal({
       )
     ) {
       if (MIXPANEL_TOKEN) mixpanel.track("Restored defaults");
+
       setSettings(DEFAULT_SETTINGS);
     }
   };
@@ -69,21 +70,25 @@ export const SettingsModal = memo(function SettingsModal({
 
   const handleSetModel = (v: string) => {
     setSettings({ ...settings, model: v });
+
     if (MIXPANEL_TOKEN) mixpanel.track("Changed model");
   };
 
   const handleSetTemperature = (v: number) => {
     setSettings({ ...settings, temp: v });
+
     if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
   };
 
   const handleSetNumberOfResponses = (v: number) => {
     setSettings({ ...settings, n: v });
+
     if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
   };
 
   const handleSetAutoZoom = (event: ChangeEvent<HTMLInputElement>) => {
     setSettings({ ...settings, autoZoom: event.target.checked });
+
     if (MIXPANEL_TOKEN) mixpanel.track("Changed auto zoom");
   };
 

@@ -965,7 +965,7 @@ function App() {
   useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP

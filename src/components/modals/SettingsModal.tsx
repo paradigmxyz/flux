@@ -4,9 +4,9 @@ import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
 import { Settings, FluxNodeType } from "../../utils/types";
 import { APIKeyInput } from "../utils/APIKeyInput";
 import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
+
 import {
   Button,
-  Text,
   Modal,
   ModalBody,
   ModalCloseButton,

@@ -20,9 +20,11 @@ export function LabelUpdaterNode({
 
   const [renameLabel, setRenameLabel] = useState(data.label);
 
+  const inputId = `renameInput-${id}`;
+
   // Select the input element on mount.
   useEffect(() => {
-    const input = document.getElementById("renameInput") as HTMLInputElement | null;
+    const input = document.getElementById(inputId) as HTMLInputElement | null;
 
     // Have to do this with a bit of a delay to
     // ensure it works when triggered via navbar.
@@ -58,10 +60,12 @@ export function LabelUpdaterNode({
       <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
         <Input
           onBlur={cancel}
-          id="renameInput"
+          id={inputId}
           value={renameLabel}
           onChange={(e: any) => setRenameLabel(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
+          onKeyDown={(e) =>
+            e.key === "Enter" ? submit() : e.key === "Escape" && cancel()
+          }
           className="nodrag" // https://reactflow.dev/docs/api/nodes/custom-nodes/#prevent-dragging--selecting
           textAlign="center"
           size="xs"

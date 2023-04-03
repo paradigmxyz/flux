@@ -149,12 +149,6 @@ function App() {
     if (MIXPANEL_TOKEN) mixpanel.track("Performed redo");
   };
 
-  const handleOpenSettingsModal = () => {
-    onOpenSettingsModal();
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Opened settings modal");
-  };
-
   /*//////////////////////////////////////////////////////////////
                         CORE REACT FLOW LOGIC
   //////////////////////////////////////////////////////////////*/
@@ -211,11 +205,7 @@ function App() {
     setEdges((eds) => addEdge({ ...connection }, eds));
   };
 
-  const autoZoom = () => {
-    setTimeout(() => fitView(FIT_VIEW_SETTINGS), 50);
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
-  };
+  const autoZoom = () => setTimeout(() => fitView(FIT_VIEW_SETTINGS), 50);
 
   const autoZoomIfNecessary = () => {
     if (settings.autoZoom) autoZoom();
@@ -955,7 +945,15 @@ function App() {
     HOTKEY_CONFIG
   );
 
-  useHotkeys(`${modifierKey}+.`, autoZoom, HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+.`,
+    () => {
+      autoZoom();
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
+    },
+    HOTKEY_CONFIG
+  );
   useHotkeys(`${modifierKey}+/`, onToggleSettingsModal, HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+shift+backspace`, onClear, HOTKEY_CONFIG);
 
@@ -1051,7 +1049,11 @@ function App() {
                   moveToLeftSibling={moveToLeftSibling}
                   moveToRightSibling={moveToRightSibling}
                   autoZoom={autoZoom}
-                  onOpenSettingsModal={handleOpenSettingsModal}
+                  onOpenSettingsModal={() => {
+                    onOpenSettingsModal();
+
+                    if (MIXPANEL_TOKEN) mixpanel.track("Opened settings modal");
+                  }}
                 />
 
                 <Box ml="20px">

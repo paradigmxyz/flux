@@ -40,9 +40,9 @@ export const SettingsModal = memo(function SettingsModal({
         "Are you sure you want to reset your settings to default? This cannot be undone!"
       )
     ) {
-      if (MIXPANEL_TOKEN) mixpanel.track("Restored defaults");
-
       setSettings(DEFAULT_SETTINGS);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Restored defaults");
     }
   };
 
@@ -68,30 +68,6 @@ export const SettingsModal = memo(function SettingsModal({
     }
   };
 
-  const handleSetModel = (v: string) => {
-    setSettings({ ...settings, model: v });
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Changed model");
-  };
-
-  const handleSetTemperature = (v: number) => {
-    setSettings({ ...settings, temp: v });
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
-  };
-
-  const handleSetNumberOfResponses = (v: number) => {
-    setSettings({ ...settings, n: v });
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
-  };
-
-  const handleSetAutoZoom = (event: ChangeEvent<HTMLInputElement>) => {
-    setSettings({ ...settings, autoZoom: event.target.checked });
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Changed auto zoom");
-  };
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalOverlay />
@@ -103,7 +79,11 @@ export const SettingsModal = memo(function SettingsModal({
             label="Model"
             value={settings.model}
             options={SUPPORTED_MODELS}
-            setValue={handleSetModel}
+            setValue={(v: string) => {
+              setSettings({ ...settings, model: v });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed model");
+            }}
           />
 
           <APIKeyInput mt={4} width="100%" apiKey={apiKey} setApiKey={setApiKey} />
@@ -112,7 +92,11 @@ export const SettingsModal = memo(function SettingsModal({
             mt={4}
             label="Temperature (randomness)"
             value={settings.temp}
-            setValue={handleSetTemperature}
+            setValue={(v: number) => {
+              setSettings({ ...settings, temp: v });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
+            }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={1.25}
             min={0}
@@ -123,7 +107,11 @@ export const SettingsModal = memo(function SettingsModal({
             mt={3}
             label="Number of Responses"
             value={settings.n}
-            setValue={handleSetNumberOfResponses}
+            setValue={(v: number) => {
+              setSettings({ ...settings, n: v });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
+            }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={10}
             min={1}
@@ -135,7 +123,11 @@ export const SettingsModal = memo(function SettingsModal({
             fontWeight="bold"
             isChecked={settings.autoZoom}
             colorScheme="gray"
-            onChange={handleSetAutoZoom}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              setSettings({ ...settings, autoZoom: event.target.checked });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed auto zoom");
+            }}
           >
             Auto Zoom
           </Checkbox>

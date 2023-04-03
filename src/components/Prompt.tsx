@@ -60,18 +60,6 @@ export function Prompt({
     if (MIXPANEL_TOKEN) mixpanel.track("Stopped generating response");
   };
 
-  const handleSetTemperature = (v: number) => {
-    setSettings({ ...settings, temp: v });
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
-  };
-
-  const handleSetNumberOfResponses = (v: number) => {
-    setSettings({ ...settings, n: v });
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
-  };
-
   /*//////////////////////////////////////////////////////////////
                               STATE
   //////////////////////////////////////////////////////////////*/
@@ -284,7 +272,11 @@ export function Prompt({
             mt={3}
             label="Temperature (randomness)"
             value={settings.temp}
-            setValue={handleSetTemperature}
+            setValue={(v: number) => {
+              setSettings({ ...settings, temp: v });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
+            }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={1.25}
             min={0}
@@ -295,7 +287,11 @@ export function Prompt({
             mt={3}
             label="Number of Responses"
             value={settings.n}
-            setValue={handleSetNumberOfResponses}
+            setValue={(v: number) => {
+              setSettings({ ...settings, n: v });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
+            }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={10}
             min={1}

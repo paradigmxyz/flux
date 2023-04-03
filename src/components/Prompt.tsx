@@ -275,7 +275,7 @@ export function Prompt({
             setValue={(v: number) => {
               setSettings({ ...settings, temp: v });
 
-              if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature inline");
             }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={1.25}
@@ -290,7 +290,7 @@ export function Prompt({
             setValue={(v: number) => {
               setSettings({ ...settings, n: v });
 
-              if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses inline");
             }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={10}

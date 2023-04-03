@@ -10,6 +10,7 @@ import {
 import { FluxNodeType, FluxNodeData, ReactFlowNodeTypes } from "./types";
 import { getFluxNodeTypeColor } from "./color";
 import { generateNodeId } from "./nodeId";
+import { formatAutoLabel } from "./prompt";
 
 /*//////////////////////////////////////////////////////////////
                          CONSTRUCTORS
@@ -137,6 +138,8 @@ export function modifyFluxNodeText(
 
     const copy = { ...node, data: { ...node.data } };
 
+    const initText = copy.data.text;
+
     copy.data.text = text;
 
     // If the node's fluxNodeType is GPT and we're changing
@@ -156,26 +159,12 @@ export function modifyFluxNodeText(
           : displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
     }
 
-    // TODO: How to differentiate between custom label, when prompt is not changed at the end of the label?
-    const parseLength =
-      copy.data.text.length > MAX_AUTOLABEL_CHARS
-        ? MAX_AUTOLABEL_CHARS
-        : copy.data.text.length - 1; // account for new character being added
-
+    // Generate auto label based on prompt text
     if (
-      copy.data.label.startsWith(copy.data.text.slice(0, parseLength)) ||
+      copy.data.label.startsWith(formatAutoLabel(initText)) ||
       copy.data.label === displayNameFromFluxNodeType(copy.data.fluxNodeType)
     ) {
-      const autoLabel =
-        copy.data.text.length > MAX_AUTOLABEL_CHARS
-          ? copy.data.text
-              .slice(0, MAX_AUTOLABEL_CHARS)
-              .split(" ")
-              .slice(0, -1)
-              .join(" ") + " ..."
-          : copy.data.text;
-
-      copy.data.label = autoLabel;
+      copy.data.label = formatAutoLabel(copy.data.text);
     }
 
     return copy;

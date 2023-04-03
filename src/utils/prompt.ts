@@ -3,6 +3,7 @@ import { Node } from "reactflow";
 import { ChatCompletionRequestMessage } from "openai-streams";
 
 import { FluxNodeData, FluxNodeType, Settings } from "./types";
+import { MAX_AUTOLABEL_CHARS } from "./constants";
 
 export function messagesFromLineage(
   lineage: Node<FluxNodeData>[],
@@ -70,4 +71,10 @@ export function promptFromLineage(
   console.log(prompt);
 
   return prompt;
+}
+
+export function formatAutoLabel(text: string) {
+  return text.length > MAX_AUTOLABEL_CHARS
+    ? text.slice(0, MAX_AUTOLABEL_CHARS).split(" ").slice(0, -1).join(" ") + " ..."
+    : text;
 }

@@ -152,7 +152,9 @@ export function modifyFluxNodeText(
 
     // Generate auto label based on prompt text, and preserve custom label
     if (!copy.data.hasCustomlabel) {
-      copy.data.label = formatAutoLabel(copy.data.text);
+      copy.data.label = copy.data.text
+        ? formatAutoLabel(copy.data.text)
+        : displayNameFromFluxNodeType(copy.data.fluxNodeType);
     }
 
     return copy;

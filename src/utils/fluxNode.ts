@@ -151,12 +151,6 @@ export function modifyFluxNodeText(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
-
-      // TODO: This shouldn't apply anymore, as a node now never arrives here being named `FluxNodeType.GPT` due to auto-label. Should we remove the logic, or adapt it?
-      copy.data.label =
-        copy.data.label != displayNameFromFluxNodeType(FluxNodeType.GPT)
-          ? copy.data.label // Preserve custom labels if necessary.
-          : displayNameFromFluxNodeType(FluxNodeType.TweakedGPT);
     }
 
     // Generate auto label based on prompt text

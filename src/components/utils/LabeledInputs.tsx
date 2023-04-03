@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-
+import { Row } from "../../utils/chakra";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
   Box,
   BoxProps,
@@ -15,8 +15,7 @@ import {
   SliderTrack,
   Textarea,
 } from "@chakra-ui/react";
-import { Row } from "../../utils/chakra";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
 
 export function LabeledSlider({
   label,

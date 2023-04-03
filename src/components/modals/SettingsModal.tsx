@@ -1,4 +1,9 @@
-import { memo } from "react";
+import { MIXPANEL_TOKEN } from "../../main";
+import { getFluxNodeTypeDarkColor } from "../../utils/color";
+import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
+import { Settings, FluxNodeType } from "../../utils/types";
+import { APIKeyInput } from "../utils/APIKeyInput";
+import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
 
 import {
   Button,
@@ -11,13 +16,8 @@ import {
   ModalOverlay,
   Checkbox,
 } from "@chakra-ui/react";
-
-import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
-
-import { APIKeyInput } from "../utils/APIKeyInput";
-import { Settings, FluxNodeType } from "../../utils/types";
-import { getFluxNodeTypeDarkColor } from "../../utils/color";
-import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
+import mixpanel from "mixpanel-browser";
+import { ChangeEvent, memo } from "react";
 
 export const SettingsModal = memo(function SettingsModal({
   isOpen,
@@ -34,10 +34,16 @@ export const SettingsModal = memo(function SettingsModal({
   apiKey: string | null;
   setApiKey: (apiKey: string) => void;
 }) {
-  const reset = () =>
-    confirm(
-      "Are you sure you want to reset your settings to default? This cannot be undone!"
-    ) && setSettings(DEFAULT_SETTINGS);
+  const reset = () => {
+    if (
+      confirm(
+        "Are you sure you want to reset your settings to default? This cannot be undone!"
+      )
+    ) {
+      if (MIXPANEL_TOKEN) mixpanel.track("Restored defaults");
+      setSettings(DEFAULT_SETTINGS);
+    }
+  };
 
   const hardReset = () => {
     if (
@@ -56,7 +62,29 @@ export const SettingsModal = memo(function SettingsModal({
 
       // Reload the window.
       window.location.reload();
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Performed hard reset");
     }
+  };
+
+  const handleSetModel = (v: string) => {
+    setSettings({ ...settings, model: v });
+    if (MIXPANEL_TOKEN) mixpanel.track("Changed model");
+  };
+
+  const handleSetTemperature = (v: number) => {
+    setSettings({ ...settings, temp: v });
+    if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
+  };
+
+  const handleSetNumberOfResponses = (v: number) => {
+    setSettings({ ...settings, n: v });
+    if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
+  };
+
+  const handleSetAutoZoom = (event: ChangeEvent<HTMLInputElement>) => {
+    setSettings({ ...settings, autoZoom: event.target.checked });
+    if (MIXPANEL_TOKEN) mixpanel.track("Changed auto zoom");
   };
 
   return (
@@ -70,7 +98,7 @@ export const SettingsModal = memo(function SettingsModal({
             label="Model"
             value={settings.model}
             options={SUPPORTED_MODELS}
-            setValue={(v) => setSettings({ ...settings, model: v })}
+            setValue={handleSetModel}
           />
 
           <APIKeyInput mt={4} width="100%" apiKey={apiKey} setApiKey={setApiKey} />
@@ -79,7 +107,7 @@ export const SettingsModal = memo(function SettingsModal({
             mt={4}
             label="Temperature (randomness)"
             value={settings.temp}
-            setValue={(v) => setSettings({ ...settings, temp: v })}
+            setValue={handleSetTemperature}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={1.25}
             min={0}
@@ -90,7 +118,7 @@ export const SettingsModal = memo(function SettingsModal({
             mt={3}
             label="Number of Responses"
             value={settings.n}
-            setValue={(v) => setSettings({ ...settings, n: v })}
+            setValue={handleSetNumberOfResponses}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={10}
             min={1}
@@ -102,9 +130,7 @@ export const SettingsModal = memo(function SettingsModal({
             fontWeight="bold"
             isChecked={settings.autoZoom}
             colorScheme="gray"
-            onChange={(event) =>
-              setSettings({ ...settings, autoZoom: event.target.checked })
-            }
+            onChange={handleSetAutoZoom}
           >
             Auto Zoom
           </Checkbox>

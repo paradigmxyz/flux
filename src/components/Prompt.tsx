@@ -1,21 +1,18 @@
-import { Node, useReactFlow } from "reactflow";
-
-import { useState, useEffect, useRef } from "react";
-
-import { Spinner, Text, Button } from "@chakra-ui/react";
-
-import { EditIcon, ViewIcon, NotAllowedIcon } from "@chakra-ui/icons";
-
-import TextareaAutosize from "react-textarea-autosize";
-
-import { displayNameFromFluxNodeType, setFluxNodeStreamId } from "../utils/fluxNode";
-import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
-import { getPlatformModifierKeyText } from "../utils/platform";
-import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
-import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
-import { LabeledSlider } from "./utils/LabeledInputs";
+import { MIXPANEL_TOKEN } from "../main";
 import { Row, Center, Column } from "../utils/chakra";
+import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { displayNameFromFluxNodeType, setFluxNodeStreamId } from "../utils/fluxNode";
+import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { BigButton } from "./utils/BigButton";
+import { LabeledSlider } from "./utils/LabeledInputs";
+import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
+import { EditIcon, ViewIcon, NotAllowedIcon } from "@chakra-ui/icons";
+import { Spinner, Text, Button } from "@chakra-ui/react";
+import mixpanel from "mixpanel-browser";
+import { useState, useEffect, useRef } from "react";
+import TextareaAutosize from "react-textarea-autosize";
+import { Node, useReactFlow } from "reactflow";
+import { getPlatformModifierKeyText } from "../utils/platform";
 
 export function Prompt({
   lineage,
@@ -45,8 +42,10 @@ export function Prompt({
   const onMainButtonClick = () => {
     if (promptNodeType === FluxNodeType.User) {
       submitPrompt();
+      if (MIXPANEL_TOKEN) mixpanel.track("Generated response");
     } else {
       newConnectedToSelectedNode(FluxNodeType.User);
+      if (MIXPANEL_TOKEN) mixpanel.track("Composed response");
     }
   };
 
@@ -55,6 +54,17 @@ export function Prompt({
     setNodes((nodes) =>
       setFluxNodeStreamId(nodes, { id: promptNode.id, streamId: undefined })
     );
+    if (MIXPANEL_TOKEN) mixpanel.track("Stopped generating response");
+  };
+
+  const handleSetTemperature = (v: number) => {
+    setSettings({ ...settings, temp: v });
+    if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
+  };
+
+  const handleSetNumberOfResponses = (v: number) => {
+    setSettings({ ...settings, n: v });
+    if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -69,7 +79,7 @@ export function Prompt({
   /*//////////////////////////////////////////////////////////////
                               EFFECTS
   //////////////////////////////////////////////////////////////*/
-  const modifierKeyText = getPlatformModifierKeyText();
+
   const textOffsetRef = useRef<number>(-1);
 
   // Scroll to the prompt buttons
@@ -107,6 +117,8 @@ export function Prompt({
   /*//////////////////////////////////////////////////////////////
                               APP
   //////////////////////////////////////////////////////////////*/
+
+  const modifierKeyText = getPlatformModifierKeyText();
 
   return (
     <>
@@ -267,7 +279,7 @@ export function Prompt({
             mt={3}
             label="Temperature (randomness)"
             value={settings.temp}
-            setValue={(v) => setSettings({ ...settings, temp: v })}
+            setValue={handleSetTemperature}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={1.25}
             min={0}
@@ -278,7 +290,7 @@ export function Prompt({
             mt={3}
             label="Number of Responses"
             value={settings.n}
-            setValue={(v) => setSettings({ ...settings, n: v })}
+            setValue={handleSetNumberOfResponses}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={10}
             min={1}

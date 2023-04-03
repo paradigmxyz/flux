@@ -21,6 +21,10 @@ const StyledMarkdownWrapper = styled(Box)`
     font-weight: 500;
   }
 
+  blockquote {
+    margin: revert;
+  }
+
   ol,
   ul {
     margin-left: 20px;

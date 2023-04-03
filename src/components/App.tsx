@@ -528,25 +528,6 @@ function App() {
       return newEdges;
     });
 
-    // // Generate auto-label for parentNode, if unset
-    // if (parentNode.data.label === parentNode.data.fluxNodeType) {
-    //   const autoLabel =
-    //     parentNode.data.text.length > MAX_AUTOLABEL_CHARS
-    //       ? parentNode.data.text
-    //           .slice(0, MAX_AUTOLABEL_CHARS)
-    //           .split(" ")
-    //           .slice(0, -1)
-    //           .join(" ") + " ..."
-    //       : parentNode.data.text;
-
-    //   setNodes((nodes) =>
-    //     modifyFluxNodeLabel(nodes, {
-    //       id: parentNode.id,
-    //       label: autoLabel,
-    //     })
-    //   );
-    // }
-
     autoZoomIfNecessary();
   };
 

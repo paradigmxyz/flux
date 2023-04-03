@@ -214,7 +214,7 @@ function App() {
   const trackedAutoZoom = () => {
     autoZoom();
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out & centered");
+    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out and centered");
   };
 
   const save = () => {

@@ -42,12 +42,8 @@ export function Prompt({
   const onMainButtonClick = () => {
     if (promptNodeType === FluxNodeType.User) {
       submitPrompt();
-
-      if (MIXPANEL_TOKEN) mixpanel.track("Generated response");
     } else {
       newConnectedToSelectedNode(FluxNodeType.User);
-
-      if (MIXPANEL_TOKEN) mixpanel.track("Composed response");
     }
   };
 

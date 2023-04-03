@@ -53,7 +53,7 @@ export function LabelUpdaterNode({
       })
     );
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Node was renamed");
+    if (MIXPANEL_TOKEN) mixpanel.track("Node renamed");
   };
 
   return (

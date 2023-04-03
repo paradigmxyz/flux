@@ -11,7 +11,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { displayNameFromFluxNodeType, setFluxNodeStreamId } from "../utils/fluxNode";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
-import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
+import { Markdown } from "./utils/Markdown";
 import { LabeledSlider } from "./utils/LabeledInputs";
 import { Row, Center, Column } from "../utils/chakra";
 import { BigButton } from "./utils/BigButton";
@@ -220,7 +220,7 @@ export function Prompt({
                         }
                       />
                     ) : (
-                      <TextAndCodeBlock text={data.text} />
+                      <Markdown text={data.text} />
                     )}
                   </Column>
                 </>

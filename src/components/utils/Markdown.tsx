@@ -53,7 +53,6 @@ const StyledMarkdownWrapper = styled(Box)`
     background-color: #000000;
     height: 2px;
     border: 0px;
-    // border-color: #00000000;
   }
 `;
 
@@ -112,23 +111,13 @@ const CopyCodeButton = ({ code }: { code: string }) => {
   );
 };
 
-export function TextAndCodeBlock({ text }: { text: string }) {
-  const elem = useMemo(
+export function Markdown({ text }: { text: string }) {
+  const markdown = useMemo(
     () => (
       <StyledMarkdownWrapper>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
-            ol({ start, children }) {
-              return (
-                <ol
-                  start={start ?? 1}
-                  style={{ counterReset: `list-item ${(start || 1) - 1}` }}
-                >
-                  {children}
-                </ol>
-              );
-            },
             code({ node, inline, className, children, ...props }) {
               const match = /language-(\w+)/.exec(className || "");
               const code = String(children);
@@ -168,5 +157,5 @@ export function TextAndCodeBlock({ text }: { text: string }) {
     [text]
   );
 
-  return elem;
+  return markdown;
 }

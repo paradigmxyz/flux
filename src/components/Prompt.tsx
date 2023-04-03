@@ -12,6 +12,7 @@ import mixpanel from "mixpanel-browser";
 import { useState, useEffect, useRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Node, useReactFlow } from "reactflow";
+import { getPlatformModifierKeyText } from "../utils/platform";
 
 export function Prompt({
   lineage,
@@ -116,6 +117,8 @@ export function Prompt({
   /*//////////////////////////////////////////////////////////////
                               APP
   //////////////////////////////////////////////////////////////*/
+
+  const modifierKeyText = getPlatformModifierKeyText();
 
   return (
     <>
@@ -247,7 +250,11 @@ export function Prompt({
         id="promptButtons"
       >
         <BigButton
-          tooltip={promptNodeType === FluxNodeType.User ? "⌘⏎" : "⌘P"}
+          tooltip={
+            promptNodeType === FluxNodeType.User
+              ? `${modifierKeyText}⏎`
+              : `${modifierKeyText}P`
+          }
           onClick={onMainButtonClick}
           color={getFluxNodeTypeDarkColor(promptNodeType)}
           width="100%"

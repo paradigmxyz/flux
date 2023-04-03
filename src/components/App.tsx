@@ -3,6 +3,7 @@ import { isValidAPIKey } from "../utils/apikey";
 import { Column, Row } from "../utils/chakra";
 import { copySnippetToClipboard } from "../utils/clipboard";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
 import {
   API_KEY_LOCAL_STORAGE_KEY,
   DEFAULT_SETTINGS,
@@ -128,7 +129,7 @@ function App() {
       autoZoomIfNecessary();
     }
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Pefromed undo");
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed undo");
   };
 
   const redo = () => {
@@ -145,7 +146,7 @@ function App() {
       autoZoomIfNecessary();
     }
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Pefromed redo");
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed redo");
   };
 
   const handleOpenSettingsModal = () => {
@@ -284,6 +285,8 @@ function App() {
   // then creates a child node for each response under the selected node.
   const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
 
     const responses = settings.n;
     const temp = settings.temp;
@@ -925,39 +928,46 @@ function App() {
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  useHotkeys("meta+s", save, HOTKEY_CONFIG);
+  const modifierKey = getPlatformModifierKey();
+  const modifierKeyText = getPlatformModifierKeyText();
+
+  useHotkeys(`${modifierKey}+s`, save, HOTKEY_CONFIG);
 
   useHotkeys(
-    "meta+p",
+    `${modifierKey}+p`,
     () => newConnectedToSelectedNode(FluxNodeType.User),
     HOTKEY_CONFIG
   );
   useHotkeys(
-    "meta+u",
+    `${modifierKey}+u`,
     () => newConnectedToSelectedNode(FluxNodeType.System),
     HOTKEY_CONFIG
   );
 
-  useHotkeys("meta+shift+p", () => newUserNodeLinkedToANewSystemNode(), HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+shift+s`,
+    () => newUserNodeLinkedToANewSystemNode(),
+    HOTKEY_CONFIG
+  );
 
-  useHotkeys("meta+.", autoZoom, HOTKEY_CONFIG);
-  useHotkeys("meta+/", onToggleSettingsModal, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+backspace", onClear, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+.`, autoZoom, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+/`, onToggleSettingsModal, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+backspace`, onClear, HOTKEY_CONFIG);
 
-  useHotkeys("meta+z", undo, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+z`, undo, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+z`, redo, HOTKEY_CONFIG);
 
-  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+e`, showRenameInput, HOTKEY_CONFIG);
 
-  useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
-  useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
-  useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
-  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
-  useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
-  useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+up`, moveToParent, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+down`, moveToChild, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+left`, moveToLeftSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+right`, moveToRightSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+return`, () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -1116,7 +1126,7 @@ function App() {
                 crossAxisAlignment={"center"}
               >
                 <BigButton
-                  tooltip="⇧⌘P"
+                  tooltip={`⇧${modifierKeyText}P`}
                   width="400px"
                   height="100px"
                   fontSize="xl"

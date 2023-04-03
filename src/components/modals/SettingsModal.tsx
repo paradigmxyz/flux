@@ -9,14 +9,14 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
-import React from "react";
+import { memo } from "react";
 
 import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
 import { Settings } from "../../utils/types";
 import { APIKeyInput } from "../utils/APIKeyInput";
 import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
 
-export const SettingsModal = React.memo(function SettingsModal({
+export const SettingsModal = memo(function SettingsModal({
   isOpen,
   onClose,
   settings,

@@ -713,6 +713,7 @@ function App() {
 
   const onDelete = () => {
     onCloseConfirmModal();
+
     toast({
       title: "Everything was deleted!",
       status: "success",

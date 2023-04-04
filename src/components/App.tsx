@@ -1029,6 +1029,7 @@ function App() {
             onResizeStop={(_, __, ref) => {
               setSavedChatSize(ref.style.width);
               autoZoomIfNecessary();
+              if (MIXPANEL_TOKEN) mixpanel.track("Resized chat window");
             }}
           >
             <Column

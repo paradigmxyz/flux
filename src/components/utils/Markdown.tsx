@@ -23,7 +23,6 @@ const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) 
       backgroundColor="#f5f5f5"
       borderBottom="1px solid #eee"
       borderRadius="6px 6px 0px 0px"
-      fontFamily="inherit"
       sx={{ fontFamily: theme.fonts.body }}
     >
       <Text>{language || "plaintext"}</Text>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import "highlight.js/styles/a11y-light.css";
 import rehypeHighlight from "rehype-highlight";
@@ -7,7 +7,7 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 
-const TitleBar = ({ language, code }: { language?: string; code: string }) => {
+const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) => {
   return (
     <Row
       mainAxisAlignment="flex-start"
@@ -19,7 +19,7 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
       py="5px"
       backgroundColor="#f5f5f5"
       borderBottom="1px solid #eee"
-      borderRadius="6px"
+      borderRadius="6px 6px 0px 0px"
     >
       <Box>{language || "plaintext"}</Box>
       <CopyCodeButton code={code} />
@@ -27,13 +27,32 @@ const TitleBar = ({ language, code }: { language?: string; code: string }) => {
   );
 };
 
-const CopyCodeButton = ({ code }: { code: string }) => {
+/**
+ * Recursively extract text value from the children prop of a ReactMarkdown component.
+ * This function is necessary because some children can contain inline elements,
+ * and simple concatenation is not sufficient for extracting text data.
+ * It navigates deeply within nested structures to acquire the intended text.
+ */
+const stringifyChildren = (children: ReactNode[]): string => {
+  return children.reduce((concatenatedText: string, currentNode: ReactNode) => {
+    if (React.isValidElement(currentNode) && currentNode.props.children) {
+      return concatenatedText + stringifyChildren(
+        Array.isArray(currentNode.props.children)
+        ? currentNode.props.children
+        : [currentNode.props.children]
+      );
+    }
+    return concatenatedText + String(currentNode || "");
+  }, "");
+};
+
+const CopyCodeButton = ({ code }: { code: ReactNode[] }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopyButtonClick = async (e: MouseEvent) => {
+  const handleCopyButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
-
-    if (await copySnippetToClipboard(code)) setCopied(true);
+    const codeString = stringifyChildren(code);
+    if (await copySnippetToClipboard(codeString)) setCopied(true);
   };
 
   useEffect(() => {
@@ -45,8 +64,6 @@ const CopyCodeButton = ({ code }: { code: string }) => {
 
   return (
     <Button
-      // TODO fix this
-      // @ts-ignore
       onClick={handleCopyButtonClick}
       size="xs"
       variant="ghost"
@@ -67,7 +84,6 @@ export function Markdown({ text }: { text: string }) {
           components={{
             code({ node, inline, className, children, style, ...props }) {
               const match = /language-(\w+)/.exec(className || "");
-              const code = String(children);
               return !inline ? (
                 <Column
                   borderRadius="0.25rem"
@@ -75,7 +91,7 @@ export function Markdown({ text }: { text: string }) {
                   mainAxisAlignment="flex-start"
                   crossAxisAlignment="center"
                 >
-                  <TitleBar language={match?.[1]} code={code} />
+                  <TitleBar language={match?.[1]} code={children} />
                   <Code
                     width="100%"
                     padding={!match?.[1] ? "10px" : 0} // when no language is specified, inconsistent padding is applied. This fixes that.

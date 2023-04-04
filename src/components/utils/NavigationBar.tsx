@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 
 import { Row } from "../../utils/chakra";
+import { getPlatformModifierKeyText } from "../../utils/platform";
 import { FluxNodeType } from "../../utils/types";
 import dave from "/dave.jpg";
 import paradigm from "/paradigm.svg";
@@ -57,6 +58,8 @@ export function NavigationBar({
   autoZoom: () => void;
   onOpenSettingsModal: () => void;
 }) {
+  const modifierKeyText = getPlatformModifierKeyText();
+
   return (
     <Row
       mainAxisAlignment="flex-start"
@@ -119,7 +122,9 @@ export function NavigationBar({
           </MenuButton>
           <MenuList width="300px">
             <MenuGroup title="Trees">
-              <MenuItem command="⇧⌘P" onClick={newUserNodeLinkedToANewSystemNode}>
+              <MenuItem
+                command={`⇧${modifierKeyText}P`}
+                onClick={newUserNodeLinkedToANewSystemNode}>
                 New conversation tree
               </MenuItem>
             </MenuGroup>
@@ -128,13 +133,13 @@ export function NavigationBar({
 
             <MenuGroup title="Nodes">
               <MenuItem
-                command="⌘P"
+                command={`${modifierKeyText}P`}
                 onClick={() => newConnectedToSelectedNode(FluxNodeType.User)}>
                 New user node
               </MenuItem>
 
               <MenuItem
-                command="⌘U"
+                command={`${modifierKeyText}U`}
                 onClick={() => newConnectedToSelectedNode(FluxNodeType.System)}>
                 New system node
               </MenuItem>
@@ -143,15 +148,15 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="GPT">
-              <MenuItem command="⌘⏎" onClick={submitPrompt}>
+              <MenuItem command={`${modifierKeyText}⏎`} onClick={submitPrompt}>
                 Generate GPT responses
               </MenuItem>
 
-              <MenuItem command="⇧⌘⏎" onClick={regenerate}>
+              <MenuItem command={`⇧${modifierKeyText}⏎`} onClick={regenerate}>
                 Regenerate GPT responses
               </MenuItem>
 
-              <MenuItem command="⌘K" onClick={completeNextWords}>
+              <MenuItem command={`${modifierKeyText}K`} onClick={completeNextWords}>
                 Complete next words
               </MenuItem>
             </MenuGroup>
@@ -169,11 +174,11 @@ export function NavigationBar({
           </MenuButton>
           <MenuList width="300px">
             <MenuGroup title="History">
-              <MenuItem command="⌘Z" onClick={undo}>
+              <MenuItem command={`${modifierKeyText}Z`} onClick={undo}>
                 Undo
               </MenuItem>
 
-              <MenuItem command="⇧⌘Z" onClick={redo}>
+              <MenuItem command={`⇧${modifierKeyText}Z`} onClick={redo}>
                 Redo
               </MenuItem>
             </MenuGroup>
@@ -181,11 +186,11 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Delete">
-              <MenuItem command="⌘⌫" onClick={deleteSelectedNodes}>
+              <MenuItem command={`${modifierKeyText}⌫`} onClick={deleteSelectedNodes}>
                 Delete selected node(s)
               </MenuItem>
 
-              <MenuItem command="⇧⌘⌫" onClick={onClear}>
+              <MenuItem command={`⇧${modifierKeyText}⌫`} onClick={onClear}>
                 Delete everything
               </MenuItem>
             </MenuGroup>
@@ -193,7 +198,7 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Rename">
-              <MenuItem command="⌘E" onClick={showRenameInput}>
+              <MenuItem command={`${modifierKeyText}E`} onClick={showRenameInput}>
                 Rename selected node
               </MenuItem>
             </MenuGroup>
@@ -201,7 +206,7 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Copy">
-              <MenuItem command="Ctrl+C" onClick={copyMessagesToClipboard}>
+              <MenuItem command={`${modifierKeyText}C`} onClick={copyMessagesToClipboard}>
                 Copy messages to clipboard
               </MenuItem>
             </MenuGroup>
@@ -218,22 +223,22 @@ export function NavigationBar({
             Navigate
           </MenuButton>
           <MenuList width="300px">
-            <MenuGroup title="Vertical">
-              <MenuItem command="⌘↑" onClick={moveToParent}>
+            <MenuGroup title="Parents/Children">
+              <MenuItem command={`${modifierKeyText}↑`} onClick={moveToParent}>
                 Up to parent node
               </MenuItem>
-              <MenuItem command="⌘↓" onClick={moveToChild}>
+              <MenuItem command={`${modifierKeyText}↓`} onClick={moveToChild}>
                 Down child node
               </MenuItem>
             </MenuGroup>
 
             <MenuDivider />
 
-            <MenuGroup title="Horizontal">
-              <MenuItem command="⌘←" onClick={moveToLeftSibling}>
+            <MenuGroup title="Siblings">
+              <MenuItem command={`${modifierKeyText}←`} onClick={moveToLeftSibling}>
                 Left to sibling node
               </MenuItem>
-              <MenuItem command="⌘→" onClick={moveToRightSibling}>
+              <MenuItem command={`${modifierKeyText}→`} onClick={moveToRightSibling}>
                 Right to sibling node
               </MenuItem>
             </MenuGroup>
@@ -241,7 +246,7 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Global">
-              <MenuItem command="⌘." onClick={autoZoom}>
+              <MenuItem command={`${modifierKeyText}.`} onClick={autoZoom}>
                 Zoom out & center
               </MenuItem>
             </MenuGroup>

@@ -1,7 +1,9 @@
-import { Box, Input } from "@chakra-ui/react";
+import { Box, Input, Tooltip } from "@chakra-ui/react";
+import mixpanel from "mixpanel-browser";
 import { useEffect, useState } from "react";
 import { Handle, Position, useReactFlow } from "reactflow";
 
+import { MIXPANEL_TOKEN } from "../../main";
 import { Row } from "../../utils/chakra";
 import { modifyFluxNodeLabel, modifyReactFlowNodeProperties } from "../../utils/fluxNode";
 import { FluxNodeData } from "../../utils/types";
@@ -40,6 +42,8 @@ export function LabelUpdaterNode({
         draggable: true,
       })
     );
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Canceled renaming");
   };
 
   const submit = () => {
@@ -49,28 +53,31 @@ export function LabelUpdaterNode({
         label: renameLabel,
       })
     );
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Node renamed");
   };
 
   return (
-    <Box width="150px" height="38px">
-      <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
+    <Tooltip label="⏎">
+      <Box width="150px" height="38px">
+        <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
 
-      <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
-        <Input
-          onBlur={cancel}
-          id={inputId}
-          value={renameLabel}
-          onChange={(e: any) => setRenameLabel(e.target.value)}
-          onKeyDown={(e) =>
-            e.key === "Enter" ? submit() : e.key === "Escape" && cancel()
-          }
-          className="nodrag" // https://reactflow.dev/docs/api/nodes/custom-nodes/#prevent-dragging--selecting
-          textAlign="center"
-          size="xs"
-          // px={6}
-        />
+        <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
+          <Input
+            onBlur={cancel}
+            id={inputId}
+            value={renameLabel}
+            onChange={(e: any) => setRenameLabel(e.target.value)}
+            onKeyDown={(e) =>
+              e.key === "Enter" ? submit() : e.key === "Escape" && cancel()
+            }
+            className="nodrag" // https://reactflow.dev/docs/api/nodes/custom-nodes/#prevent-dragging--selecting
+            textAlign="center"
+            size="xs"
+            // px={6}
+          />
 
-        {/* <Row
+          {/* <Row
           mainAxisAlignment="center"
           crossAxisAlignment="center"
           position="absolute"
@@ -87,9 +94,10 @@ export function LabelUpdaterNode({
             onClick={cancel}
           />
         </Row> */}
-      </Row>
+        </Row>
 
-      <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} />
-    </Box>
+        <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} />
+      </Box>
+    </Tooltip>
   );
 }

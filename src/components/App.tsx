@@ -68,15 +68,16 @@ import {
 import { useLocalStorage } from "../utils/lstore";
 import { mod } from "../utils/mod";
 import { generateNodeId, generateStreamId } from "../utils/nodeId";
+import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { getQueryParam, resetURL } from "../utils/qparams";
 import { useDebouncedWindowResize } from "../utils/resize";
-import { ReactFlowNodeTypes } from "../utils/types";
 import {
   CreateChatCompletionStreamResponseChoicesInner,
   FluxNodeData,
   FluxNodeType,
   HistoryItem,
+  ReactFlowNodeTypes,
   Settings,
 } from "../utils/types";
 import { Prompt } from "./Prompt";
@@ -129,6 +130,8 @@ function App() {
 
       autoZoomIfNecessary();
     }
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed undo");
   };
 
   const redo = () => {
@@ -144,6 +147,8 @@ function App() {
 
       autoZoomIfNecessary();
     }
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed redo");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -206,6 +211,12 @@ function App() {
 
   const autoZoomIfNecessary = () => {
     if (settings.autoZoom) autoZoom();
+  };
+
+  const trackedAutoZoom = () => {
+    autoZoom();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out and centered");
   };
 
   const save = () => {
@@ -272,19 +283,17 @@ function App() {
   const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
-
     const responses = settings.n;
     const temp = settings.temp;
     const model = settings.model;
 
     const parentNodeLineage = selectedNodeLineage;
-    const parentNodeId = selectedNodeLineage[0].id;
+    const parentNode = selectedNodeLineage[0];
 
     const newNodes = [...nodes];
 
-    const currentNode = getFluxNode(newNodes, parentNodeId)!;
-    const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNodeId);
+    const currentNode = getFluxNode(newNodes, parentNode.id)!;
+    const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNode.id);
 
     const streamId = generateStreamId();
 
@@ -306,7 +315,7 @@ function App() {
           data: {
             ...childNode.data,
             text: "",
-            label: displayNameFromFluxNodeType(FluxNodeType.GPT),
+            label: childNode.data.label ?? displayNameFromFluxNodeType(FluxNodeType.GPT),
             fluxNodeType: FluxNodeType.GPT,
             streamId,
           },
@@ -427,7 +436,7 @@ function App() {
 
             setEdges((edges) =>
               modifyFluxEdge(edges, {
-                source: parentNodeId,
+                source: parentNode.id,
                 target: correspondingNodeId,
                 animated: false,
               })
@@ -457,7 +466,7 @@ function App() {
 
           setEdges((edges) =>
             modifyFluxEdge(edges, {
-              source: parentNodeId,
+              source: parentNode.id,
               target: correspondingNodeId,
               animated: false,
             })
@@ -487,7 +496,7 @@ function App() {
           const childId = currentNodeChildren[i].id;
 
           const idx = newEdges.findIndex(
-            (edge) => edge.source === parentNodeId && edge.target === childId
+            (edge) => edge.source === parentNode.id && edge.target === childId
           );
 
           newEdges[idx] = {
@@ -502,7 +511,7 @@ function App() {
           // Otherwise, add a new edge.
           newEdges.push(
             newFluxEdge({
-              source: parentNodeId,
+              source: parentNode.id,
               target: childId,
               animated: true,
             })
@@ -514,6 +523,8 @@ function App() {
     });
 
     autoZoomIfNecessary();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt"); // KPI
   };
 
   const completeNextWords = () => {
@@ -593,6 +604,8 @@ function App() {
         );
       }
     })().catch((err) => console.error(err));
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -637,6 +650,8 @@ function App() {
     );
 
     if (forceAutoZoom) autoZoom();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("New conversation tree created");
   };
 
   const newConnectedToSelectedNode = (type: FluxNodeType) => {
@@ -677,6 +692,12 @@ function App() {
       );
 
       autoZoomIfNecessary();
+
+      if (type === FluxNodeType.User) {
+        if (MIXPANEL_TOKEN) mixpanel.track("New user node created");
+      } else {
+        if (MIXPANEL_TOKEN) mixpanel.track("New system node created");
+      }
     }
   };
 
@@ -709,6 +730,8 @@ function App() {
     }
 
     autoZoomIfNecessary();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Deleted selected node(s)");
   };
 
   const onDelete = () => {
@@ -725,6 +748,11 @@ function App() {
     setNodes([]);
     setEdges([]);
     setViewport({ x: 0, y: 0, zoom: 1 });
+    setNodes([]);
+    setEdges([]);
+    setViewport({ x: 0, y: 0, zoom: 1 });
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Deleted everything");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -754,6 +782,8 @@ function App() {
           : children[0].id
       );
 
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to child node");
+
       return true;
     } else {
       return false;
@@ -765,6 +795,8 @@ function App() {
 
     if (parent) {
       selectNode(parent.id);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to parent node");
 
       return true;
     } else {
@@ -780,6 +812,8 @@ function App() {
 
       selectNode(siblings[mod(currentIndex - 1, siblings.length)].id);
 
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to left sibling node");
+
       return true;
     } else {
       return false;
@@ -793,6 +827,8 @@ function App() {
       const currentIndex = siblings.findIndex((node) => node.id === selectedNodeId!)!;
 
       selectNode(siblings[mod(currentIndex + 1, siblings.length)].id);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to right sibling node");
 
       return true;
     } else {
@@ -865,6 +901,8 @@ function App() {
         status: "success",
         ...TOAST_CONFIG,
       });
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Copied messages to clipboard");
     } else {
       toast({
         title: "Failed to copy messages to clipboard!",
@@ -892,6 +930,8 @@ function App() {
           draggable: false,
         })
       );
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Triggered rename input");
     }
   };
 
@@ -905,39 +945,54 @@ function App() {
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  useHotkeys("meta+s", save, HOTKEY_CONFIG);
+  const modifierKey = getPlatformModifierKey();
+  const modifierKeyText = getPlatformModifierKeyText();
+
+  useHotkeys(`${modifierKey}+s`, save, HOTKEY_CONFIG);
 
   useHotkeys(
-    "meta+p",
+    `${modifierKey}+p`,
     () => newConnectedToSelectedNode(FluxNodeType.User),
     HOTKEY_CONFIG
   );
   useHotkeys(
-    "meta+u",
+    `${modifierKey}+u`,
     () => newConnectedToSelectedNode(FluxNodeType.System),
     HOTKEY_CONFIG
   );
 
-  useHotkeys("meta+shift+p", () => newUserNodeLinkedToANewSystemNode(), HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+shift+p`,
+    () => newUserNodeLinkedToANewSystemNode(),
+    HOTKEY_CONFIG
+  );
 
-  useHotkeys("meta+.", () => fitView(FIT_VIEW_SETTINGS), HOTKEY_CONFIG);
-  useHotkeys("meta+/", onToggleSettingsModal, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+backspace", onToggleConfirmModal, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+.`, trackedAutoZoom, HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+/`,
+    () => {
+      onToggleSettingsModal();
 
-  useHotkeys("meta+z", undo, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
+      if (MIXPANEL_TOKEN) mixpanel.track("Toggled settings modal");
+    },
+    HOTKEY_CONFIG
+  );
+  useHotkeys(`${modifierKey}+shift+backspace`, onDelete, HOTKEY_CONFIG);
 
-  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+z`, undo, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+z`, redo, HOTKEY_CONFIG);
 
-  useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
-  useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
-  useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
-  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
-  useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
-  useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+e`, showRenameInput, HOTKEY_CONFIG);
+
+  useHotkeys(`${modifierKey}+up`, moveToParent, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+down`, moveToChild, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+left`, moveToLeftSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+right`, moveToRightSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+return`, () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -1019,10 +1074,11 @@ function App() {
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}
                   moveToRightSibling={moveToRightSibling}
-                  autoZoom={autoZoom}
+                  autoZoom={trackedAutoZoom}
                   onOpenSettingsModal={() => {
-                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal");
                     onOpenSettingsModal();
+
+                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal"); // KPI
                   }}
                 />
                 <Box ml="20px">
@@ -1055,7 +1111,7 @@ function App() {
                 onSelectionDragStop={autoZoomIfNecessary}
                 selectionKeyCode={null}
                 multiSelectionKeyCode="Shift"
-                panActivationKeyCode={null}
+                panActivationKeyCode="Shift"
                 deleteKeyCode={null}
                 panOnDrag={false}
                 selectionOnDrag={true}
@@ -1100,7 +1156,7 @@ function App() {
                 mainAxisAlignment={"center"}
                 crossAxisAlignment={"center"}>
                 <BigButton
-                  tooltip="⇧⌘P"
+                  tooltip={`⇧${modifierKeyText}P`}
                   width="400px"
                   height="100px"
                   fontSize="xl"

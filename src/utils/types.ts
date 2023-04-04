@@ -6,6 +6,7 @@ export type FluxNodeData = {
   fluxNodeType: FluxNodeType;
   text: string;
   streamId?: string;
+  hasCustomlabel?: boolean;
 };
 
 export enum FluxNodeType {

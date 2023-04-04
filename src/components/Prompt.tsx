@@ -1,12 +1,15 @@
 import { EditIcon, NotAllowedIcon, ViewIcon } from "@chakra-ui/icons";
 import { Button, Spinner, Text } from "@chakra-ui/react";
+import mixpanel from "mixpanel-browser";
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Node, useReactFlow } from "reactflow";
 
+import { MIXPANEL_TOKEN } from "../main";
 import { Center, Column, Row } from "../utils/chakra";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { displayNameFromFluxNodeType, setFluxNodeStreamId } from "../utils/fluxNode";
+import { getPlatformModifierKeyText } from "../utils/platform";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { BigButton } from "./utils/BigButton";
 import { LabeledSlider } from "./utils/LabeledInputs";
@@ -50,6 +53,8 @@ export function Prompt({
     setNodes((nodes) =>
       setFluxNodeStreamId(nodes, { id: promptNode.id, streamId: undefined })
     );
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Stopped generating response");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -102,6 +107,8 @@ export function Prompt({
   /*//////////////////////////////////////////////////////////////
                               APP
   //////////////////////////////////////////////////////////////*/
+
+  const modifierKeyText = getPlatformModifierKeyText();
 
   return (
     <>
@@ -229,7 +236,11 @@ export function Prompt({
         height="100px"
         id="promptButtons">
         <BigButton
-          tooltip={promptNodeType === FluxNodeType.User ? "⌘⏎" : "⌘P"}
+          tooltip={
+            promptNodeType === FluxNodeType.User
+              ? `${modifierKeyText}⏎`
+              : `${modifierKeyText}P`
+          }
           onClick={onMainButtonClick}
           color={getFluxNodeTypeDarkColor(promptNodeType)}
           width="100%"
@@ -253,7 +264,11 @@ export function Prompt({
             mt={3}
             label="Temperature (randomness)"
             value={settings.temp}
-            setValue={(v) => setSettings({ ...settings, temp: v })}
+            setValue={(v: number) => {
+              setSettings({ ...settings, temp: v });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature inline");
+            }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={1.25}
             min={0}
@@ -264,7 +279,11 @@ export function Prompt({
             mt={3}
             label="Number of Responses"
             value={settings.n}
-            setValue={(v) => setSettings({ ...settings, n: v })}
+            setValue={(v: number) => {
+              setSettings({ ...settings, n: v });
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Changed number of responses inline");
+            }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
             max={10}
             min={1}

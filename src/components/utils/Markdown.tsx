@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, ReactNode } from "react";
+import React, { useState, useEffect, memo, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import "highlight.js/styles/a11y-light.css";
 import rehypeHighlight from "rehype-highlight";
@@ -36,10 +36,13 @@ const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) 
 const stringifyChildren = (children: ReactNode[]): string => {
   return children.reduce((concatenatedText: string, currentNode: ReactNode) => {
     if (React.isValidElement(currentNode) && currentNode.props.children) {
-      return concatenatedText + stringifyChildren(
-        Array.isArray(currentNode.props.children)
-        ? currentNode.props.children
-        : [currentNode.props.children]
+      return (
+        concatenatedText +
+        stringifyChildren(
+          Array.isArray(currentNode.props.children)
+            ? currentNode.props.children
+            : [currentNode.props.children]
+        )
       );
     }
     return concatenatedText + String(currentNode || "");
@@ -75,45 +78,42 @@ const CopyCodeButton = ({ code }: { code: ReactNode[] }) => {
   );
 };
 
-export function Markdown({ text }: { text: string }) {
-  return useMemo(
-    () => (
-      <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
-        <ReactMarkdown
-          rehypePlugins={[rehypeHighlight]}
-          components={{
-            code({ node, inline, className, children, style, ...props }) {
-              const match = /language-(\w+)/.exec(className || "");
-              return !inline ? (
-                <Column
-                  borderRadius="0.25rem"
-                  overflow="hidden"
-                  mainAxisAlignment="flex-start"
-                  crossAxisAlignment="center"
+export const Markdown = memo(function Markdown({ text }: { text: string }) {
+  return (
+    <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
+      <ReactMarkdown
+        rehypePlugins={[rehypeHighlight]}
+        components={{
+          code({ node, inline, className, children, style, ...props }) {
+            const match = /language-(\w+)/.exec(className || "");
+            return !inline ? (
+              <Column
+                borderRadius="0.25rem"
+                overflow="hidden"
+                mainAxisAlignment="flex-start"
+                crossAxisAlignment="center"
+              >
+                <TitleBar language={match?.[1]} code={children} />
+                <Code
+                  width="100%"
+                  padding={!match?.[1] ? "10px" : 0} // when no language is specified, inconsistent padding is applied. This fixes that.
+                  className={className}
+                  {...props}
+                  style={{ whiteSpace: "pre-wrap" }}
                 >
-                  <TitleBar language={match?.[1]} code={children} />
-                  <Code
-                    width="100%"
-                    padding={!match?.[1] ? "10px" : 0} // when no language is specified, inconsistent padding is applied. This fixes that.
-                    className={className}
-                    {...props}
-                    style={{ whiteSpace: "pre-wrap" }}
-                  >
-                    {children}
-                  </Code>
-                </Column>
-              ) : (
-                <Code className={className} {...props} style={{ whiteSpace: "pre-wrap" }}>
                   {children}
                 </Code>
-              );
-            },
-          }}
-        >
-          {text}
-        </ReactMarkdown>
-      </Box>
-    ),
-    [text]
+              </Column>
+            ) : (
+              <Code className={className} {...props} style={{ whiteSpace: "pre-wrap" }}>
+                {children}
+              </Code>
+            );
+          },
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    </Box>
   );
-}
+});

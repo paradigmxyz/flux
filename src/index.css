@@ -11,6 +11,10 @@
   box-shadow: 0 0 0 0.5px #1a192b !important;
 }
 
+.hljs {
+  background-color: white !important;
+}
+
 .markdown-wrapper h1,
 .markdown-wrapper h2,
 .markdown-wrapper h3,

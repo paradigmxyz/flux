@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
-import "highlight.js/styles/a11y-light.css";
+import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
 import { Button, Box, Code } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
@@ -82,7 +82,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
   return (
     <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
       <ReactMarkdown
-        rehypePlugins={[rehypeHighlight]}
+        rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }]]}
         components={{
           code({ node, inline, className, children, style, ...props }) {
             const match = /language-(\w+)/.exec(className || "");
@@ -105,7 +105,12 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
                 </Code>
               </Column>
             ) : (
-              <Code className={className} {...props} style={{ whiteSpace: "pre-wrap" }}>
+              <Code
+                className={className}
+                {...props}
+                backgroundColor="white"
+                style={{ whiteSpace: "pre-wrap" }}
+              >
                 {children}
               </Code>
             );

@@ -748,9 +748,6 @@ function App() {
     setNodes([]);
     setEdges([]);
     setViewport({ x: 0, y: 0, zoom: 1 });
-    setNodes([]);
-    setEdges([]);
-    setViewport({ x: 0, y: 0, zoom: 1 });
 
     if (MIXPANEL_TOKEN) mixpanel.track("Deleted everything");
   };

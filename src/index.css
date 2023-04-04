@@ -11,6 +11,14 @@
   box-shadow: 0 0 0 0.5px #1a192b !important;
 }
 
+/* Enable if you
+want bigger handles:
+.react-flow__handle {
+  width: 20px;
+  height: 7px;
+  border-radius: 5px;
+} */
+
 .markdown-wrapper h1,
 .markdown-wrapper h2,
 .markdown-wrapper h3,
@@ -59,11 +67,3 @@
   height: 2px;
   border: 0px;
 }
-
-/* Enable if you
-want bigger handles:
-.react-flow__handle {
-  width: 20px;
-  height: 7px;
-  border-radius: 5px;
-} */

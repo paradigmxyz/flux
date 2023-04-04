@@ -2,13 +2,15 @@ import React, { useState, useEffect, memo, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
-import { Button, Box, Code } from "@chakra-ui/react";
+import { Button, Box, Code, Text, useTheme } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 import { solidity, yul } from "highlightjs-solidity";
 
 const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) => {
+  // grabbing the default font family from Chakra to override the markdown code font family.
+  const theme = useTheme(); 
   return (
     <Row
       mainAxisAlignment="flex-start"
@@ -21,8 +23,9 @@ const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) 
       backgroundColor="#f5f5f5"
       borderBottom="1px solid #eee"
       borderRadius="6px 6px 0px 0px"
+      sx={{ fontFamily: theme.fonts.body }}
     >
-      <Box>{language || "plaintext"}</Box>
+      <Text>{language || "plaintext"}</Text>
       <CopyCodeButton code={code} />
     </Row>
   );

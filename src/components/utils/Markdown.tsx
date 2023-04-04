@@ -6,6 +6,7 @@ import { Button, Box, Code } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
+import { solidity, yul } from "highlightjs-solidity";
 
 const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) => {
   return (
@@ -82,7 +83,9 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
   return (
     <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
       <ReactMarkdown
-        rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }]]}
+        rehypePlugins={[
+          [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
+        ]}
         components={{
           code({ node, inline, className, children, style, ...props }) {
             const match = /language-(\w+)/.exec(className || "");

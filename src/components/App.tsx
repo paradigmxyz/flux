@@ -81,7 +81,7 @@ import {
 } from "../utils/types";
 import { Prompt } from "./Prompt";
 import { APIKeyModal } from "./modals/APIKeyModal";
-import ConfirmModal from "./modals/ConfirmModal";
+import { ConfirmModal } from "./modals/ConfirmModal";
 import { SettingsModal } from "./modals/SettingsModal";
 import { BigButton } from "./utils/BigButton";
 import { NavigationBar } from "./utils/NavigationBar";
@@ -1026,9 +1026,9 @@ function App() {
                 />
                 <Box ml="20px">
                   {isAnythingLoading ? (
-                    <Spinner size="sm" mt="6px" color="green" />
+                    <Spinner size="sm" mt="6px" />
                   ) : (
-                    <CheckCircleIcon color="green" />
+                    <CheckCircleIcon />
                   )}
                 </Box>
               </Row>

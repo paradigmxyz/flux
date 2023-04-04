@@ -9,22 +9,21 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 
-interface IConfirmModal {
-  title: string;
-  text: string;
-  action: string;
-  isOpen: boolean;
-  onClose: () => void;
-  onDelete: () => void;
-}
-const ConfirmModal = ({
+export function ConfirmModal({
   title,
   text,
   action,
   isOpen,
   onClose,
   onDelete,
-}: IConfirmModal) => {
+}: {
+  title: string;
+  text: string;
+  action: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onDelete: () => void;
+}) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -43,6 +42,4 @@ const ConfirmModal = ({
       </ModalContent>
     </Modal>
   );
-};
-
-export default ConfirmModal;
+}

@@ -57,7 +57,6 @@ export function LabelUpdaterNode({
 
       <Row mainAxisAlignment="center" crossAxisAlignment="center" height="100%" px={2}>
         <Input
-          focusBorderColor="green.500"
           onBlur={cancel}
           id={inputId}
           value={renameLabel}

@@ -38,8 +38,8 @@ Visit [flux.paradigm.xyz](https://flux.paradigm.xyz) to try Flux online or follo
 
 ```sh
 git clone https://github.com/transmissions11/flux.git
-pnpm install
-pnpm run dev
+npm install
+npm run dev
 ```
 
 ## Contributing

@@ -47,7 +47,7 @@ export function LabeledSlider({
         min={min}
         step={step}>
         <SliderTrack>
-          <SliderFilledTrack bg="green" />
+          <SliderFilledTrack />
         </SliderTrack>
 
         <SliderThumb />
@@ -69,12 +69,7 @@ export function LabeledInput({
   return (
     <Box {...others}>
       <b>{label}:</b>
-      <Input
-        focusBorderColor="green.500"
-        mt={1}
-        onChange={(e) => setValue(e.target.value)}
-        value={value}
-      />
+      <Input mt={1} onChange={(e) => setValue(e.target.value)} value={value} />
     </Box>
   );
 }
@@ -101,19 +96,13 @@ export function LabeledPasswordInputWithLink({
     <Box {...others}>
       <Row mainAxisAlignment="space-between" crossAxisAlignment="center">
         <b>{label}:</b>
-        <Link
-          _focus={{ boxShadow: "none" }}
-          href={link}
-          isExternal
-          fontSize="sm"
-          color="green">
+        <Link _focus={{ boxShadow: "none" }} href={link} isExternal fontSize="sm">
           {linkLabel}
           <ExternalLinkIcon ml="5px" mb="3px" />
         </Link>
       </Row>
       <InputGroup size="md" borderBottom="0px" borderColor="#EEF2F6" mt={1}>
         <Input
-          focusBorderColor="green.500"
           type={show ? "text" : "password"}
           value={value}
           placeholder={placeholder}

@@ -46,6 +46,7 @@ const stringifyChildren = (children: ReactNode[]): string => {
         )
       );
     }
+
     return concatenatedText + String(currentNode || "");
   }, "");
 };

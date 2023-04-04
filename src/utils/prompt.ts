@@ -1,9 +1,7 @@
-import { Node } from "reactflow";
-
-import { ChatCompletionRequestMessage } from "openai-streams";
-
 import { FluxNodeData, FluxNodeType, Settings } from "./types";
+import { ChatCompletionRequestMessage } from "openai-streams";
 import { MAX_AUTOLABEL_CHARS } from "./constants";
+import { Node } from "reactflow";
 
 export function messagesFromLineage(
   lineage: Node<FluxNodeData>[],
@@ -67,8 +65,6 @@ export function promptFromLineage(
       prompt += "\n\n";
     }
   });
-
-  console.log(prompt);
 
   return prompt;
 }

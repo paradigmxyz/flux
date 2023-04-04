@@ -19,7 +19,7 @@ export function APIKeyModal({
     setApiKey(apiKey);
 
     if (isValidAPIKey(apiKey)) {
-      if (MIXPANEL_TOKEN) mixpanel.track("Entered API Key");
+      if (MIXPANEL_TOKEN) mixpanel.track("Entered API Key"); // KPI
 
       // Hacky way to get the prompt box to focus after the
       // modal closes. Long term should probably use a ref.

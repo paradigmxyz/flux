@@ -1,44 +1,27 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-
-import ReactFlow, {
-  addEdge,
-  Background,
-  Connection,
-  Node,
-  Edge,
-  useEdgesState,
-  useNodesState,
-  SelectionMode,
-  ReactFlowInstance,
-  ReactFlowJsonObject,
-  useReactFlow,
-  updateEdge,
-} from "reactflow";
-
-import "reactflow/dist/style.css";
-
-import mixpanel from "mixpanel-browser";
-
-import { Resizable } from "re-resizable";
-
-import { yieldStream } from "yield-stream";
-
-import { useHotkeys } from "react-hotkeys-hook";
-
-import { useBeforeunload } from "react-beforeunload";
-
-import { CheckCircleIcon } from "@chakra-ui/icons";
-import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
-
-import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
-
-import { Prompt } from "./Prompt";
-
-import { APIKeyModal } from "./modals/APIKeyModal";
-import { SettingsModal } from "./modals/SettingsModal";
-
 import { MIXPANEL_TOKEN } from "../main";
-
+import { isValidAPIKey } from "../utils/apikey";
+import { Column, Row } from "../utils/chakra";
+import { copySnippetToClipboard } from "../utils/clipboard";
+import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
+import {
+  API_KEY_LOCAL_STORAGE_KEY,
+  DEFAULT_SETTINGS,
+  FIT_VIEW_SETTINGS,
+  HOTKEY_CONFIG,
+  MAX_HISTORY_SIZE,
+  MODEL_SETTINGS_LOCAL_STORAGE_KEY,
+  NEW_TREE_CONTENT_QUERY_PARAM,
+  OVERLAP_RANDOMNESS_MAX,
+  REACT_FLOW_NODE_TYPES,
+  REACT_FLOW_LOCAL_STORAGE_KEY,
+  TOAST_CONFIG,
+  UNDEFINED_RESPONSE_STRING,
+  STREAM_CANCELED_ERROR_MESSAGE,
+  SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY,
+} from "../utils/constants";
+import { useDebouncedEffect } from "../utils/debounce";
+import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import {
   getFluxNode,
   getFluxNodeGPTChildren,
@@ -59,6 +42,12 @@ import {
   getConnectionAllowed,
   setFluxNodeStreamId,
 } from "../utils/fluxNode";
+import { useLocalStorage } from "../utils/lstore";
+import { mod } from "../utils/mod";
+import { generateNodeId, generateStreamId } from "../utils/nodeId";
+import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
+import { getQueryParam, resetURL } from "../utils/qparams";
+import { useDebouncedWindowResize } from "../utils/resize";
 import {
   FluxNodeData,
   FluxNodeType,
@@ -67,36 +56,35 @@ import {
   CreateChatCompletionStreamResponseChoicesInner,
   ReactFlowNodeTypes,
 } from "../utils/types";
-import {
-  API_KEY_LOCAL_STORAGE_KEY,
-  DEFAULT_SETTINGS,
-  FIT_VIEW_SETTINGS,
-  HOTKEY_CONFIG,
-  MAX_HISTORY_SIZE,
-  MODEL_SETTINGS_LOCAL_STORAGE_KEY,
-  NEW_TREE_CONTENT_QUERY_PARAM,
-  OVERLAP_RANDOMNESS_MAX,
-  REACT_FLOW_NODE_TYPES,
-  REACT_FLOW_LOCAL_STORAGE_KEY,
-  TOAST_CONFIG,
-  UNDEFINED_RESPONSE_STRING,
-  STREAM_CANCELED_ERROR_MESSAGE,
-  SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY,
-} from "../utils/constants";
-import { mod } from "../utils/mod";
+import { Prompt } from "./Prompt";
+import { APIKeyModal } from "./modals/APIKeyModal";
+import { SettingsModal } from "./modals/SettingsModal";
 import { BigButton } from "./utils/BigButton";
-import { Column, Row } from "../utils/chakra";
-import { isValidAPIKey } from "../utils/apikey";
-import { useLocalStorage } from "../utils/lstore";
 import { NavigationBar } from "./utils/NavigationBar";
-import { useDebouncedEffect } from "../utils/debounce";
-import { useDebouncedWindowResize } from "../utils/resize";
-import { getQueryParam, resetURL } from "../utils/qparams";
-import { copySnippetToClipboard } from "../utils/clipboard";
-import { generateNodeId, generateStreamId } from "../utils/nodeId";
-import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
-import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
-import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { CheckCircleIcon } from "@chakra-ui/icons";
+import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
+import mixpanel from "mixpanel-browser";
+import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
+import { Resizable } from "re-resizable";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useBeforeunload } from "react-beforeunload";
+import { useHotkeys } from "react-hotkeys-hook";
+import ReactFlow, {
+  addEdge,
+  Background,
+  Connection,
+  Node,
+  Edge,
+  useEdgesState,
+  useNodesState,
+  SelectionMode,
+  ReactFlowInstance,
+  ReactFlowJsonObject,
+  useReactFlow,
+  updateEdge,
+} from "reactflow";
+import "reactflow/dist/style.css";
+import { yieldStream } from "yield-stream";
 
 function App() {
   const toast = useToast();
@@ -141,6 +129,8 @@ function App() {
 
       autoZoomIfNecessary();
     }
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed undo");
   };
 
   const redo = () => {
@@ -156,6 +146,8 @@ function App() {
 
       autoZoomIfNecessary();
     }
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed redo");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -220,14 +212,18 @@ function App() {
     if (settings.autoZoom) autoZoom();
   };
 
+  const trackedAutoZoom = () => {
+    autoZoom();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out and centered");
+  };
+
   const save = () => {
     if (reactFlow) {
       localStorage.setItem(
         REACT_FLOW_LOCAL_STORAGE_KEY,
         JSON.stringify(reactFlow.toObject())
       );
-
-      console.log("Saved React Flow state!");
     }
   };
 
@@ -249,8 +245,6 @@ function App() {
       const content = getQueryParam(NEW_TREE_CONTENT_QUERY_PARAM);
 
       if (flow) {
-        console.log("Restoring react flow from local storage.");
-
         setEdges(flow.edges || []);
         setViewport(flow.viewport);
 
@@ -287,8 +281,6 @@ function App() {
   // then creates a child node for each response under the selected node.
   const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
 
     const responses = settings.n;
     const temp = settings.temp;
@@ -530,6 +522,8 @@ function App() {
     });
 
     autoZoomIfNecessary();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt"); // KPI
   };
 
   const completeNextWords = () => {
@@ -609,6 +603,8 @@ function App() {
         );
       }
     })().catch((err) => console.error(err));
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -653,6 +649,8 @@ function App() {
     );
 
     if (forceAutoZoom) autoZoom();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("New conversation tree created");
   };
 
   const newConnectedToSelectedNode = (type: FluxNodeType) => {
@@ -693,6 +691,12 @@ function App() {
       );
 
       autoZoomIfNecessary();
+
+      if (type === FluxNodeType.User) {
+        if (MIXPANEL_TOKEN) mixpanel.track("New user node created");
+      } else {
+        if (MIXPANEL_TOKEN) mixpanel.track("New system node created");
+      }
     }
   };
 
@@ -725,6 +729,8 @@ function App() {
     }
 
     autoZoomIfNecessary();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Deleted selected node(s)");
   };
 
   const onClear = () => {
@@ -734,6 +740,8 @@ function App() {
       setNodes([]);
       setEdges([]);
       setViewport({ x: 0, y: 0, zoom: 1 });
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Deleted everything");
     }
   };
 
@@ -764,6 +772,8 @@ function App() {
           : children[0].id
       );
 
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to child node");
+
       return true;
     } else {
       return false;
@@ -775,6 +785,8 @@ function App() {
 
     if (parent) {
       selectNode(parent.id);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to parent node");
 
       return true;
     } else {
@@ -790,6 +802,8 @@ function App() {
 
       selectNode(siblings[mod(currentIndex - 1, siblings.length)].id);
 
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to left sibling node");
+
       return true;
     } else {
       return false;
@@ -803,6 +817,8 @@ function App() {
       const currentIndex = siblings.findIndex((node) => node.id == selectedNodeId!)!;
 
       selectNode(siblings[mod(currentIndex + 1, siblings.length)].id);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to right sibling node");
 
       return true;
     } else {
@@ -825,8 +841,6 @@ function App() {
     const rawSettings = localStorage.getItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY);
 
     if (rawSettings !== null) {
-      console.log("Restoring settings from local storage.");
-
       return JSON.parse(rawSettings) as Settings;
     } else {
       return DEFAULT_SETTINGS;
@@ -838,8 +852,6 @@ function App() {
   // Auto save.
   const isSavingSettings = useDebouncedEffect(
     () => {
-      console.log("Saved settings!");
-
       localStorage.setItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY, JSON.stringify(settings));
     },
     1000, // 1 second.
@@ -872,6 +884,8 @@ function App() {
         status: "success",
         ...TOAST_CONFIG,
       });
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Copied messages to clipboard");
     } else {
       toast({
         title: "Failed to copy messages to clipboard!",
@@ -899,6 +913,8 @@ function App() {
           draggable: false,
         })
       );
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Triggered rename input");
     }
   };
 
@@ -920,39 +936,54 @@ function App() {
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  useHotkeys("meta+s", save, HOTKEY_CONFIG);
+  const modifierKey = getPlatformModifierKey();
+  const modifierKeyText = getPlatformModifierKeyText();
+
+  useHotkeys(`${modifierKey}+s`, save, HOTKEY_CONFIG);
 
   useHotkeys(
-    "meta+p",
+    `${modifierKey}+p`,
     () => newConnectedToSelectedNode(FluxNodeType.User),
     HOTKEY_CONFIG
   );
   useHotkeys(
-    "meta+u",
+    `${modifierKey}+u`,
     () => newConnectedToSelectedNode(FluxNodeType.System),
     HOTKEY_CONFIG
   );
 
-  useHotkeys("meta+shift+p", () => newUserNodeLinkedToANewSystemNode(), HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+shift+p`,
+    () => newUserNodeLinkedToANewSystemNode(),
+    HOTKEY_CONFIG
+  );
 
-  useHotkeys("meta+.", () => fitView(FIT_VIEW_SETTINGS), HOTKEY_CONFIG);
-  useHotkeys("meta+/", onToggleSettingsModal, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+backspace", onClear, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+.`, trackedAutoZoom, HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+/`,
+    () => {
+      onToggleSettingsModal();
 
-  useHotkeys("meta+z", undo, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
+      if (MIXPANEL_TOKEN) mixpanel.track("Toggled settings modal");
+    },
+    HOTKEY_CONFIG
+  );
+  useHotkeys(`${modifierKey}+shift+backspace`, onClear, HOTKEY_CONFIG);
 
-  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+z`, undo, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+z`, redo, HOTKEY_CONFIG);
 
-  useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
-  useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
-  useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
-  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
-  useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
-  useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+e`, showRenameInput, HOTKEY_CONFIG);
+
+  useHotkeys(`${modifierKey}+up`, moveToParent, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+down`, moveToChild, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+left`, moveToLeftSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+right`, moveToRightSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+return`, () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -1034,10 +1065,11 @@ function App() {
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}
                   moveToRightSibling={moveToRightSibling}
-                  autoZoom={autoZoom}
+                  autoZoom={trackedAutoZoom}
                   onOpenSettingsModal={() => {
-                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal");
                     onOpenSettingsModal();
+
+                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal"); // KPI
                   }}
                 />
 
@@ -1118,7 +1150,7 @@ function App() {
                 crossAxisAlignment={"center"}
               >
                 <BigButton
-                  tooltip="⇧⌘P"
+                  tooltip={`⇧${modifierKeyText}P`}
                   width="400px"
                   height="100px"
                   fontSize="xl"

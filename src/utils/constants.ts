@@ -61,7 +61,6 @@ export const CODE_BLOCK_LANGUAGE_DETECT_REGEX = /^```[a-zA-Z0-9-]*$/m;
 export const STREAM_CANCELED_ERROR_MESSAGE = "STREAM_CANCELED";
 export const STALE_STREAM_ERROR_MESSAGE = "STALE_STREAM";
 
-// Magic number to almost always make auto-label text stay in two lines
-export const MAX_AUTOLABEL_CHARS = 34;
-
 export const SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY = "FLUX_SAVED_CHAT_SIZE";
+// Magic number to almost always make auto-label text stay in two lines.
+export const MAX_AUTOLABEL_CHARS = 32;

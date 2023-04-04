@@ -81,6 +81,7 @@ import {
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
   STREAM_CANCELED_ERROR_MESSAGE,
+  SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY,
 } from "../utils/constants";
 import { mod } from "../utils/mod";
 import { BigButton } from "./utils/BigButton";
@@ -908,6 +909,14 @@ function App() {
   useDebouncedWindowResize(autoZoomIfNecessary, 100);
 
   /*//////////////////////////////////////////////////////////////
+                        CHAT RESIZE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  const [savedChatSize, setSavedChatSize] = useLocalStorage<string>(
+    SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY
+  );
+
+  /*//////////////////////////////////////////////////////////////
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -972,7 +981,8 @@ function App() {
             maxWidth="75%"
             minWidth="15%"
             defaultSize={{
-              width: "50%",
+              // defaults to the previously used chat size if it exists.
+              width: savedChatSize || "50%",
               height: "auto",
             }}
             enable={{
@@ -985,7 +995,10 @@ function App() {
               bottomLeft: false,
               topLeft: false,
             }}
-            onResizeStop={autoZoomIfNecessary}
+            onResizeStop={(_, __, ref) => {
+              setSavedChatSize(ref.style.width);
+              autoZoomIfNecessary();
+            }}
           >
             <Column
               mainAxisAlignment="center"

@@ -63,3 +63,5 @@ export const STALE_STREAM_ERROR_MESSAGE = "STALE_STREAM";
 
 // Magic number to almost always make auto-label text stay in two lines
 export const MAX_AUTOLABEL_CHARS = 34;
+
+export const SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY = "FLUX_SAVED_CHAT_SIZE";

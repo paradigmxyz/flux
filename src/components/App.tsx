@@ -1012,7 +1012,7 @@ function App() {
             maxWidth="75%"
             minWidth="15%"
             defaultSize={{
-              // defaults to the previously used chat size if it exists.
+              // Defaults to the previously used chat size if it exists.
               width: savedChatSize || "50%",
               height: "auto",
             }}

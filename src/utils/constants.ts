@@ -57,5 +57,5 @@ export const NEW_TREE_X_OFFSET = 600;
 export const STREAM_CANCELED_ERROR_MESSAGE = "STREAM_CANCELED";
 export const STALE_STREAM_ERROR_MESSAGE = "STALE_STREAM";
 
-// Magic number to almost always make auto-label text stay in two lines
-export const MAX_AUTOLABEL_CHARS = 34;
+// Magic number to almost always make auto-label text stay in two lines.
+export const MAX_AUTOLABEL_CHARS = 32;

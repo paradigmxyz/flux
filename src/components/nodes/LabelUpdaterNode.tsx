@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
-
-import { Box, Input, Tooltip } from "@chakra-ui/react";
-
-import { Handle, Position, useReactFlow } from "reactflow";
-
+import { MIXPANEL_TOKEN } from "../../main";
 import { Row } from "../../utils/chakra";
-import { FluxNodeData } from "../../utils/types";
 import { modifyFluxNodeLabel, modifyReactFlowNodeProperties } from "../../utils/fluxNode";
+import { FluxNodeData } from "../../utils/types";
+import { Box, Input, Tooltip } from "@chakra-ui/react";
+import mixpanel from "mixpanel-browser";
+import { useEffect, useState } from "react";
+import { Handle, Position, useReactFlow } from "reactflow";
 
 export function LabelUpdaterNode({
   id,
@@ -42,6 +41,8 @@ export function LabelUpdaterNode({
         draggable: true,
       })
     );
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Canceled renaming");
   };
 
   const submit = () => {
@@ -51,6 +52,8 @@ export function LabelUpdaterNode({
         label: renameLabel,
       })
     );
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Node renamed");
   };
 
   return (

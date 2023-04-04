@@ -55,10 +55,6 @@ export const FIT_VIEW_SETTINGS = { padding: 0.1, duration: 200 };
 
 export const NEW_TREE_X_OFFSET = 600;
 
-export const CODE_BLOCK_DETECT_REGEX =
-  /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
-export const CODE_BLOCK_LANGUAGE_DETECT_REGEX = /^```[a-zA-Z0-9-]*$/m;
-
 export const STREAM_CANCELED_ERROR_MESSAGE = "STREAM_CANCELED";
 export const STALE_STREAM_ERROR_MESSAGE = "STALE_STREAM";
 

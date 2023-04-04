@@ -5,7 +5,7 @@ import { displayNameFromFluxNodeType, setFluxNodeStreamId } from "../utils/fluxN
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { BigButton } from "./utils/BigButton";
 import { LabeledSlider } from "./utils/LabeledInputs";
-import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
+import { Markdown } from "./utils/Markdown";
 import { EditIcon, ViewIcon, NotAllowedIcon } from "@chakra-ui/icons";
 import { Spinner, Text, Button } from "@chakra-ui/react";
 import mixpanel from "mixpanel-browser";
@@ -222,7 +222,7 @@ export function Prompt({
                         }
                       />
                     ) : (
-                      <TextAndCodeBlock text={data.text} />
+                      <Markdown text={data.text} />
                     )}
                   </Column>
                 </>

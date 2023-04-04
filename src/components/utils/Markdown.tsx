@@ -86,6 +86,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
         components={{
           code({ node, inline, className, children, style, ...props }) {
             const match = /language-(\w+)/.exec(className || "");
+
             return !inline ? (
               <Column
                 borderRadius="0.25rem"

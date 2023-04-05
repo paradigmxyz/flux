@@ -8,7 +8,13 @@ import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 import { solidity, yul } from "highlightjs-solidity";
 
-const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) => {
+const CodeblockTitleBar = ({
+  language,
+  code,
+}: {
+  language?: string;
+  code: ReactNode[];
+}) => {
   // Grabbing the default font family from Chakra via
   // useTheme to override the markdown code font family.
   const theme = useTheme();
@@ -80,7 +86,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
                 mainAxisAlignment="flex-start"
                 crossAxisAlignment="center"
               >
-                <TitleBar language={match?.[1]} code={children} />
+                <CodeblockTitleBar language={match?.[1]} code={children} />
                 <Code
                   width="100%"
                   padding={!match?.[1] ? "10px" : 0} // When no language is specified, inconsistent padding is applied. This fixes that.
@@ -111,25 +117,29 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
   );
 });
 
-/**
- * Recursively extract text value from the children prop of a ReactMarkdown component.
- * This function is necessary because some children can contain inline elements,
- * and simple concatenation is not sufficient for extracting text data.
- * It navigates deeply within nested structures to acquire the intended text.
- */
+// Recursively extract text value from the children prop of a ReactMarkdown component.
+// This function is necessary because some children can contain inline elements,
+// and simple concatenation is not sufficient for extracting text data.
+// It navigates deeply within nested structures to acquire the intended text.
 const stringifyChildren = (children: ReactNode[]): string => {
-  return children.reduce((concatenatedText: string, currentNode: ReactNode) => {
-    if (React.isValidElement(currentNode) && currentNode.props.children) {
-      return (
-        concatenatedText +
-        stringifyChildren(
-          Array.isArray(currentNode.props.children)
-            ? currentNode.props.children
-            : [currentNode.props.children]
-        )
-      );
-    }
+  return (
+    children
+      .reduce((concatenatedText: string, currentNode: ReactNode) => {
+        if (React.isValidElement(currentNode) && currentNode.props.children) {
+          return (
+            concatenatedText +
+            stringifyChildren(
+              Array.isArray(currentNode.props.children)
+                ? currentNode.props.children
+                : [currentNode.props.children]
+            )
+          );
+        }
 
-    return concatenatedText + String(currentNode || "");
-  }, "");
+        return concatenatedText + String(currentNode || "");
+      }, "")
+      // react-markdown includes a newline at the end of the children array.
+      // We remove it here to avoid a newline at the end of the copied text.
+      .slice(0, -1)
+  );
 };

@@ -2,7 +2,16 @@ import React, { useState, useEffect, memo, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
-import { Button, Box, Code, Text, useTheme, List, ListItem, Stack } from "@chakra-ui/react";
+import {
+  Button,
+  Box,
+  Code,
+  Text,
+  useTheme,
+  List,
+  ListItem,
+  Stack,
+} from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
@@ -70,28 +79,47 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
           [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
         ]}
         components={{
-          ul({children}) {
-            return <List styleType="disc" ml={5} h="fit-content">{children}</List>;
+          ul({ children }) {
+            return (
+              <List styleType="disc" h="fit-content">
+                {children}
+              </List>
+            );
           },
-          ol({children}) {
-            return <List styleType="decimal" ml={5} h="fit-content">{children}</List>;
+          ol({ children }) {
+            return (
+              <List styleType="decimal" h="fit-content" pl="25px">
+                {children}
+              </List>
+            );
           },
           li({ children }) {
+            // i'm not a huge fan of this but it works. seems there's a leading newline in the children sometimes?
+            // not a good final solution yet because it strips extra newlines that might still want to be included.
+            let isLeadingNewline = true;
+            const filteredChildren = children.filter((child: ReactNode) => {
+              const isBreakingNewline =
+                isLeadingNewline && typeof child === "string" && child.trim() === "";
+
+              isLeadingNewline = false;
+
+              return !isBreakingNewline;
+            });
+
             return (
-              <ListItem lineHeight={1.2} mb="0px" ml={5} h="fit-content">
-                {children}
+              <ListItem as="li" lineHeight={1.2} mb="0px">
+                {filteredChildren}
               </ListItem>
             );
           },
           blockquote({ children }) {
             return (
               <Box
-                borderLeft="5px solid #eee"
+                borderLeft="10px solid #eee"
                 backgroundColor="#f5f5f5"
                 borderRadius="0.25rem"
                 padding="0.5rem"
                 margin="1rem 0"
-                height="fit-content"
               >
                 {children}
               </Box>
@@ -108,16 +136,16 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
                 crossAxisAlignment="center"
               >
                 <TitleBar language={match?.[1]} code={children} />
-                  <Code
-                    width="100%"
-                    padding={!match?.[1] ? "10px" : 0} // When no language is specified, inconsistent padding is applied. This fixes that.
-                    className={className}
-                    {...props}
-                    backgroundColor="white"
-                    style={{ whiteSpace: "pre-wrap" }}
-                  >
-                    {children}
-                  </Code>
+                <Code
+                  width="100%"
+                  padding={!match?.[1] ? "10px" : 0} // When no language is specified, inconsistent padding is applied. This fixes that.
+                  className={className}
+                  {...props}
+                  backgroundColor="white"
+                  style={{ whiteSpace: "pre-wrap" }}
+                >
+                  {children}
+                </Code>
               </Column>
             ) : (
               <Code

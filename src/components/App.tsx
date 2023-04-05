@@ -849,7 +849,6 @@ function App() {
     isOpen: isConfirmModalOpen,
     onOpen: onOpenConfirmModal,
     onClose: onCloseConfirmModal,
-    onToggle: onToggleConfirmModal,
   } = useDisclosure();
 
   const [settings, setSettings] = useState<Settings>(() => {

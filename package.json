@@ -35,6 +35,7 @@
     "@types/react-beforeunload": "^2.1.1",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react-swc": "^3.0.0",
+    "rollup-plugin-visualizer": "^5.9.0",
     "typescript": "^4.9.3",
     "vite": "^4.1.0"
   }

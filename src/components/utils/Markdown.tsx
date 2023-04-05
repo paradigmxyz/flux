@@ -138,8 +138,8 @@ const stringifyChildren = (children: ReactNode[]): string => {
 
         return concatenatedText + String(currentNode || "");
       }, "")
-      // react-markdown includes a newline at the end of the children array.
-      // We remove it here to avoid a newline at the end of the copied text.
-      .slice(0, -1)
+      // react-markdown sometimes includes a newline at the end of the children array.
+      // We remove it if needed here to avoid a newline at the end of the copied text.
+      .replace(/\n$/, "")
   );
 };

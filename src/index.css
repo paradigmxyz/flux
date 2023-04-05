@@ -18,3 +18,52 @@ want bigger handles:
   height: 7px;
   border-radius: 5px;
 } */
+
+.markdown-wrapper h1,
+.markdown-wrapper h2,
+.markdown-wrapper h3,
+.markdown-wrapper h4,
+.markdown-wrapper h5,
+.markdown-wrapper h6 {
+  font-size: inherit;
+  font-weight: 500;
+}
+
+.markdown-wrapper blockquote {
+  margin: revert;
+}
+
+.markdown-wrapper ol,
+.markdown-wrapper ul {
+  margin-left: 20px;
+}
+
+.markdown-wrapper h1 {
+  font-size: 2em;
+}
+
+.markdown-wrapper h2 {
+  font-size: 1.5em;
+}
+
+.markdown-wrapper h3 {
+  font-size: 1.17em;
+}
+
+.markdown-wrapper h4 {
+  font-size: 1em;
+}
+
+.markdown-wrapper h5 {
+  font-size: 0.83em;
+}
+
+.markdown-wrapper h6 {
+  font-size: 0.67em;
+}
+
+.markdown-wrapper hr {
+  background-color: #000000;
+  height: 2px;
+  border: 0px;
+}

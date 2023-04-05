@@ -39,6 +39,7 @@ import {
   OVERLAP_RANDOMNESS_MAX,
   REACT_FLOW_LOCAL_STORAGE_KEY,
   REACT_FLOW_NODE_TYPES,
+  SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY,
   STREAM_CANCELED_ERROR_MESSAGE,
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
@@ -939,6 +940,14 @@ function App() {
   useDebouncedWindowResize(autoZoomIfNecessary, 100);
 
   /*//////////////////////////////////////////////////////////////
+                        CHAT RESIZE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  const [savedChatSize, setSavedChatSize] = useLocalStorage<string>(
+    SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY
+  );
+
+  /*//////////////////////////////////////////////////////////////
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -1025,7 +1034,8 @@ function App() {
             maxWidth="75%"
             minWidth="15%"
             defaultSize={{
-              width: "50%",
+              // Defaults to the previously used chat size if it exists.
+              width: savedChatSize || "50%",
               height: "auto",
             }}
             enable={{
@@ -1038,7 +1048,12 @@ function App() {
               bottomLeft: false,
               topLeft: false,
             }}
-            onResizeStop={autoZoomIfNecessary}>
+            onResizeStop={(_, __, ref) => {
+              setSavedChatSize(ref.style.width);
+              autoZoomIfNecessary();
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Resized chat window");
+            }}>
             <Column
               mainAxisAlignment="center"
               crossAxisAlignment="center"

@@ -13,7 +13,7 @@ import { getPlatformModifierKeyText } from "../utils/platform";
 import { FluxNodeData, FluxNodeType, Settings } from "../utils/types";
 import { BigButton } from "./utils/BigButton";
 import { LabeledSlider } from "./utils/LabeledInputs";
-import { TextAndCodeBlock } from "./utils/TextAndCodeBlock";
+import { Markdown } from "./utils/Markdown";
 
 export function Prompt({
   lineage,
@@ -220,7 +220,7 @@ export function Prompt({
                         }
                       />
                     ) : (
-                      <TextAndCodeBlock text={data.text} />
+                      <Markdown text={data.text} />
                     )}
                   </Column>
                 </>

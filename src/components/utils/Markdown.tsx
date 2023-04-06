@@ -11,6 +11,7 @@ import {
   List,
   ListItem,
   Stack,
+  Flex
 } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
@@ -25,7 +26,7 @@ const TitleBar = ({ language, code }: { language?: string; code: ReactNode[] }) 
   return (
     <Row
       mainAxisAlignment="flex-start"
-      crossAxisAlignment="center"
+      crossAxisAlignment="stretch"
       expand
       justifyContent="space-between"
       alignItems="center"
@@ -88,27 +89,17 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
           },
           ol({ children }) {
             return (
-              <List styleType="decimal" h="fit-content" pl="25px">
+              <List styleType="decimal" h="fit-content">
                 {children}
               </List>
             );
           },
           li({ children }) {
-            // i'm not a huge fan of this but it works. seems there's a leading newline in the children sometimes?
-            // not a good final solution yet because it strips extra newlines that might still want to be included.
-            let isLeadingNewline = true;
-            const filteredChildren = children.filter((child: ReactNode) => {
-              const isBreakingNewline =
-                isLeadingNewline && typeof child === "string" && child.trim() === "";
-
-              isLeadingNewline = false;
-
-              return !isBreakingNewline;
-            });
-
             return (
-              <ListItem as="li" lineHeight={1.2} mb="0px">
-                {filteredChildren}
+              <ListItem as="li" lineHeight={1.2} mb="0px" ml="20px">
+                <Flex>
+                  {children}
+                </Flex>
               </ListItem>
             );
           },

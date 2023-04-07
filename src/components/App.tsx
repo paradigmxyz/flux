@@ -27,7 +27,6 @@ import {
   getFluxNodeGPTChildren,
   displayNameFromFluxNodeType,
   newFluxNode,
-  appendTextToFluxNodeAsGPT,
   getFluxNodeLineage,
   addFluxNode,
   modifyFluxNodeText,
@@ -41,6 +40,7 @@ import {
   addUserNodeLinkedToASystemNode,
   getConnectionAllowed,
   setFluxNodeStreamId,
+  modifyFluxNodeTextAsGPT,
 } from "../utils/fluxNode";
 import { useLocalStorage } from "../utils/lstore";
 import { mod } from "../utils/mod";
@@ -361,23 +361,28 @@ function App() {
     if (firstCompletionId === undefined) throw new Error("No first completion id!");
 
     (async () => {
-      const client = new Client(apiKey!);
+      const client = new Client(apiKey!, {
+        apiUrl: "http://localhost:8010/proxy",
+      });
+
+      let promises = [];
+
+      const abortController = new AbortController();
 
       for (let index = 0; index < responses; index++) {
-        const abortController = new AbortController();
-
-        client
-          .completeStream(
+        promises.push(
+          client.completeStream(
             {
               prompt: promptFromLineage(parentNodeLineage, settings),
               stop_sequences: [HUMAN_PROMPT],
-              max_tokens_to_sample: 200,
+              max_tokens_to_sample: 1000,
               model,
               temperature: temp,
             },
 
             {
-              // signal: abortController.signal,
+              signal: abortController.signal,
+
               onUpdate: (completion) => {
                 const correspondingNodeId =
                   // If we re-used a node we have to pull it from children array.
@@ -385,12 +390,9 @@ function App() {
                     ? currentNodeChildren[index].id
                     : newNodes[newNodes.length - responses + index].id;
 
-                // The ChatGPT API will start by returning a
-                // choice with only a role delta and no content.
-
                 setNodes((newerNodes) => {
                   try {
-                    return appendTextToFluxNodeAsGPT(newerNodes, {
+                    return modifyFluxNodeTextAsGPT(newerNodes, {
                       id: correspondingNodeId,
                       text: completion.completion ?? UNDEFINED_RESPONSE_STRING,
                       streamId, // This will cause a throw if the streamId has changed.
@@ -408,13 +410,6 @@ function App() {
                 // not want to execute the code below, so we return.
                 if (abortController.signal.aborted) return;
 
-                // TODO: DOUBLE CHECK THIS
-                // TODO: DOUBLE CHECK THIS
-                // TODO: DOUBLE CHECK THIS
-                // TODO: DOUBLE CHECK THIS
-                // TODO: DOUBLE CHECK THIS
-                // TODO: DOUBLE CHECK THIS
-                // TODO: DOUBLE CHECK THIS
                 // If the choice has a finish reason, then it's the final
                 // choice and we can mark it as no longer animated right now.
                 if (completion.stop !== null) {
@@ -434,42 +429,42 @@ function App() {
                     })
                   );
                 }
-
-                console.log(completion.completion);
               },
             }
           )
-          .then(() => {
-            // If the stream wasn't aborted or was aborted due to a cancelation.
-            if (
-              !abortController.signal.aborted ||
-              abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
-            ) {
-              // Mark all the edges as no longer animated.
-              for (let i = 0; i < responses; i++) {
-                const correspondingNodeId =
-                  overrideExistingIfPossible && i < currentNodeChildren.length
-                    ? currentNodeChildren[i].id
-                    : newNodes[newNodes.length - responses + i].id;
+        );
+      }
 
-                // Reset the stream id.
-                setNodes((nodes) =>
-                  setFluxNodeStreamId(nodes, {
-                    id: correspondingNodeId,
-                    streamId: undefined,
-                  })
-                );
+      await Promise.all(promises); // Wait until all the streams resolve.
 
-                setEdges((edges) =>
-                  modifyFluxEdge(edges, {
-                    source: parentNode.id,
-                    target: correspondingNodeId,
-                    animated: false,
-                  })
-                );
-              }
-            }
-          });
+      // If the stream wasn't aborted or was aborted due to a cancelation.
+      if (
+        !abortController.signal.aborted ||
+        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+      ) {
+        // Mark all the edges as no longer animated.
+        for (let i = 0; i < responses; i++) {
+          const correspondingNodeId =
+            overrideExistingIfPossible && i < currentNodeChildren.length
+              ? currentNodeChildren[i].id
+              : newNodes[newNodes.length - responses + i].id;
+
+          // Reset the stream id.
+          setNodes((nodes) =>
+            setFluxNodeStreamId(nodes, {
+              id: correspondingNodeId,
+              streamId: undefined,
+            })
+          );
+
+          setEdges((edges) =>
+            modifyFluxEdge(edges, {
+              source: parentNode.id,
+              target: correspondingNodeId,
+              animated: false,
+            })
+          );
+        }
       }
     })().catch((err) =>
       toast({
@@ -573,7 +568,7 @@ function App() {
 
           setNodes((newerNodes) => {
             try {
-              return appendTextToFluxNodeAsGPT(newerNodes, {
+              return modifyFluxNodeTextAsGPT(newerNodes, {
                 id: selectedNodeId,
                 text: choice.text ?? UNDEFINED_RESPONSE_STRING,
                 streamId, // This will cause a throw if the streamId has changed.
@@ -845,8 +840,6 @@ function App() {
       return DEFAULT_SETTINGS;
     }
   });
-
-  const isGPT4 = settings.model.includes("gpt-4");
 
   // Auto save.
   const isSavingSettings = useDebouncedEffect(
@@ -1127,7 +1120,6 @@ function App() {
               <Prompt
                 settings={settings}
                 setSettings={setSettings}
-                isGPT4={isGPT4}
                 selectNode={selectNode}
                 newConnectedToSelectedNode={newConnectedToSelectedNode}
                 lineage={selectedNodeLineage}

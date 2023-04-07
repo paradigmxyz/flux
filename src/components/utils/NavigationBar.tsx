@@ -76,7 +76,7 @@ export function NavigationBar({
         width="auto"
       >
         <Text whiteSpace="nowrap">
-          <b>Flux</b> by
+          <b>(C)lux</b> by
         </Text>
 
         <AvatarGroup ml="4px" size="sm">

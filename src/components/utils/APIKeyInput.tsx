@@ -15,7 +15,7 @@ export function APIKeyInput({
       label="Anthropic API Key"
       linkLabel="Get a key"
       placeholder="sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-      link="https://platform.openai.com/account/api-keys"
+      link="https://console.anthropic.com"
       value={apiKey ?? ""}
       setValue={setApiKey}
       {...others}

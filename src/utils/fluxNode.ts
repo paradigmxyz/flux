@@ -190,7 +190,7 @@ export function setFluxNodeStreamId(
   });
 }
 
-export function appendTextToFluxNodeAsGPT(
+export function modifyFluxNodeTextAsGPT(
   existingNodes: Node<FluxNodeData>[],
   { id, text, streamId }: { id: string; text: string; streamId: string }
 ): Node<FluxNodeData>[] {
@@ -208,7 +208,7 @@ export function appendTextToFluxNodeAsGPT(
 
     const isFirstToken = copy.data.text.length === 0;
 
-    copy.data.text += text;
+    copy.data.text = text;
 
     // Preserve custom labels
     if (copy.data.hasCustomlabel) return copy;
@@ -368,17 +368,14 @@ export function getConnectionAllowed(
                             RENDERERS
 //////////////////////////////////////////////////////////////*/
 
-export function displayNameFromFluxNodeType(
-  fluxNodeType: FluxNodeType,
-  isGPT4?: boolean
-): string {
+export function displayNameFromFluxNodeType(fluxNodeType: FluxNodeType): string {
   switch (fluxNodeType) {
     case FluxNodeType.User:
       return "User";
     case FluxNodeType.GPT:
-      return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
+      return "Claude";
     case FluxNodeType.TweakedGPT:
-      return displayNameFromFluxNodeType(FluxNodeType.GPT, isGPT4) + " (edited)";
+      return displayNameFromFluxNodeType(FluxNodeType.GPT) + " (edited)";
     case FluxNodeType.System:
       return "System";
   }

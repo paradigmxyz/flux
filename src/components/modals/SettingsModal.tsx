@@ -98,7 +98,7 @@ export const SettingsModal = memo(function SettingsModal({
               if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature");
             }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
-            max={1.25}
+            max={1}
             min={0}
             step={0.01}
           />

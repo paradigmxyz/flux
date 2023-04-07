@@ -45,7 +45,7 @@ import {
 import { useLocalStorage } from "../utils/lstore";
 import { mod } from "../utils/mod";
 import { generateNodeId, generateStreamId } from "../utils/nodeId";
-import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
+import { promptFromLineage } from "../utils/prompt";
 import { getQueryParam, resetURL } from "../utils/qparams";
 import { useDebouncedWindowResize } from "../utils/resize";
 import {
@@ -53,7 +53,6 @@ import {
   FluxNodeType,
   HistoryItem,
   Settings,
-  CreateChatCompletionStreamResponseChoicesInner,
   ReactFlowNodeTypes,
 } from "../utils/types";
 import { Prompt } from "./Prompt";
@@ -85,6 +84,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { yieldStream } from "yield-stream";
+import { HUMAN_PROMPT, Client } from "@anthropic-ai/sdk";
 
 function App() {
   const toast = useToast();
@@ -361,116 +361,115 @@ function App() {
     if (firstCompletionId === undefined) throw new Error("No first completion id!");
 
     (async () => {
-      const stream = await OpenAI(
-        "chat",
-        {
-          model,
-          n: responses,
-          temperature: temp,
-          messages: messagesFromLineage(parentNodeLineage, settings),
-        },
-        { apiKey: apiKey!, mode: "raw" }
-      );
+      const client = new Client(apiKey!);
 
-      const DECODER = new TextDecoder();
+      for (let index = 0; index < responses; index++) {
+        const abortController = new AbortController();
 
-      const abortController = new AbortController();
+        client
+          .completeStream(
+            {
+              prompt: promptFromLineage(parentNodeLineage, settings),
+              stop_sequences: [HUMAN_PROMPT],
+              max_tokens_to_sample: 200,
+              model,
+              temperature: temp,
+            },
 
-      for await (const chunk of yieldStream(stream, abortController)) {
-        if (abortController.signal.aborted) break;
+            {
+              // signal: abortController.signal,
+              onUpdate: (completion) => {
+                const correspondingNodeId =
+                  // If we re-used a node we have to pull it from children array.
+                  overrideExistingIfPossible && index < currentNodeChildren.length
+                    ? currentNodeChildren[index].id
+                    : newNodes[newNodes.length - responses + index].id;
 
-        try {
-          const decoded = JSON.parse(DECODER.decode(chunk));
+                // The ChatGPT API will start by returning a
+                // choice with only a role delta and no content.
 
-          if (decoded.choices === undefined)
-            throw new Error(
-              "No choices in response. Decoded response: " + JSON.stringify(decoded)
-            );
+                setNodes((newerNodes) => {
+                  try {
+                    return appendTextToFluxNodeAsGPT(newerNodes, {
+                      id: correspondingNodeId,
+                      text: completion.completion ?? UNDEFINED_RESPONSE_STRING,
+                      streamId, // This will cause a throw if the streamId has changed.
+                    });
+                  } catch (e: any) {
+                    // If the stream id does not match,
+                    // it is stale and we should abort.
+                    abortController.abort(e.message);
 
-          const choice: CreateChatCompletionStreamResponseChoicesInner =
-            decoded.choices[0];
-
-          if (choice.index === undefined)
-            throw new Error(
-              "No index in choice. Decoded choice: " + JSON.stringify(choice)
-            );
-
-          const correspondingNodeId =
-            // If we re-used a node we have to pull it from children array.
-            overrideExistingIfPossible && choice.index < currentNodeChildren.length
-              ? currentNodeChildren[choice.index].id
-              : newNodes[newNodes.length - responses + choice.index].id;
-
-          // The ChatGPT API will start by returning a
-          // choice with only a role delta and no content.
-          if (choice.delta?.content) {
-            setNodes((newerNodes) => {
-              try {
-                return appendTextToFluxNodeAsGPT(newerNodes, {
-                  id: correspondingNodeId,
-                  text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
-                  streamId, // This will cause a throw if the streamId has changed.
+                    return newerNodes;
+                  }
                 });
-              } catch (e: any) {
-                // If the stream id does not match,
-                // it is stale and we should abort.
-                abortController.abort(e.message);
 
-                return newerNodes;
+                // We cannot return within the loop, and we do
+                // not want to execute the code below, so we return.
+                if (abortController.signal.aborted) return;
+
+                // TODO: DOUBLE CHECK THIS
+                // TODO: DOUBLE CHECK THIS
+                // TODO: DOUBLE CHECK THIS
+                // TODO: DOUBLE CHECK THIS
+                // TODO: DOUBLE CHECK THIS
+                // TODO: DOUBLE CHECK THIS
+                // TODO: DOUBLE CHECK THIS
+                // If the choice has a finish reason, then it's the final
+                // choice and we can mark it as no longer animated right now.
+                if (completion.stop !== null) {
+                  // Reset the stream id.
+                  setNodes((nodes) =>
+                    setFluxNodeStreamId(nodes, {
+                      id: correspondingNodeId,
+                      streamId: undefined,
+                    })
+                  );
+
+                  setEdges((edges) =>
+                    modifyFluxEdge(edges, {
+                      source: parentNode.id,
+                      target: correspondingNodeId,
+                      animated: false,
+                    })
+                  );
+                }
+
+                console.log(completion.completion);
+              },
+            }
+          )
+          .then(() => {
+            // If the stream wasn't aborted or was aborted due to a cancelation.
+            if (
+              !abortController.signal.aborted ||
+              abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+            ) {
+              // Mark all the edges as no longer animated.
+              for (let i = 0; i < responses; i++) {
+                const correspondingNodeId =
+                  overrideExistingIfPossible && i < currentNodeChildren.length
+                    ? currentNodeChildren[i].id
+                    : newNodes[newNodes.length - responses + i].id;
+
+                // Reset the stream id.
+                setNodes((nodes) =>
+                  setFluxNodeStreamId(nodes, {
+                    id: correspondingNodeId,
+                    streamId: undefined,
+                  })
+                );
+
+                setEdges((edges) =>
+                  modifyFluxEdge(edges, {
+                    source: parentNode.id,
+                    target: correspondingNodeId,
+                    animated: false,
+                  })
+                );
               }
-            });
-          }
-
-          // We cannot return within the loop, and we do
-          // not want to execute the code below, so we break.
-          if (abortController.signal.aborted) break;
-
-          // If the choice has a finish reason, then it's the final
-          // choice and we can mark it as no longer animated right now.
-          if (choice.finish_reason !== null) {
-            // Reset the stream id.
-            setNodes((nodes) =>
-              setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
-            );
-
-            setEdges((edges) =>
-              modifyFluxEdge(edges, {
-                source: parentNode.id,
-                target: correspondingNodeId,
-                animated: false,
-              })
-            );
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-
-      // If the stream wasn't aborted or was aborted due to a cancelation.
-      if (
-        !abortController.signal.aborted ||
-        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
-      ) {
-        // Mark all the edges as no longer animated.
-        for (let i = 0; i < responses; i++) {
-          const correspondingNodeId =
-            overrideExistingIfPossible && i < currentNodeChildren.length
-              ? currentNodeChildren[i].id
-              : newNodes[newNodes.length - responses + i].id;
-
-          // Reset the stream id.
-          setNodes((nodes) =>
-            setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
-          );
-
-          setEdges((edges) =>
-            modifyFluxEdge(edges, {
-              source: parentNode.id,
-              target: correspondingNodeId,
-              animated: false,
-            })
-          );
-        }
+            }
+          });
       }
     })().catch((err) =>
       toast({

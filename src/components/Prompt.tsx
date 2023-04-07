@@ -274,7 +274,7 @@ export function Prompt({
               if (MIXPANEL_TOKEN) mixpanel.track("Changed temperature inline");
             }}
             color={getFluxNodeTypeDarkColor(FluxNodeType.User)}
-            max={1.25}
+            max={1}
             min={0}
             step={0.01}
           />

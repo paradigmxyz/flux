@@ -15,13 +15,13 @@ export const REACT_FLOW_NODE_TYPES: Record<
   LabelUpdater: LabelUpdaterNode,
 };
 
-export const SUPPORTED_MODELS = ["gpt-3.5-turbo", "gpt-4"];
+export const SUPPORTED_MODELS = ["claude-instant-v1", "claude-v1", "claude-v1.2"];
 
 export const DEFAULT_SETTINGS: Settings = {
   temp: 1.2,
   n: 3,
   autoZoom: true,
-  model: "gpt-3.5-turbo",
+  model: "claude-v1.2",
   defaultPreamble: `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Knowledge cutoff: 2021-09 Current date: ${
     new Date().toISOString().split("T")[0]
   }`,

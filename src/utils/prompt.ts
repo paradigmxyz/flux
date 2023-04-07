@@ -1,5 +1,6 @@
 import { FluxNodeData, FluxNodeType, Settings } from "./types";
 import { ChatCompletionRequestMessage } from "openai-streams";
+import { AI_PROMPT, HUMAN_PROMPT } from "@anthropic-ai/sdk";
 import { MAX_AUTOLABEL_CHARS } from "./constants";
 import { Node } from "reactflow";
 
@@ -52,19 +53,22 @@ export function messagesFromLineage(
 export function promptFromLineage(
   lineage: Node<FluxNodeData>[],
   settings: Settings,
-  endWithNewlines: boolean = false
+  endWithBlankAssistant: boolean = true
 ): string {
   const messages = messagesFromLineage(lineage, settings);
 
   let prompt = "";
 
   messages.forEach((message, i) => {
-    prompt += `${message.role}: ${message.content}`;
+    const formattedRole =
+      message.role === "system" || message.role === "user" ? HUMAN_PROMPT : AI_PROMPT;
 
-    if (endWithNewlines ? true : i !== messages.length - 1) {
-      prompt += "\n\n";
-    }
+    prompt += `${formattedRole} ${message.content}`;
   });
+
+  if (endWithBlankAssistant) {
+    prompt += AI_PROMPT;
+  }
 
   return prompt;
 }

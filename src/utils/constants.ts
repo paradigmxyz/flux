@@ -45,6 +45,7 @@ export const OVERLAP_RANDOMNESS_MAX = 20;
 export const API_KEY_LOCAL_STORAGE_KEY = "FLUX_OPENAI_API_KEY";
 export const REACT_FLOW_LOCAL_STORAGE_KEY = "FLUX_REACT_FLOW_DATA";
 export const MODEL_SETTINGS_LOCAL_STORAGE_KEY = "FLUX_MODEL_SETTINGS";
+export const SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY = "FLUX_SAVED_CHAT_SIZE";
 
 export const NEW_TREE_CONTENT_QUERY_PARAM = "newTreeWith";
 
@@ -54,6 +55,8 @@ export const FIT_VIEW_SETTINGS = { padding: 0.1, duration: 200 };
 
 export const NEW_TREE_X_OFFSET = 600;
 
-export const CODE_BLOCK_DETECT_REGEX =
-  /\s*(```(?:[a-zA-Z0-9-]*\n|\n?)([\s\S]+?)\n```)\s*/;
-export const CODE_BLOCK_LANGUAGE_DETECT_REGEX = /^```[a-zA-Z0-9-]*$/m;
+export const STREAM_CANCELED_ERROR_MESSAGE = "STREAM_CANCELED";
+export const STALE_STREAM_ERROR_MESSAGE = "STALE_STREAM";
+
+// Magic number to almost always make auto-label text stay in two lines.
+export const MAX_AUTOLABEL_CHARS = 32;

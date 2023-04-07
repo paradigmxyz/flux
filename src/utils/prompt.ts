@@ -1,8 +1,7 @@
-import { Node } from "reactflow";
-
-import { ChatCompletionRequestMessage } from "openai-streams";
-
 import { FluxNodeData, FluxNodeType, Settings } from "./types";
+import { ChatCompletionRequestMessage } from "openai-streams";
+import { MAX_AUTOLABEL_CHARS } from "./constants";
+import { Node } from "reactflow";
 
 export function messagesFromLineage(
   lineage: Node<FluxNodeData>[],
@@ -67,7 +66,28 @@ export function promptFromLineage(
     }
   });
 
-  console.log(prompt);
-
   return prompt;
+}
+
+export function formatAutoLabel(text: string) {
+  const formattedText = removeInvalidChars(text);
+
+  return formattedText.length > MAX_AUTOLABEL_CHARS
+    ? formattedText.slice(0, MAX_AUTOLABEL_CHARS).split(" ").slice(0, -1).join(" ") +
+        " ..."
+    : formattedText;
+}
+
+function removeInvalidChars(text: string) {
+  // The regular expression pattern:
+  // ^: not
+  // a-zA-Z0-9: letters and numbers
+  // .,?!: common punctuation marks
+  // \s: whitespace characters (space, tab, newline, etc.)
+  const regex = /[^a-zA-Z0-9.,'?!-\s]+/g;
+
+  // Replace `\n` with spaces and remove invalid characters
+  const cleanedStr = text.replaceAll("\n", " ").replace(regex, "");
+
+  return cleanedStr;
 }

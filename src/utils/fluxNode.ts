@@ -1,9 +1,15 @@
 import { Node, Edge } from "reactflow";
 
-import { NEW_TREE_X_OFFSET, OVERLAP_RANDOMNESS_MAX } from "./constants";
+import {
+  NEW_TREE_X_OFFSET,
+  OVERLAP_RANDOMNESS_MAX,
+  STALE_STREAM_ERROR_MESSAGE,
+  STREAM_CANCELED_ERROR_MESSAGE,
+} from "./constants";
 import { FluxNodeType, FluxNodeData, ReactFlowNodeTypes } from "./types";
 import { getFluxNodeTypeColor } from "./color";
 import { generateNodeId } from "./nodeId";
+import { formatAutoLabel } from "./prompt";
 
 /*//////////////////////////////////////////////////////////////
                          CONSTRUCTORS
@@ -15,14 +21,14 @@ export function newFluxNode({
   y,
   fluxNodeType,
   text,
-  generating,
+  streamId,
 }: {
   id?: string;
   x: number;
   y: number;
   fluxNodeType: FluxNodeType;
   text: string;
-  generating: boolean;
+  streamId?: string;
 }): Node<FluxNodeData> {
   return {
     id: id ?? generateNodeId(),
@@ -34,7 +40,7 @@ export function newFluxNode({
       label: displayNameFromFluxNodeType(fluxNodeType),
       fluxNodeType,
       text,
-      generating,
+      streamId,
     },
   };
 }
@@ -51,17 +57,17 @@ export function addFluxNode(
     y,
     fluxNodeType,
     text,
-    generating,
+    streamId,
   }: {
     id?: string;
     x: number;
     y: number;
     fluxNodeType: FluxNodeType;
     text: string;
-    generating: boolean;
+    streamId?: string;
   }
 ): Node<FluxNodeData>[] {
-  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, generating });
+  const newNode = newFluxNode({ x, y, fluxNodeType, text, id, streamId });
 
   return [...existingNodes, newNode];
 }
@@ -86,7 +92,6 @@ export function addUserNodeLinkedToASystemNode(
     y: 500,
     fluxNodeType: FluxNodeType.System,
     text: systemNodeText,
-    generating: false,
   });
 
   nodesCopy.push(systemNode);
@@ -100,7 +105,6 @@ export function addUserNodeLinkedToASystemNode(
       y: systemNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
       fluxNodeType: FluxNodeType.User,
       text: userNodeText ?? "",
-      generating: false,
     })
   );
 
@@ -144,11 +148,13 @@ export function modifyFluxNodeText(
       };
 
       copy.data.fluxNodeType = FluxNodeType.TweakedGPT;
-      copy.data.label = displayNameFromFluxNodeType(
-        FluxNodeType.TweakedGPT,
-        undefined,
-        copy.data.label
-      );
+    }
+
+    // Generate auto label based on prompt text, and preserve custom label
+    if (!copy.data.hasCustomlabel) {
+      copy.data.label = copy.data.text
+        ? formatAutoLabel(copy.data.text)
+        : displayNameFromFluxNodeType(copy.data.fluxNodeType);
     }
 
     return copy;
@@ -162,35 +168,58 @@ export function modifyFluxNodeLabel(
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
 
-    const copy = { ...node, data: { ...node.data, label }, type, draggable: undefined };
+    const copy = {
+      ...node,
+      data: { ...node.data, label, hasCustomlabel: true },
+      type,
+      draggable: undefined,
+    };
 
     return copy;
+  });
+}
+
+export function setFluxNodeStreamId(
+  existingNodes: Node<FluxNodeData>[],
+  { id, streamId }: { id: string; streamId: string | undefined }
+) {
+  return existingNodes.map((node) => {
+    if (node.id !== id) return node;
+
+    return { ...node, data: { ...node.data, streamId } };
   });
 }
 
 export function appendTextToFluxNodeAsGPT(
   existingNodes: Node<FluxNodeData>[],
-  { id, text }: { id: string; text: string }
+  { id, text, streamId }: { id: string; text: string; streamId: string }
 ): Node<FluxNodeData>[] {
   return existingNodes.map((node) => {
     if (node.id !== id) return node;
+
+    // If the node's streamId is now undefined, the stream has been canceled.
+    if (node.data.streamId === undefined) throw new Error(STREAM_CANCELED_ERROR_MESSAGE);
+
+    // If the node's streamId is not undefined but does
+    // not match the provided id, the stream is now stale.
+    if (node.data.streamId !== streamId) throw new Error(STALE_STREAM_ERROR_MESSAGE);
 
     const copy = { ...node, data: { ...node.data } };
 
+    const isFirstToken = copy.data.text.length === 0;
+
     copy.data.text += text;
 
+    // Preserve custom labels
+    if (copy.data.hasCustomlabel) return copy;
+
+    // If label hasn't reached max length or it's a new prompt, set from text.
+    // Once label reaches max length, truncate it.
+    if (!copy.data.label.endsWith(" ...") || isFirstToken) {
+      copy.data.label = formatAutoLabel(copy.data.text);
+    }
+
     return copy;
-  });
-}
-
-export function markFluxNodeAsDoneGenerating(
-  existingNodes: Node<FluxNodeData>[],
-  id: string
-): Node<FluxNodeData>[] {
-  return existingNodes.map((node) => {
-    if (node.id !== id) return node;
-
-    return { ...node, data: { ...node.data, generating: false } };
   });
 }
 
@@ -341,16 +370,15 @@ export function getConnectionAllowed(
 
 export function displayNameFromFluxNodeType(
   fluxNodeType: FluxNodeType,
-  isGPT4?: boolean,
-  overrideLabel?: string
-) {
+  isGPT4?: boolean
+): string {
   switch (fluxNodeType) {
     case FluxNodeType.User:
       return "User";
     case FluxNodeType.GPT:
       return isGPT4 === undefined ? "GPT" : isGPT4 ? "GPT-4" : "GPT-3.5";
     case FluxNodeType.TweakedGPT:
-      return `${overrideLabel} (edited)`;
+      return displayNameFromFluxNodeType(FluxNodeType.GPT, isGPT4) + " (edited)";
     case FluxNodeType.System:
       return "System";
   }

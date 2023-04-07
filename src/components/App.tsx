@@ -1,44 +1,27 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-
-import ReactFlow, {
-  addEdge,
-  Background,
-  Connection,
-  Node,
-  Edge,
-  useEdgesState,
-  useNodesState,
-  SelectionMode,
-  ReactFlowInstance,
-  ReactFlowJsonObject,
-  useReactFlow,
-  updateEdge,
-} from "reactflow";
-
-import "reactflow/dist/style.css";
-
-import mixpanel from "mixpanel-browser";
-
-import { Resizable } from "re-resizable";
-
-import { yieldStream } from "yield-stream";
-
-import { useHotkeys } from "react-hotkeys-hook";
-
-import { useBeforeunload } from "react-beforeunload";
-
-import { CheckCircleIcon } from "@chakra-ui/icons";
-import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
-
-import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
-
-import { Prompt } from "./Prompt";
-
-import { APIKeyModal } from "./modals/APIKeyModal";
-import { SettingsModal } from "./modals/SettingsModal";
-
 import { MIXPANEL_TOKEN } from "../main";
-
+import { isValidAPIKey } from "../utils/apikey";
+import { Column, Row } from "../utils/chakra";
+import { copySnippetToClipboard } from "../utils/clipboard";
+import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
+import {
+  API_KEY_LOCAL_STORAGE_KEY,
+  DEFAULT_SETTINGS,
+  FIT_VIEW_SETTINGS,
+  HOTKEY_CONFIG,
+  MAX_HISTORY_SIZE,
+  MODEL_SETTINGS_LOCAL_STORAGE_KEY,
+  NEW_TREE_CONTENT_QUERY_PARAM,
+  OVERLAP_RANDOMNESS_MAX,
+  REACT_FLOW_NODE_TYPES,
+  REACT_FLOW_LOCAL_STORAGE_KEY,
+  TOAST_CONFIG,
+  UNDEFINED_RESPONSE_STRING,
+  STREAM_CANCELED_ERROR_MESSAGE,
+  SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY,
+} from "../utils/constants";
+import { useDebouncedEffect } from "../utils/debounce";
+import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
 import {
   getFluxNode,
   getFluxNodeGPTChildren,
@@ -56,9 +39,15 @@ import {
   deleteFluxNode,
   deleteSelectedFluxNodes,
   addUserNodeLinkedToASystemNode,
-  markFluxNodeAsDoneGenerating,
   getConnectionAllowed,
+  setFluxNodeStreamId,
 } from "../utils/fluxNode";
+import { useLocalStorage } from "../utils/lstore";
+import { mod } from "../utils/mod";
+import { generateNodeId, generateStreamId } from "../utils/nodeId";
+import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
+import { getQueryParam, resetURL } from "../utils/qparams";
+import { useDebouncedWindowResize } from "../utils/resize";
 import {
   FluxNodeData,
   FluxNodeType,
@@ -67,34 +56,35 @@ import {
   CreateChatCompletionStreamResponseChoicesInner,
   ReactFlowNodeTypes,
 } from "../utils/types";
-import {
-  API_KEY_LOCAL_STORAGE_KEY,
-  DEFAULT_SETTINGS,
-  FIT_VIEW_SETTINGS,
-  HOTKEY_CONFIG,
-  MAX_HISTORY_SIZE,
-  MODEL_SETTINGS_LOCAL_STORAGE_KEY,
-  NEW_TREE_CONTENT_QUERY_PARAM,
-  OVERLAP_RANDOMNESS_MAX,
-  REACT_FLOW_NODE_TYPES,
-  REACT_FLOW_LOCAL_STORAGE_KEY,
-  TOAST_CONFIG,
-  UNDEFINED_RESPONSE_STRING,
-} from "../utils/constants";
-import { mod } from "../utils/mod";
+import { Prompt } from "./Prompt";
+import { APIKeyModal } from "./modals/APIKeyModal";
+import { SettingsModal } from "./modals/SettingsModal";
 import { BigButton } from "./utils/BigButton";
-import { Column, Row } from "../utils/chakra";
-import { isValidAPIKey } from "../utils/apikey";
-import { generateNodeId } from "../utils/nodeId";
-import { useLocalStorage } from "../utils/lstore";
 import { NavigationBar } from "./utils/NavigationBar";
-import { useDebouncedEffect } from "../utils/debounce";
-import { useDebouncedWindowResize } from "../utils/resize";
-import { getQueryParam, resetURL } from "../utils/qparams";
-import { copySnippetToClipboard } from "../utils/clipboard";
-import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
-import { newFluxEdge, modifyFluxEdge, addFluxEdge } from "../utils/fluxEdge";
-import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
+import { CheckCircleIcon } from "@chakra-ui/icons";
+import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
+import mixpanel from "mixpanel-browser";
+import { CreateCompletionResponseChoicesInner, OpenAI } from "openai-streams";
+import { Resizable } from "re-resizable";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useBeforeunload } from "react-beforeunload";
+import { useHotkeys } from "react-hotkeys-hook";
+import ReactFlow, {
+  addEdge,
+  Background,
+  Connection,
+  Node,
+  Edge,
+  useEdgesState,
+  useNodesState,
+  SelectionMode,
+  ReactFlowInstance,
+  ReactFlowJsonObject,
+  useReactFlow,
+  updateEdge,
+} from "reactflow";
+import "reactflow/dist/style.css";
+import { yieldStream } from "yield-stream";
 
 function App() {
   const toast = useToast();
@@ -139,6 +129,8 @@ function App() {
 
       autoZoomIfNecessary();
     }
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed undo");
   };
 
   const redo = () => {
@@ -154,6 +146,8 @@ function App() {
 
       autoZoomIfNecessary();
     }
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Performed redo");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -218,14 +212,18 @@ function App() {
     if (settings.autoZoom) autoZoom();
   };
 
+  const trackedAutoZoom = () => {
+    autoZoom();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Zoomed out and centered");
+  };
+
   const save = () => {
     if (reactFlow) {
       localStorage.setItem(
         REACT_FLOW_LOCAL_STORAGE_KEY,
         JSON.stringify(reactFlow.toObject())
       );
-
-      console.log("Saved React Flow state!");
     }
   };
 
@@ -247,8 +245,6 @@ function App() {
       const content = getQueryParam(NEW_TREE_CONTENT_QUERY_PARAM);
 
       if (flow) {
-        console.log("Restoring react flow from local storage.");
-
         setEdges(flow.edges || []);
         setViewport(flow.viewport);
 
@@ -286,19 +282,19 @@ function App() {
   const submitPrompt = async (overrideExistingIfPossible: boolean) => {
     takeSnapshot();
 
-    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt");
-
     const responses = settings.n;
     const temp = settings.temp;
     const model = settings.model;
 
     const parentNodeLineage = selectedNodeLineage;
-    const parentNodeId = selectedNodeLineage[0].id;
+    const parentNode = selectedNodeLineage[0];
 
     const newNodes = [...nodes];
 
-    const currentNode = getFluxNode(newNodes, parentNodeId)!;
-    const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNodeId);
+    const currentNode = getFluxNode(newNodes, parentNode.id)!;
+    const currentNodeChildren = getFluxNodeGPTChildren(newNodes, edges, parentNode.id);
+
+    const streamId = generateStreamId();
 
     let firstCompletionId: string | undefined;
 
@@ -318,9 +314,9 @@ function App() {
           data: {
             ...childNode.data,
             text: "",
-            label: displayNameFromFluxNodeType(FluxNodeType.GPT),
+            label: childNode.data.label ?? displayNameFromFluxNodeType(FluxNodeType.GPT),
             fluxNodeType: FluxNodeType.GPT,
-            generating: true,
+            streamId,
           },
           style: {
             ...childNode.style,
@@ -356,7 +352,7 @@ function App() {
             y: currentNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
             fluxNodeType: FluxNodeType.GPT,
             text: "",
-            generating: true,
+            streamId,
           })
         );
       }
@@ -378,7 +374,11 @@ function App() {
 
       const DECODER = new TextDecoder();
 
-      for await (const chunk of yieldStream(stream)) {
+      const abortController = new AbortController();
+
+      for await (const chunk of yieldStream(stream, abortController)) {
+        if (abortController.signal.aborted) break;
+
         try {
           const decoded = JSON.parse(DECODER.decode(chunk));
 
@@ -405,21 +405,37 @@ function App() {
           // choice with only a role delta and no content.
           if (choice.delta?.content) {
             setNodes((newerNodes) => {
-              return appendTextToFluxNodeAsGPT(newerNodes, {
-                id: correspondingNodeId,
-                text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
-              });
+              try {
+                return appendTextToFluxNodeAsGPT(newerNodes, {
+                  id: correspondingNodeId,
+                  text: choice.delta?.content ?? UNDEFINED_RESPONSE_STRING,
+                  streamId, // This will cause a throw if the streamId has changed.
+                });
+              } catch (e: any) {
+                // If the stream id does not match,
+                // it is stale and we should abort.
+                abortController.abort(e.message);
+
+                return newerNodes;
+              }
             });
           }
+
+          // We cannot return within the loop, and we do
+          // not want to execute the code below, so we break.
+          if (abortController.signal.aborted) break;
 
           // If the choice has a finish reason, then it's the final
           // choice and we can mark it as no longer animated right now.
           if (choice.finish_reason !== null) {
-            setNodes((nodes) => markFluxNodeAsDoneGenerating(nodes, correspondingNodeId));
+            // Reset the stream id.
+            setNodes((nodes) =>
+              setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
+            );
 
             setEdges((edges) =>
               modifyFluxEdge(edges, {
-                source: parentNodeId,
+                source: parentNode.id,
                 target: correspondingNodeId,
                 animated: false,
               })
@@ -430,22 +446,31 @@ function App() {
         }
       }
 
-      // Mark all the edges as no longer animated.
-      for (let i = 0; i < responses; i++) {
-        const correspondingNodeId =
-          overrideExistingIfPossible && i < currentNodeChildren.length
-            ? currentNodeChildren[i].id
-            : newNodes[newNodes.length - responses + i].id;
+      // If the stream wasn't aborted or was aborted due to a cancelation.
+      if (
+        !abortController.signal.aborted ||
+        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+      ) {
+        // Mark all the edges as no longer animated.
+        for (let i = 0; i < responses; i++) {
+          const correspondingNodeId =
+            overrideExistingIfPossible && i < currentNodeChildren.length
+              ? currentNodeChildren[i].id
+              : newNodes[newNodes.length - responses + i].id;
 
-        setNodes((nodes) => markFluxNodeAsDoneGenerating(nodes, correspondingNodeId));
+          // Reset the stream id.
+          setNodes((nodes) =>
+            setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
+          );
 
-        setEdges((edges) =>
-          modifyFluxEdge(edges, {
-            source: parentNodeId,
-            target: correspondingNodeId,
-            animated: false,
-          })
-        );
+          setEdges((edges) =>
+            modifyFluxEdge(edges, {
+              source: parentNode.id,
+              target: correspondingNodeId,
+              animated: false,
+            })
+          );
+        }
       }
     })().catch((err) =>
       toast({
@@ -470,7 +495,7 @@ function App() {
           const childId = currentNodeChildren[i].id;
 
           const idx = newEdges.findIndex(
-            (edge) => edge.source === parentNodeId && edge.target === childId
+            (edge) => edge.source === parentNode.id && edge.target === childId
           );
 
           newEdges[idx] = {
@@ -485,7 +510,7 @@ function App() {
           // Otherwise, add a new edge.
           newEdges.push(
             newFluxEdge({
-              source: parentNodeId,
+              source: parentNode.id,
               target: childId,
               animated: true,
             })
@@ -497,6 +522,8 @@ function App() {
     });
 
     autoZoomIfNecessary();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt"); // KPI
   };
 
   const completeNextWords = () => {
@@ -504,27 +531,37 @@ function App() {
 
     const temp = settings.temp;
 
-    const parentNodeLineage = selectedNodeLineage;
-    const parentNodeId = parentNodeLineage[0].id;
+    const lineage = selectedNodeLineage;
+    const selectedNodeId = lineage[0].id;
+
+    const streamId = generateStreamId();
+
+    // Set the node's streamId so it will accept the incoming text.
+    setNodes((nodes) => setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId }));
 
     (async () => {
-      // TODO: Stop sequences for user/assistant/etc? min tokens?
-      // Select between instruction and auto completer?
+      // TODO: Stop sequences for user/assistant/etc?
+      // TODO: Select between instruction and auto raw base models?
       const stream = await OpenAI(
         "completions",
         {
-          model: "text-davinci-003", // TODO: Allow customizing.
-          temperature: temp, // TODO: Allow customizing.
-          prompt: promptFromLineage(parentNodeLineage, settings),
-          max_tokens: 250, // Allow customizing.
-          stop: ["\n\n", "assistant:", "user:"], // TODO: Allow customizing.
+          // TODO: Allow customizing.
+          model: "text-davinci-003",
+          temperature: temp,
+          prompt: promptFromLineage(lineage, settings),
+          max_tokens: 250,
+          stop: ["\n\n", "assistant:", "user:"],
         },
         { apiKey: apiKey!, mode: "raw" }
       );
 
       const DECODER = new TextDecoder();
 
-      for await (const chunk of yieldStream(stream)) {
+      const abortController = new AbortController();
+
+      for await (const chunk of yieldStream(stream, abortController)) {
+        if (abortController.signal.aborted) break;
+
         try {
           const decoded = JSON.parse(DECODER.decode(chunk));
 
@@ -535,17 +572,39 @@ function App() {
 
           const choice: CreateCompletionResponseChoicesInner = decoded.choices[0];
 
-          setNodes((newNodes) =>
-            appendTextToFluxNodeAsGPT(newNodes, {
-              id: parentNodeId,
-              text: choice.text ?? UNDEFINED_RESPONSE_STRING,
-            })
-          );
+          setNodes((newerNodes) => {
+            try {
+              return appendTextToFluxNodeAsGPT(newerNodes, {
+                id: selectedNodeId,
+                text: choice.text ?? UNDEFINED_RESPONSE_STRING,
+                streamId, // This will cause a throw if the streamId has changed.
+              });
+            } catch (e: any) {
+              // If the stream id does not match,
+              // it is stale and we should abort.
+              abortController.abort(e.message);
+
+              return newerNodes;
+            }
+          });
         } catch (err) {
           console.error(err);
         }
       }
+
+      // If the stream wasn't aborted or was aborted due to a cancelation.
+      if (
+        !abortController.signal.aborted ||
+        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
+      ) {
+        // Reset the stream id.
+        setNodes((nodes) =>
+          setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId: undefined })
+        );
+      }
     })().catch((err) => console.error(err));
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words");
   };
 
   /*//////////////////////////////////////////////////////////////
@@ -590,6 +649,8 @@ function App() {
     );
 
     if (forceAutoZoom) autoZoom();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("New conversation tree created");
   };
 
   const newConnectedToSelectedNode = (type: FluxNodeType) => {
@@ -618,7 +679,6 @@ function App() {
           y: selectedNode.position.y + 100 + Math.random() * OVERLAP_RANDOMNESS_MAX,
           fluxNodeType: type,
           text: "",
-          generating: false,
         })
       );
 
@@ -631,6 +691,12 @@ function App() {
       );
 
       autoZoomIfNecessary();
+
+      if (type === FluxNodeType.User) {
+        if (MIXPANEL_TOKEN) mixpanel.track("New user node created");
+      } else {
+        if (MIXPANEL_TOKEN) mixpanel.track("New system node created");
+      }
     }
   };
 
@@ -663,6 +729,8 @@ function App() {
     }
 
     autoZoomIfNecessary();
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Deleted selected node(s)");
   };
 
   const onClear = () => {
@@ -672,6 +740,8 @@ function App() {
       setNodes([]);
       setEdges([]);
       setViewport({ x: 0, y: 0, zoom: 1 });
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Deleted everything");
     }
   };
 
@@ -702,6 +772,8 @@ function App() {
           : children[0].id
       );
 
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to child node");
+
       return true;
     } else {
       return false;
@@ -713,6 +785,8 @@ function App() {
 
     if (parent) {
       selectNode(parent.id);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to parent node");
 
       return true;
     } else {
@@ -728,6 +802,8 @@ function App() {
 
       selectNode(siblings[mod(currentIndex - 1, siblings.length)].id);
 
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to left sibling node");
+
       return true;
     } else {
       return false;
@@ -741,6 +817,8 @@ function App() {
       const currentIndex = siblings.findIndex((node) => node.id == selectedNodeId!)!;
 
       selectNode(siblings[mod(currentIndex + 1, siblings.length)].id);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Moved to right sibling node");
 
       return true;
     } else {
@@ -763,8 +841,6 @@ function App() {
     const rawSettings = localStorage.getItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY);
 
     if (rawSettings !== null) {
-      console.log("Restoring settings from local storage.");
-
       return JSON.parse(rawSettings) as Settings;
     } else {
       return DEFAULT_SETTINGS;
@@ -776,8 +852,6 @@ function App() {
   // Auto save.
   const isSavingSettings = useDebouncedEffect(
     () => {
-      console.log("Saved settings!");
-
       localStorage.setItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY, JSON.stringify(settings));
     },
     1000, // 1 second.
@@ -810,6 +884,8 @@ function App() {
         status: "success",
         ...TOAST_CONFIG,
       });
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Copied messages to clipboard");
     } else {
       toast({
         title: "Failed to copy messages to clipboard!",
@@ -824,12 +900,12 @@ function App() {
   //////////////////////////////////////////////////////////////*/
 
   const showRenameInput = () => {
-    takeSnapshot();
-
     const selectedNode = nodes.find((node) => node.selected);
     const nodeId = selectedNode?.id ?? selectedNodeId;
 
     if (nodeId) {
+      takeSnapshot();
+
       setNodes((nodes) =>
         modifyReactFlowNodeProperties(nodes, {
           id: nodeId,
@@ -837,6 +913,8 @@ function App() {
           draggable: false,
         })
       );
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Triggered rename input");
     }
   };
 
@@ -847,42 +925,65 @@ function App() {
   useDebouncedWindowResize(autoZoomIfNecessary, 100);
 
   /*//////////////////////////////////////////////////////////////
+                        CHAT RESIZE LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  const [savedChatSize, setSavedChatSize] = useLocalStorage<string>(
+    SAVED_CHAT_SIZE_LOCAL_STORAGE_KEY
+  );
+
+  /*//////////////////////////////////////////////////////////////
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  useHotkeys("meta+s", save, HOTKEY_CONFIG);
+  const modifierKey = getPlatformModifierKey();
+  const modifierKeyText = getPlatformModifierKeyText();
+
+  useHotkeys(`${modifierKey}+s`, save, HOTKEY_CONFIG);
 
   useHotkeys(
-    "meta+p",
+    `${modifierKey}+p`,
     () => newConnectedToSelectedNode(FluxNodeType.User),
     HOTKEY_CONFIG
   );
   useHotkeys(
-    "meta+u",
+    `${modifierKey}+u`,
     () => newConnectedToSelectedNode(FluxNodeType.System),
     HOTKEY_CONFIG
   );
 
-  useHotkeys("meta+shift+p", () => newUserNodeLinkedToANewSystemNode(), HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+shift+p`,
+    () => newUserNodeLinkedToANewSystemNode(),
+    HOTKEY_CONFIG
+  );
 
-  useHotkeys("meta+.", () => fitView(FIT_VIEW_SETTINGS), HOTKEY_CONFIG);
-  useHotkeys("meta+/", onToggleSettingsModal, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+backspace", onClear, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+.`, trackedAutoZoom, HOTKEY_CONFIG);
+  useHotkeys(
+    `${modifierKey}+/`,
+    () => {
+      onToggleSettingsModal();
 
-  useHotkeys("meta+z", undo, HOTKEY_CONFIG);
-  useHotkeys("meta+shift+z", redo, HOTKEY_CONFIG);
+      if (MIXPANEL_TOKEN) mixpanel.track("Toggled settings modal");
+    },
+    HOTKEY_CONFIG
+  );
+  useHotkeys(`${modifierKey}+shift+backspace`, onClear, HOTKEY_CONFIG);
 
-  useHotkeys("meta+e", showRenameInput, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+z`, undo, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+z`, redo, HOTKEY_CONFIG);
 
-  useHotkeys("meta+up", moveToParent, HOTKEY_CONFIG);
-  useHotkeys("meta+down", moveToChild, HOTKEY_CONFIG);
-  useHotkeys("meta+left", moveToLeftSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+right", moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys("meta+return", () => submitPrompt(false), HOTKEY_CONFIG);
-  useHotkeys("meta+shift+return", () => submitPrompt(true), HOTKEY_CONFIG);
-  useHotkeys("meta+k", completeNextWords, HOTKEY_CONFIG);
-  useHotkeys("meta+backspace", deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys("ctrl+c", copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+e`, showRenameInput, HOTKEY_CONFIG);
+
+  useHotkeys(`${modifierKey}+up`, moveToParent, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+down`, moveToChild, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+left`, moveToLeftSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+right`, moveToRightSibling, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+return`, () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
+  useHotkeys(`${modifierKey}+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP
@@ -911,7 +1012,8 @@ function App() {
             maxWidth="75%"
             minWidth="15%"
             defaultSize={{
-              width: "50%",
+              // Defaults to the previously used chat size if it exists.
+              width: savedChatSize || "50%",
               height: "auto",
             }}
             enable={{
@@ -924,7 +1026,12 @@ function App() {
               bottomLeft: false,
               topLeft: false,
             }}
-            onResizeStop={autoZoomIfNecessary}
+            onResizeStop={(_, __, ref) => {
+              setSavedChatSize(ref.style.width);
+              autoZoomIfNecessary();
+
+              if (MIXPANEL_TOKEN) mixpanel.track("Resized chat window");
+            }}
           >
             <Column
               mainAxisAlignment="center"
@@ -960,10 +1067,11 @@ function App() {
                   moveToChild={moveToChild}
                   moveToLeftSibling={moveToLeftSibling}
                   moveToRightSibling={moveToRightSibling}
-                  autoZoom={autoZoom}
+                  autoZoom={trackedAutoZoom}
                   onOpenSettingsModal={() => {
-                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal");
                     onOpenSettingsModal();
+
+                    if (MIXPANEL_TOKEN) mixpanel.track("Opened Settings Modal"); // KPI
                   }}
                 />
 
@@ -997,7 +1105,7 @@ function App() {
                 onSelectionDragStop={autoZoomIfNecessary}
                 selectionKeyCode={null}
                 multiSelectionKeyCode="Shift"
-                panActivationKeyCode={null}
+                panActivationKeyCode="Shift"
                 deleteKeyCode={null}
                 panOnDrag={false}
                 selectionOnDrag={true}
@@ -1044,7 +1152,7 @@ function App() {
                 crossAxisAlignment={"center"}
               >
                 <BigButton
-                  tooltip="⇧⌘P"
+                  tooltip={`⇧${modifierKeyText}P`}
                   width="400px"
                   height="100px"
                   fontSize="xl"

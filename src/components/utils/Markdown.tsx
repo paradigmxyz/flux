@@ -105,7 +105,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
             });
             return (
               <ListItem as="li" mb="0px" ml="20px">
-                  {filteredChildren}
+                {filteredChildren}
               </ListItem>
             );
           },

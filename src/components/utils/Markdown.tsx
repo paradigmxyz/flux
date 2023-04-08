@@ -11,7 +11,6 @@ import {
   List,
   ListItem,
   Stack,
-  Flex
 } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";

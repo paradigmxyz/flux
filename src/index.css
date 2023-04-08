@@ -1,5 +1,5 @@
 .selected {
-  box-shadow: 0px 0px 0px 2px red, 0px 0px 30px 2px red !important;
+  box-shadow: 0 0 0 2px #4285F4, 0 0 30px 2px #4285F4 !important;
 }
 
 .react-flow__node {

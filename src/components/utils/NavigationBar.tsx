@@ -234,7 +234,7 @@ export function NavigationBar({
                 Up to parent node
               </MenuItem>
               <MenuItem command={`${modifierKeyText}↓`} onClick={moveToChild}>
-                Down child node
+                Down to child node
               </MenuItem>
             </MenuGroup>
 

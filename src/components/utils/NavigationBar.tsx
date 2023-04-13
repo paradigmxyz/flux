@@ -24,6 +24,7 @@ import paradigm from "/paradigm.svg";
 
 export function NavigationBar({
   newUserNodeLinkedToANewSystemNode,
+  exportModalOpen,
   newConnectedToSelectedNode,
   submitPrompt,
   regenerate,
@@ -42,6 +43,7 @@ export function NavigationBar({
   onOpenSettingsModal,
 }: {
   newUserNodeLinkedToANewSystemNode: () => void;
+  exportModalOpen: () => void;
   newConnectedToSelectedNode: (nodeType: FluxNodeType) => void;
   submitPrompt: () => void;
   regenerate: () => void;
@@ -185,6 +187,13 @@ export function NavigationBar({
 
               <MenuItem command={`⇧${modifierKeyText}Z`} onClick={redo}>
                 Redo
+              </MenuItem>
+            </MenuGroup>
+
+            <MenuDivider />
+            <MenuGroup title="Import/Export">
+              <MenuItem onClick={exportModalOpen}>
+                Import/Export
               </MenuItem>
             </MenuGroup>
 

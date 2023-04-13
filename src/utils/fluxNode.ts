@@ -338,6 +338,22 @@ export function getFluxNodeLineage(
   return lineage;
 }
 
+// returns all the edges for a given nodes
+export function getEdgesForFluxNodes(
+  nodes: Node<FluxNodeData>[],
+  existingEdges: Edge[],
+): Edge[] {
+  const edges: Edge[] = [];
+
+    existingEdges.forEach((edge) => {
+      if (nodes.find((node) => node.id === edge.source) && nodes.find((node) => node.id === edge.target)) {
+        edges.push(edge);
+      }
+    });
+
+  return edges;
+}
+
 export function isFluxNodeInLineage(
   existingNodes: Node<FluxNodeData>[],
   existingEdges: Edge[],

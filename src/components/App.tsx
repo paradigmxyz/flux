@@ -41,6 +41,7 @@ import {
   addUserNodeLinkedToASystemNode,
   getConnectionAllowed,
   setFluxNodeStreamId,
+  getEdgesForFluxNodes,
 } from "../utils/fluxNode";
 import { useLocalStorage } from "../utils/lstore";
 import { mod } from "../utils/mod";
@@ -59,6 +60,7 @@ import {
 import { Prompt } from "./Prompt";
 import { APIKeyModal } from "./modals/APIKeyModal";
 import { SettingsModal } from "./modals/SettingsModal";
+import { ExportModal } from "./modals/ExportModal";
 import { BigButton } from "./utils/BigButton";
 import { NavigationBar } from "./utils/NavigationBar";
 import { CheckCircleIcon } from "@chakra-ui/icons";
@@ -340,12 +342,12 @@ function App() {
             x:
               (currentNodeChildren.length > 0
                 ? // If there are already children we want to put the
-                  // next child to the right of the furthest right one.
-                  currentNodeChildren.reduce((prev, current) =>
-                    prev.position.x > current.position.x ? prev : current
-                  ).position.x +
-                  (responses / 2) * 180 +
-                  90
+                // next child to the right of the furthest right one.
+                currentNodeChildren.reduce((prev, current) =>
+                  prev.position.x > current.position.x ? prev : current
+                ).position.x +
+                (responses / 2) * 180 +
+                90
                 : currentNode.position.x) +
               (i - (responses - 1) / 2) * 180,
             // Add OVERLAP_RANDOMNESS_MAX of randomness to the y position so that nodes don't overlap.
@@ -669,10 +671,10 @@ function App() {
           x:
             selectedNodeChildren.length > 0
               ? // If there are already children we want to put the
-                // next child to the right of the furthest right one.
-                selectedNodeChildren.reduce((prev, current) =>
-                  prev.position.x > current.position.x ? prev : current
-                ).position.x + 180
+              // next child to the right of the furthest right one.
+              selectedNodeChildren.reduce((prev, current) =>
+                prev.position.x > current.position.x ? prev : current
+              ).position.x + 180
               : selectedNode.position.x,
           // Add OVERLAP_RANDOMNESS_MAX of randomness to
           // the y position so that nodes don't overlap.
@@ -859,6 +861,106 @@ function App() {
   );
 
   /*//////////////////////////////////////////////////////////////
+                         IMPORT/EXPORT MODAL LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  const {
+    isOpen: isExportModalOpen,
+    onOpen: onOpenExportModal,
+    onClose: onCloseExportModal,
+  } = useDisclosure();
+
+  const getExportData = () => {
+    const selectedNodes = nodes.filter((node) => node.selected);
+
+    const exportData: Object = {
+      nodes: selectedNodes.length > 0 ? selectedNodes : nodes,
+      edges: getEdgesForFluxNodes(selectedNodes.length > 0 ? selectedNodes : nodes, edges),
+    };
+
+    return JSON.stringify(exportData);
+  };
+
+  function nodesOverlap(
+    nodeA: Node<FluxNodeData>,
+    nodeB: Node<FluxNodeData>,
+    padding: number = 20
+  ) {
+    const xOverlap = Math.abs(nodeA.position.x - nodeB.position.x) < padding;
+    const yOverlap = Math.abs(nodeA.position.y - nodeB.position.y) < padding;
+
+    return xOverlap && yOverlap;
+  }
+
+  function adjustPosition(overlappingNode: Node<FluxNodeData>,
+    offsetX: number = 200,
+    offsetY: number = 200) {
+    return {
+      ...overlappingNode,
+      position: {
+        x: overlappingNode.position.x + offsetX,
+        y: overlappingNode.position.y + offsetY
+      }
+    };
+  }
+
+  function adjustPositionImportedNodes(
+    existingNodes: Node<FluxNodeData>[],
+    importedNodes: Node<FluxNodeData>[]
+  ) {
+    let adjustedImportedNodes = importedNodes;
+
+    for (const existingNode of existingNodes) {
+      adjustedImportedNodes = adjustedImportedNodes.map(importedNode => {
+        if (nodesOverlap(existingNode, importedNode)) {
+          return adjustPosition(importedNode);
+        } else {
+          return importedNode;
+        }
+      });
+    }
+
+    return [...existingNodes, ...adjustedImportedNodes];
+  }
+
+  const importData = (data: string) => {
+    // Make import reversible
+    takeSnapshot();
+    try {
+      const parsedData = JSON.parse(data);
+
+      // Generate new IDs for the imported nodes.
+      parsedData.nodes.forEach((node: Node<FluxNodeData>) => {
+        const oldNodeId = node.id;
+        node.id = Math.random().toString(36).substr(2, 16);
+
+        // Update the source and target of any edges that point to the old node ID.
+        parsedData.edges.forEach((edge: Edge) => {
+          if (edge.source === oldNodeId) edge.source = node.id;
+          if (edge.target === oldNodeId) edge.target = node.id;
+        });
+      });
+
+      // Generate new IDs for the imported edges.
+      parsedData.edges.forEach((edge: Edge) => {
+        edge.id = Math.random().toString(36).substr(2, 16);
+      });
+
+      setNodes(adjustPositionImportedNodes(nodes, parsedData.nodes));
+      setEdges([...edges, ...parsedData.edges]);
+    } catch (e) {
+      toast({
+        title: "Failed to import!",
+        description: "Please try again.",
+        status: "error",
+        ...TOAST_CONFIG,
+      });
+      console.log(e);
+    }
+
+  };
+
+  /*//////////////////////////////////////////////////////////////
                             API KEY LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -1001,6 +1103,16 @@ function App() {
         apiKey={apiKey}
         setApiKey={setApiKey}
       />
+      <ExportModal
+        // settings={settings}
+        // setSettings={setSettings}
+        isOpen={isExportModalOpen}
+        onClose={onCloseExportModal}
+        exportData={getExportData()}
+        importData={importData}
+      // apiKey={apiKey}
+      // setApiKey={setApiKey}
+      />
       <Column
         mainAxisAlignment="center"
         crossAxisAlignment="center"
@@ -1053,6 +1165,7 @@ function App() {
                   newUserNodeLinkedToANewSystemNode={() =>
                     newUserNodeLinkedToANewSystemNode()
                   }
+                  exportModalOpen={() => onOpenExportModal()}
                   newConnectedToSelectedNode={newConnectedToSelectedNode}
                   deleteSelectedNodes={deleteSelectedNodes}
                   submitPrompt={() => submitPrompt(false)}
@@ -1099,6 +1212,7 @@ function App() {
                 onEdgeUpdate={onEdgeUpdate}
                 onEdgeUpdateEnd={onEdgeUpdateEnd}
                 onConnect={onConnect}
+                // onInit={setRfInstance}
                 nodeTypes={REACT_FLOW_NODE_TYPES}
                 // Causes clicks to also trigger auto zoom.
                 // onNodeDragStop={autoZoomIfNecessary}

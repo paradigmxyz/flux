@@ -26,7 +26,7 @@ export function ExportModal({
 }) {
   const [data, setData] = useState<string>(exportData);
 
-  let handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  let handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     let inputValue = e.target.value
     setData(inputValue)
   }

@@ -136,7 +136,7 @@ const stringifyChildren = (children: ReactNode[]): string => {
           );
         }
 
-        // ignores non-text ReactNodes, fixing [object Object] error.
+        // Ignore non-text ReactNodes, fixing [object Object] error.
         if (typeof currentNode === "object") {
           return concatenatedText;
         }

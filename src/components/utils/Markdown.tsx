@@ -136,6 +136,11 @@ const stringifyChildren = (children: ReactNode[]): string => {
           );
         }
 
+        // ignores non-text ReactNodes, fixing [object Object] error.
+        if (typeof currentNode === "object") {
+          return concatenatedText;
+        }
+
         return concatenatedText + String(currentNode || "");
       }, "")
       // react-markdown sometimes includes a newline at the end of the children array.

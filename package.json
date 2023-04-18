@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node api.js & vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -13,9 +13,11 @@
     "@chakra-ui/react": "^2.5.1",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "express": "^4.18.2",
     "framer-motion": "^9.0.4",
     "highlightjs-solidity": "^2.0.6",
     "mixpanel-browser": "^2.46.0",
+    "needle": "^3.2.0",
     "openai-streams": "^4.2.0",
     "re-resizable": "^6.9.9",
     "react": "^18.2.0",

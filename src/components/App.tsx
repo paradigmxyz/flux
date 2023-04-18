@@ -85,6 +85,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { yieldStream } from "yield-stream";
+import { browseDuck } from "../utils/browse";
 
 function App() {
   const toast = useToast();
@@ -361,13 +362,17 @@ function App() {
     if (firstCompletionId === undefined) throw new Error("No first completion id!");
 
     (async () => {
+      let lineageMessages = messagesFromLineage(parentNodeLineage, settings);
+
+      const browsResults = await browseDuck(lineageMessages, 3, apiKey!);
+
       const stream = await OpenAI(
         "chat",
         {
           model,
           n: responses,
           temperature: temp,
-          messages: messagesFromLineage(parentNodeLineage, settings),
+          messages: browsResults,
         },
         { apiKey: apiKey!, mode: "raw" }
       );

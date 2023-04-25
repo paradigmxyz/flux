@@ -112,7 +112,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
           blockquote({ children }) {
             return (
               <Box
-                borderLeft="5px solid #F5F5F5"
+                borderLeft="8px solid #F5F5F5"
                 backgroundColor="white"
                 borderRadius="0.25rem"
                 padding="0.5rem"

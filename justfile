@@ -1,4 +1,5 @@
 play:
+    nix-env -iA nixpkgs.devenv
     devenv shell
 
 docker:

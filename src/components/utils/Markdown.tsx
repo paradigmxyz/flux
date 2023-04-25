@@ -113,7 +113,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
             return (
               <Box
                 borderLeft="10px solid #eee"
-                backgroundColor="#f5f5f5"
+                backgroundColor="white"
                 borderRadius="0.25rem"
                 padding="0.5rem"
                 margin="1rem 0"

@@ -15,7 +15,7 @@ export const REACT_FLOW_NODE_TYPES: Record<
   LabelUpdater: LabelUpdaterNode,
 };
 
-export const SUPPORTED_MODELS = ["gpt-3.5-turbo", "gpt-4"];
+export const SUPPORTED_MODELS = ["gpt-3.5-turbo", "gpt-4", "gpt-4-32k"];
 
 export const DEFAULT_SETTINGS: Settings = {
   temp: 1.2,

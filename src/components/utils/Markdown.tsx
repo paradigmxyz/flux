@@ -2,16 +2,7 @@ import React, { useState, useEffect, memo, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
-import {
-  Button,
-  Box,
-  Code,
-  Text,
-  useTheme,
-  List,
-  ListItem,
-  Stack,
-} from "@chakra-ui/react";
+import { Button, Box, Code, Text, useTheme, List, ListItem } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
@@ -73,7 +64,7 @@ const CopyCodeButton = ({ code }: { code: ReactNode[] }) => {
 
 export const Markdown = memo(function Markdown({ text }: { text: string }) {
   return (
-    <Stack className="markdown-wrapper" width="100%" wordBreak="break-word">
+    <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
       <ReactMarkdown
         rehypePlugins={[
           [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
@@ -150,7 +141,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
       >
         {text}
       </ReactMarkdown>
-    </Stack>
+    </Box>
   );
 });
 

@@ -33,11 +33,6 @@ want bigger handles:
   margin: revert;
 }
 
-.markdown-wrapper ol,
-.markdown-wrapper ul {
-  margin-left: 20px;
-}
-
 .markdown-wrapper h1 {
   font-size: 2em;
 }

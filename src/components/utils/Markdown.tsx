@@ -94,31 +94,22 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
             );
           },
           li({ children }) {
-            let isLeadingNewline = true;
-            const filteredChildren = children.filter((child: ReactNode) => {
-              const isBreakingNewline =
-                isLeadingNewline && typeof child === "string" && child.trim() === "";
-
-              isLeadingNewline = false;
-
-              return !isBreakingNewline;
-            });
             return (
               <ListItem as="li" mb="0px" ml="20px">
-                {filteredChildren}
+                {children?.filter(
+                  (child: ReactNode) =>
+                    !(typeof child === "string" && child.trim() === "")
+                )}
               </ListItem>
             );
           },
           blockquote({ children }) {
             return (
-              <Box
-                borderLeft="8px solid #F5F5F5"
-                backgroundColor="white"
-                borderRadius="0.25rem"
-                padding="0.5rem"
-                margin="1rem 0"
-              >
-                {children}
+              <Box borderLeft="2px solid currentcolor" pl="20px">
+                {children?.filter(
+                  (child: ReactNode) =>
+                    !(typeof child === "string" && child.trim() === "")
+                )}
               </Box>
             );
           },

@@ -58,7 +58,8 @@ want bigger handles:
 }
 
 .markdown-wrapper hr {
-  background-color: #000000;
+  background-color: currentColor;
   height: 2px;
   border: 0px;
+  border-radius: 6px;
 }

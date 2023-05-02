@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Node, useReactFlow } from "reactflow";
 import { getPlatformModifierKeyText } from "../utils/platform";
+import { Whisper } from "./utils/Whisper";
 
 export function Prompt({
   lineage,
@@ -23,6 +24,7 @@ export function Prompt({
   isGPT4,
   settings,
   setSettings,
+  apiKey,
 }: {
   lineage: Node<FluxNodeData>[];
   onType: (text: string) => void;
@@ -32,6 +34,7 @@ export function Prompt({
   isGPT4: boolean;
   settings: Settings;
   setSettings: (settings: Settings) => void;
+  apiKey: string | null;
 }) {
   const { setNodes } = useReactFlow();
 
@@ -204,23 +207,31 @@ export function Prompt({
                     wordBreak="break-word"
                   >
                     {isLast && isEditing ? (
-                      <TextareaAutosize
-                        id="promptBox"
-                        style={{
-                          width: "100%",
-                          backgroundColor: "transparent",
-                          outline: "none",
-                        }}
-                        value={data.text ?? ""}
-                        onChange={(e) => onType(e.target.value)}
-                        placeholder={
-                          data.fluxNodeType === FluxNodeType.User
-                            ? "Write a poem about..."
-                            : data.fluxNodeType === FluxNodeType.System
-                            ? "You are ChatGPT..."
-                            : undefined
-                        }
-                      />
+                      <>
+                        <TextareaAutosize
+                          id="promptBox"
+                          style={{
+                            width: "100%",
+                            backgroundColor: "transparent",
+                            outline: "none",
+                          }}
+                          value={data.text ?? ""}
+                          onChange={(e) => onType(e.target.value)}
+                          placeholder={
+                            data.fluxNodeType === FluxNodeType.User
+                              ? "Write a poem about..."
+                              : data.fluxNodeType === FluxNodeType.System
+                              ? "You are ChatGPT..."
+                              : undefined
+                          }
+                        />
+                        {data.fluxNodeType === FluxNodeType.User && (
+                          <Whisper
+                            onConvertedText={(text: string) => onType(text)}
+                            apiKey={apiKey}
+                          />
+                        )}
+                      </>
                     ) : (
                       <Markdown text={data.text} />
                     )}

@@ -1,6 +1,7 @@
 import { MIXPANEL_TOKEN } from "../../main";
+import { checkModelAccess } from "../../utils/apikey";
 import { getFluxNodeTypeDarkColor } from "../../utils/color";
-import { API_KEY_LOCAL_STORAGE_KEY, DEFAULT_SETTINGS, SUPPORTED_MODELS, TOAST_CONFIG } from "../../utils/constants";
+import { DEFAULT_SETTINGS, SUPPORTED_MODELS, TOAST_CONFIG } from "../../utils/constants";
 import { Settings, FluxNodeType } from "../../utils/types";
 import { APIKeyInput } from "../utils/APIKeyInput";
 import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
@@ -168,30 +169,3 @@ export const SettingsModal = memo(function SettingsModal({
     </Modal>
   );
 });
-
-
-async function checkModelAccess(model: string): Promise<boolean> {
-  try {
-    const response = await fetch("https://api.openai.com/v1/models", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY_LOCAL_STORAGE_KEY}`,
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const models = data.data;
-      return models.some((m: { id: string }) => m.id === model);
-    } else {
-      console.error("Error fetching models:", response.status);
-      return false;
-    }
-  } catch (error) {
-    console.error("Error fetching models:", error);
-    return false;
-  }
-}
-
-

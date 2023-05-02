@@ -1,47 +1,115 @@
-<div align="center">
-  <h1 align="center">Flux</h1>
-  <p align="center">
-    LLM power tool
-    <br />
-    <br />
-    <a href="https://twitter.com/transmissions11/status/1640775967856803840">Announcement</a>
-    ·
-    <a href="http://flux.paradigm.xyz">Try Online</a>
-    ·
-    <a href="https://github.com/transmissions11/flux/issues">Report a Bug</a>
-  </p>
-</div>
+<!-- Title -->
 
-<br />
+# 🧬 LangChain UI
 
-![A screenshot of a Flux workspace.](/public/meta-full.png)
+The no-code open source chat-ai toolkit built on top of [LangChain](https://github.com/hwchase17/langchain).
 
-## About
+<p>
+<img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/homanp/langchain-ui" />
+<img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/homanp/langchain-ui" />
+<img alt="" src="https://img.shields.io/github/repo-size/homanp/langchain-ui" />
+<img alt="GitHub Issues" src="https://img.shields.io/github/issues/homanp/langchain-ui" />
+<img alt="GitHub Pull Requests" src="https://img.shields.io/github/issues-pr/homanp/langchain-ui" />
+<img alt="Github License" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+</p>
 
-Flux is a power tool for interacting with large language models (LLMs) that **generates multiple completions per prompt in a tree structure and lets you explore the best ones in parallel.** 
+## About the project
 
-Flux's tree structure allows you to:
+LangChain UI enables anyone to create and host chatbots using a no-code type of inteface.
 
-- Get a wider variety of creative responses
+Features:
 
-- Test out different prompts with the same shared context
+👉 Create custom chatGPT like Chatbot.
 
-- Use inconsistencies to identify where the model is uncertain 
+👉 Give context to the chatbot using external datasources, chatGPT plugins and prompts.
 
-It also provides a robust set of keyboard shortcuts, allows setting the system message and editing GPT messages, autosaves to local storage, uses the OpenAI API directly, and is 100% open source and MIT licensed.
+👉 Dedicated API endpoint for each Chatbot.
 
-## Usage
+👉 Bring your own DB
 
-Visit [flux.paradigm.xyz](https://flux.paradigm.xyz) to try Flux online or follow the instructions below to run it locally.
+👉 Bring your own Auth provider (defaults to Github)
 
-## Running Locally
+👉 Usage quoutas
 
-```sh
-git clone https://github.com/transmissions11/flux.git
-npm install
-npm run dev
-```
+👉 Embed Chatbots to any site or application
 
-## Contributing
+👉 Chatbot themes
 
-See the [open issues](https://github.com/transmissions11/flux/issues) for a list of proposed features (and known issues).
+... and more
+
+## Roadmap
+
+- [x] Bring your own db
+- [x] Bring your own Auth provider
+- [x] Chatbots
+- [x] Prompt templates
+- [-] API endpoints to chatbot
+- [ ] External datasources
+- [ ] chatGPT plugins
+- [ ] Chatbots themes
+- [ ] Chatbot embedding
+
+## Stack
+
+- [Next.js](https://nextjs.org/?ref=langchain-ui)
+- [Chakra UI](https://chakra-ui.com/?ref=langchain-ui)
+- [Prisma](https://prisma.io/?ref=langchain-ui)
+- [NextAuth](https://next-auth.js.org/?ref=langchain-ui)
+
+LangChain UI utilizes NextJS 13 `appDir`. Read more about it [here](https://nextjs.org/blog/next-13#new-app-directory-beta)
+
+## Getting started
+
+### Langchain UI API
+
+We have migrated all agent functionality from LangChain Typescript to LangChain Python. Thus you will need to run the (Langchain UI API)[https://github.com/homanp/langchain-ui] in order to interact with the chatbot. In the future when the TS package is on par with the Python package we will migrate to only using Javascript.
+
+### Installation
+
+1. Setup the (Langchain UI API)[https://github.com/homanp/langchain-ui]
+
+1. Clone the repo into a public GitHub repository (or fork https://github.com/homanp/langchain-ui/fork). If you plan to distribute the code, keep the source code public.
+
+   ```sh
+   git clone https://github.com/homanp/langchain-ui.git
+   ```
+
+1. Go to the project folder
+
+   ```sh
+   cd langchain-ui
+   ```
+
+1. Install packages with npm
+
+   ```sh
+   npm install
+   ```
+
+1. Set up your .env file
+
+   - Duplicate `.env.example` to `.env`
+
+1. Run the project
+
+   ```sh
+   npm run dev
+   ```
+
+1. Run the linter
+
+   ```sh
+   npm run lint
+   ```
+
+1. Build the project
+
+   ```sh
+   npm run build
+   ```
+
+## Contributions
+
+Our mission is to make it easy for anyone to create and run LLM apps in the cloud. We are super happy for any contributions you would like to make. Create new features, fix bugs or improve on infra.
+
+You can read more on how to contribute [here](https://github.com/homanp/langchain-ui/blob/main/.github/CONTRIBUTING.md).

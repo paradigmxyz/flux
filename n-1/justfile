@@ -1,4 +1,5 @@
 play:
+    devenv shell
     npm run dev
 
 docker:

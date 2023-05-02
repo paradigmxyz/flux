@@ -1,7 +1,7 @@
 <div align="center">
   <h1 align="center">Flux</h1>
   <p align="center">
-    LLM power tool
+    Graph-based LLM power tool for exploring many completions in parallel.
     <br />
     <br />
     <a href="https://twitter.com/transmissions11/status/1640775967856803840">Announcement</a>

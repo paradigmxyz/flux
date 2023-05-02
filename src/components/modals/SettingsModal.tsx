@@ -1,6 +1,6 @@
 import { MIXPANEL_TOKEN } from "../../main";
 import { getFluxNodeTypeDarkColor } from "../../utils/color";
-import { DEFAULT_SETTINGS, SUPPORTED_MODELS, TOAST_CONFIG } from "../../utils/constants";
+import { API_KEY_LOCAL_STORAGE_KEY, DEFAULT_SETTINGS, SUPPORTED_MODELS, TOAST_CONFIG } from "../../utils/constants";
 import { Settings, FluxNodeType } from "../../utils/types";
 import { APIKeyInput } from "../utils/APIKeyInput";
 import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
@@ -176,7 +176,7 @@ async function checkModelAccess(model: string): Promise<boolean> {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${API_KEY_LOCAL_STORAGE_KEY}`,
       },
     });
 

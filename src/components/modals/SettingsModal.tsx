@@ -1,6 +1,6 @@
 import { MIXPANEL_TOKEN } from "../../main";
 import { getFluxNodeTypeDarkColor } from "../../utils/color";
-import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
+import { DEFAULT_SETTINGS, SUPPORTED_MODELS, TOAST_CONFIG } from "../../utils/constants";
 import { Settings, FluxNodeType } from "../../utils/types";
 import { APIKeyInput } from "../utils/APIKeyInput";
 import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
@@ -15,6 +15,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Checkbox,
+  useToast,
 } from "@chakra-ui/react";
 import mixpanel from "mixpanel-browser";
 import { ChangeEvent, memo } from "react";
@@ -34,6 +35,8 @@ export const SettingsModal = memo(function SettingsModal({
   apiKey: string | null;
   setApiKey: (apiKey: string) => void;
 }) {
+  const toast = useToast();
+
   const reset = () => {
     if (
       confirm(
@@ -68,6 +71,29 @@ export const SettingsModal = memo(function SettingsModal({
     }
   };
 
+  const handleChangeModel = async (v: string) => {
+    if (await checkModelAccess(v)) {
+      setSettings({ ...settings, model: v });
+    } else {
+      let errorText = "";
+      if (v === "gpt-4") {
+        errorText = "You don't have access to GPT-4, sign up for the waitlist at https://openai.com/waitlist/gpt-4-api";
+      } else if (v === "gpt-4-32k") {
+        errorText = "You don't have access to GPT-4 32k.";
+      } else {
+        errorText = "Something went wrong.";
+      }
+
+      toast({
+        title: errorText,
+        status: "error",
+        ...TOAST_CONFIG,
+      });
+    }
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Changed model");
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalOverlay />
@@ -79,11 +105,7 @@ export const SettingsModal = memo(function SettingsModal({
             label="Model"
             value={settings.model}
             options={SUPPORTED_MODELS}
-            setValue={(v: string) => {
-              setSettings({ ...settings, model: v });
-
-              if (MIXPANEL_TOKEN) mixpanel.track("Changed model");
-            }}
+            setValue={handleChangeModel}
           />
 
           <APIKeyInput mt={4} width="100%" apiKey={apiKey} setApiKey={setApiKey} />
@@ -146,3 +168,30 @@ export const SettingsModal = memo(function SettingsModal({
     </Modal>
   );
 });
+
+
+async function checkModelAccess(model: string): Promise<boolean> {
+  try {
+    const response = await fetch("https://api.openai.com/v1/models", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const models = data.data;
+      return models.some((m: { id: string }) => m.id === model);
+    } else {
+      console.error("Error fetching models:", response.status);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error fetching models:", error);
+    return false;
+  }
+}
+
+

@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import { Button, Flex } from "@chakra-ui/react";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 
-interface Props {
+export const Whisper = ({ onConvertedText, apiKey }: {
   onConvertedText: (text: string) => void;
   apiKey: string | null;
-}
-
-export const Whisper: React.FC<Props> = ({ onConvertedText, apiKey }) => {
+}) => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [audioData, setAudioData] = useState<Blob | null>(null);
   const [transcribeVisible, setTranscribeVisible] = useState<boolean>(false);

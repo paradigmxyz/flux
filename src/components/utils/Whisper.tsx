@@ -14,17 +14,10 @@ export const Whisper = ({
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [hasRecordingSupport, setHasRecordingSupport] = useState(false);
 
-  const checkMediaRecordingSupport = async () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setHasRecordingSupport(false);
-      return;
-    }
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => track.stop());
+  const checkMediaRecordingSupport = () => {
+    if (navigator.mediaDevices && MediaRecorder) {
       setHasRecordingSupport(true);
-    } catch (error) {
+    } else {
       setHasRecordingSupport(false);
     }
   };
@@ -55,24 +48,29 @@ export const Whisper = ({
   const startRecording = async () => {
     setIsRecording(true);
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
 
-    recorder.onstop = () => {
-      stream.getTracks().forEach((track) => {
-        track.stop();
-      });
-
-      if (stream.active) {
+      recorder.onstop = () => {
         stream.getTracks().forEach((track) => {
-          stream.removeTrack(track);
+          track.stop();
         });
-      }
-    };
 
-    recorder.addEventListener("dataavailable", onDataAvailable);
-    recorder.start();
-    setMediaRecorder(recorder);
+        if (stream.active) {
+          stream.getTracks().forEach((track) => {
+            stream.removeTrack(track);
+          });
+        }
+      };
+
+      recorder.addEventListener("dataavailable", onDataAvailable);
+      recorder.start();
+      setMediaRecorder(recorder);
+    } catch (error) {
+      console.error("Error starting recorder: ", error);
+      setIsRecording(false);
+    }
   };
 
   const stopRecording = () => {

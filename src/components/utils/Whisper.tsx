@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Flex } from "@chakra-ui/react";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 
-export const Whisper = ({ onConvertedText, apiKey }: {
+export const Whisper = ({
+  onConvertedText,
+  apiKey,
+}: {
   onConvertedText: (text: string) => void;
   apiKey: string | null;
 }) => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [audioData, setAudioData] = useState<Blob | null>(null);
-  const [transcribeVisible, setTranscribeVisible] = useState<boolean>(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [hasRecordingSupport, setHasRecordingSupport] = useState<boolean>(false);
+
+  const checkMediaRecordingSupport = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setHasRecordingSupport(false);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      setHasRecordingSupport(true);
+    } catch (error) {
+      setHasRecordingSupport(false);
+    }
+  };
+
+  useEffect(() => {
+    checkMediaRecordingSupport();
+  }, []);
 
   const startRecording = async () => {
     setIsRecording(true);
@@ -56,36 +78,41 @@ export const Whisper = ({ onConvertedText, apiKey }: {
 
       const responseData = await response.json();
       onConvertedText(responseData.text);
+      setAudioData(null);
     } catch (err) {
       console.error("Error:", err);
     }
   };
 
   return (
-    <Flex mt={3}>
-      {!isRecording && (
-        <Button onClick={startRecording} leftIcon={<FaMicrophone />} mr={3}>
-          Start Recording
-        </Button>
-      )}
+    <>
+      {hasRecordingSupport && (
+        <Flex mt={3}>
+          {!isRecording && (
+            <Button onClick={startRecording} leftIcon={<FaMicrophone />} mr={3}>
+              Start Recording
+            </Button>
+          )}
 
-      {isRecording && (
-        <Button
-          onClick={stopRecording}
-          mr={3}
-          bg={"#f14249"}
-          _hover={{ bg: "#ed303f" }}
-          leftIcon={<FaMicrophoneSlash />}
-        >
-          Stop Recording
-        </Button>
-      )}
+          {isRecording && (
+            <Button
+              onClick={stopRecording}
+              mr={3}
+              bg={"#f14249"}
+              _hover={{ bg: "#ed303f" }}
+              leftIcon={<FaMicrophoneSlash />}
+            >
+              Stop Recording
+            </Button>
+          )}
 
-      {audioData && (
-        <Button onClick={transcribeAudio} variant="outline">
-          Transcribe
-        </Button>
+          {audioData && (
+            <Button onClick={transcribeAudio} colorScheme="blue">
+              Transcribe Audio
+            </Button>
+          )}
+        </Flex>
       )}
-    </Flex>
+    </>
   );
 };

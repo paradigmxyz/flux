@@ -58,8 +58,19 @@ export const Whisper = ({
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const recorder = new MediaRecorder(stream);
 
-    recorder.addEventListener("dataavailable", onDataAvailable);
+    recorder.onstop = () => {
+      stream.getTracks().forEach((track) => {
+        track.stop();
+      });
 
+      if (stream.active) {
+        stream.getTracks().forEach((track) => {
+          stream.removeTrack(track);
+        });
+      }
+    };
+
+    recorder.addEventListener("dataavailable", onDataAvailable);
     recorder.start();
     setMediaRecorder(recorder);
   };

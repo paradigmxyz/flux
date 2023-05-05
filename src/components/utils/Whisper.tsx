@@ -83,7 +83,7 @@ export const Whisper = ({
   return (
     <>
       {hasRecordingSupport && (
-        <Box mt={10}>
+        <Box>
           <Tooltip
             label={
               isRecording

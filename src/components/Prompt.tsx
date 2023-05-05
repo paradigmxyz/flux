@@ -215,6 +215,7 @@ export function Prompt({
                             backgroundColor: "transparent",
                             outline: "none",
                           }}
+                          minRows={data.fluxNodeType === FluxNodeType.User ? 3 : 1}
                           value={data.text ?? ""}
                           onChange={(e) => onType(e.target.value)}
                           placeholder={

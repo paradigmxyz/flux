@@ -177,6 +177,8 @@ export function Prompt({
                       data.streamId ? stopGenerating() : setIsEditing(!isEditing)
                     }
                     position="absolute"
+                    marginBottom={10}
+                    paddingBottom={10}
                     top={1}
                     right={1}
                     zIndex={10}
@@ -205,6 +207,11 @@ export function Prompt({
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"
                     wordBreak="break-word"
+                    minHeight={
+                      data.fluxNodeType === FluxNodeType.User && isLast && isEditing
+                        ? "75px"
+                        : "0px"
+                    }
                   >
                     {isLast && isEditing ? (
                       <>

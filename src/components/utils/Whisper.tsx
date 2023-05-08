@@ -104,7 +104,6 @@ export const Whisper = ({
           >
             <Button
               position="absolute"
-              marginTop={4}
               bottom={1}
               right={1}
               zIndex={10}

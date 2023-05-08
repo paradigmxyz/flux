@@ -177,8 +177,6 @@ export function Prompt({
                       data.streamId ? stopGenerating() : setIsEditing(!isEditing)
                     }
                     position="absolute"
-                    marginBottom={10}
-                    paddingBottom={10}
                     top={1}
                     right={1}
                     zIndex={10}

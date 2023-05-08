@@ -13,12 +13,19 @@ export const Whisper = ({
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [hasRecordingSupport, setHasRecordingSupport] = useState(false);
+  const [isDesktopDevice, setIsDesktopDevice] = useState(false);
 
   const checkMediaRecordingSupport = () => {
     if (navigator.mediaDevices && MediaRecorder) {
       setHasRecordingSupport(true);
     } else {
       setHasRecordingSupport(false);
+    }
+
+    if (window.innerWidth > 1024) {
+      setIsDesktopDevice(true);
+    } else {
+      setIsDesktopDevice(false);
     }
   };
 
@@ -82,7 +89,7 @@ export const Whisper = ({
 
   return (
     <>
-      {hasRecordingSupport && (
+      {hasRecordingSupport && isDesktopDevice && (
         <Box>
           <Tooltip
             label={

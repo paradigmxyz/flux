@@ -182,8 +182,8 @@ export function Prompt({
                     zIndex={10}
                     variant="outline"
                     border="0px"
-                    _hover={{ background: "none" }}
                     p={1}
+                    _hover={{ background: "none" }}
                   >
                     {data.streamId ? (
                       <NotAllowedIcon boxSize={4} />
@@ -233,7 +233,9 @@ export function Prompt({
                         />
                         {data.fluxNodeType === FluxNodeType.User && (
                           <Whisper
-                            onConvertedText={(text: string) => onType(text)}
+                            onConvertedText={(text: string) =>
+                              onType(`${data.text}${data.text ? " " : ""}${text}`)
+                            }
                             apiKey={apiKey}
                           />
                         )}

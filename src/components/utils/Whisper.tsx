@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Box, Spinner, Tooltip } from "@chakra-ui/react";
+import { Button, Box, Spinner } from "@chakra-ui/react";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 
 export const Whisper = ({
@@ -15,22 +15,19 @@ export const Whisper = ({
   const [hasRecordingSupport, setHasRecordingSupport] = useState(false);
   const [isDesktopDevice, setIsDesktopDevice] = useState(false);
 
-  const checkMediaRecordingSupport = () => {
+  useEffect(() => {
+    // Not inlined because of some TypeScript nonsense.
     if (navigator.mediaDevices && MediaRecorder) {
       setHasRecordingSupport(true);
-    } else {
-      setHasRecordingSupport(false);
-    }
+    } else setHasRecordingSupport(false);
 
-    if (window.innerWidth > 1024) {
-      setIsDesktopDevice(true);
-    } else {
-      setIsDesktopDevice(false);
-    }
-  };
-
-  useEffect(() => {
-    checkMediaRecordingSupport();
+    setIsDesktopDevice(
+      // https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
+      !(
+        window.navigator.userAgent?.toLowerCase()?.includes("mobi") ??
+        window.innerWidth < 1024
+      )
+    );
   }, []);
 
   const onDataAvailable = (e: BlobEvent) => {
@@ -48,7 +45,7 @@ export const Whisper = ({
     })
       .then((response) => response.json())
       .then((data) => onConvertedText(data.text))
-      .catch((err) => console.error("Error:", err))
+      .catch((err) => console.error("Error transcribing:", err))
       .finally(() => setIsTranscribing(false));
   };
 
@@ -57,6 +54,7 @@ export const Whisper = ({
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
       const recorder = new MediaRecorder(stream);
 
       recorder.onstop = () => {
@@ -73,6 +71,7 @@ export const Whisper = ({
 
       recorder.addEventListener("dataavailable", onDataAvailable);
       recorder.start();
+
       setMediaRecorder(recorder);
     } catch (error) {
       console.error("Error starting recorder: ", error);
@@ -81,9 +80,8 @@ export const Whisper = ({
   };
 
   const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-    }
+    if (mediaRecorder) mediaRecorder.stop();
+
     setIsRecording(false);
   };
 
@@ -91,38 +89,26 @@ export const Whisper = ({
     <>
       {hasRecordingSupport && isDesktopDevice && (
         <Box>
-          <Tooltip
-            label={
-              isRecording
-                ? "Stop Recording"
-                : isTranscribing
-                ? "Transcribing, please wait..."
-                : "Record for Transcription"
-            }
-            openDelay={500}
-            placement="top-start"
+          <Button
+            position="absolute"
+            bottom={1}
+            right={1}
+            zIndex={10}
+            variant="outline"
+            border="0px"
+            p={1}
+            _hover={{ background: "none" }}
+            onClick={isRecording ? stopRecording : startRecording}
+            disabled={isTranscribing}
           >
-            <Button
-              position="absolute"
-              bottom={1}
-              right={1}
-              zIndex={10}
-              variant="outline"
-              border="0px"
-              _hover={{ background: "none" }}
-              p={1}
-              onClick={isRecording ? stopRecording : startRecording}
-              disabled={isTranscribing}
-            >
-              {isRecording ? (
-                <FaMicrophoneSlash />
-              ) : isTranscribing ? (
-                <Spinner size="sm" color={"#404040"} />
-              ) : (
-                <FaMicrophone />
-              )}
-            </Button>
-          </Tooltip>
+            {isRecording ? (
+              <FaMicrophoneSlash />
+            ) : isTranscribing ? (
+              <Spinner size="sm" />
+            ) : (
+              <FaMicrophone />
+            )}
+          </Button>
         </Box>
       )}
     </>

@@ -46,7 +46,7 @@ export const Whisper = ({
     })
       .then((response) => response.json())
       .then((data) => onConvertedText(data.text))
-      .catch((err) => console.error("Error transcribing:", err))
+      .catch((err) => console.error("Error transcribing: ", err))
       .finally(() => setIsTranscribing(false));
   };
 

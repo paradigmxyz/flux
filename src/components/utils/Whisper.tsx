@@ -36,6 +36,7 @@ export const Whisper = ({
     formData.append("model", "whisper-1");
 
     setIsTranscribing(true);
+
     fetch("https://api.openai.com/v1/audio/transcriptions", {
       method: "POST",
       headers: {

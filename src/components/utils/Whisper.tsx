@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button, Box, Spinner } from "@chakra-ui/react";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
+import mixpanel from "mixpanel-browser";
+import { MIXPANEL_TOKEN } from "../../main";
 
 export const Whisper = ({
   onConvertedText,
@@ -74,6 +76,8 @@ export const Whisper = ({
       recorder.start();
 
       setMediaRecorder(recorder);
+
+      if (MIXPANEL_TOKEN) mixpanel.track("Started recording");
     } catch (error) {
       console.error("Error starting recorder: ", error);
       setIsRecording(false);
@@ -84,6 +88,8 @@ export const Whisper = ({
     if (mediaRecorder) mediaRecorder.stop();
 
     setIsRecording(false);
+
+    if (MIXPANEL_TOKEN) mixpanel.track("Stopped recording");
   };
 
   return (

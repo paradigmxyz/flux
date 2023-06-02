@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, memo, ReactNode, RefObject } from "react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { Components } from "react-markdown";
 import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
 import { Button, Box, Code, Text, useTheme, List, ListItem } from "@chakra-ui/react";
@@ -7,6 +7,7 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 import { solidity, yul } from "highlightjs-solidity";
+import { PluggableList } from "unified";
 
 const CodeblockTitleBar = memo(function CodeblockTitleBar({
   language,
@@ -39,7 +40,7 @@ const CodeblockTitleBar = memo(function CodeblockTitleBar({
   );
 });
 
-const CopyCodeButton = memo(function CopyCodeButton({ codeRef }: { codeRef: RefObject<ReactNode[]> }): ReactNode {
+const CopyCodeButton = memo(function CopyCodeButton({ codeRef }: { codeRef: RefObject<ReactNode[]> }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -111,11 +112,11 @@ const Codeblock = memo(function Codeblock({ className, inline, children, ...prop
   )
 });
 
-const rehypePlugins = [
+const rehypePlugins: PluggableList = [
   [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
 ];
 
-const components = {
+const components: Components = {
   ul({ children }) {
     return (
       <List styleType="disc" h="fit-content">

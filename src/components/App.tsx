@@ -373,11 +373,11 @@ function App() {
         promises.push(
           client.completeStream(
             {
-              prompt: promptFromLineage(parentNodeLineage, settings),
+              prompt: promptFromLineage(parentNodeLineage, settings, true, true),
               stop_sequences: [HUMAN_PROMPT],
               max_tokens_to_sample: 1000,
               model,
-              temperature: temp,
+              temperature: temp > 1 ? 1 : temp, // If the temp is cached above 1, Anthropic API will error out, so we force it to 1.
             },
 
             {

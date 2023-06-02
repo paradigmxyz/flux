@@ -53,7 +53,8 @@ export function messagesFromLineage(
 export function promptFromLineage(
   lineage: Node<FluxNodeData>[],
   settings: Settings,
-  endWithBlankAssistant: boolean = true
+  endWithBlankAssistant: boolean = true,
+  isAnthropic: boolean = false
 ): string {
   const messages = messagesFromLineage(lineage, settings);
 
@@ -63,7 +64,12 @@ export function promptFromLineage(
     const formattedRole =
       message.role === "system" || message.role === "user" ? HUMAN_PROMPT : AI_PROMPT;
 
-    prompt += `${formattedRole} ${message.content}`;
+    if (i === 1 && isAnthropic) {
+      prompt += ` ${message.content}`;
+    }
+    else {
+      prompt += `${formattedRole} ${message.content}`;
+    }
   });
 
   if (endWithBlankAssistant) {

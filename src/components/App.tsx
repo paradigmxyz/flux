@@ -377,7 +377,7 @@ function App() {
               stop_sequences: [HUMAN_PROMPT],
               max_tokens_to_sample: 1000,
               model,
-              temperature: temp > 1 ? 1 : temp, // if the setting is cached above 1, Anthropic API will error out, so we force it to 1.
+              temperature: temp > 1 ? 1 : temp, // If the temp is cached above 1, Anthropic API will error out, so we force it to 1.
             },
 
             {

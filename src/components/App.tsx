@@ -373,11 +373,11 @@ function App() {
         promises.push(
           client.completeStream(
             {
-              prompt: promptFromLineage(parentNodeLineage, settings),
+              prompt: promptFromLineage(parentNodeLineage, settings, true, true), // last boolean is for isAnthropic.
               stop_sequences: [HUMAN_PROMPT],
               max_tokens_to_sample: 1000,
               model,
-              temperature: temp,
+              // temperature: temp, // ! this causes an error if used with Anthropic API for some reason.
             },
 
             {

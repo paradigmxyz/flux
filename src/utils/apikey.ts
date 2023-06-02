@@ -1,3 +1,3 @@
 export function isValidAPIKey(apiKey: string | null) {
-  return apiKey?.length == 89 && apiKey?.startsWith("sk-");
+  return apiKey?.startsWith("sk-"); // remove length validation.
 }

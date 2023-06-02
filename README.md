@@ -42,6 +42,10 @@ npm install
 npm run dev
 ```
 
+also, to run claude locally, you will need to [utilize this CORS proxy](https://github.com/garmeeh/local-cors-proxy).
+
+once downloaded, you can run the command `lcp --proxyUrl https://api.anthropic.com` locally before utilizing the API.
+
 ## Contributing
 
 See the [open issues](https://github.com/transmissions11/flux/issues) for a list of proposed features (and known issues).

@@ -7,7 +7,6 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 import { solidity, yul } from "highlightjs-solidity";
-import { PluggableList } from "react-markdown/lib/react-markdown";
 
 const CodeblockTitleBar = memo(function CodeblockTitleBar({
   language,
@@ -112,7 +111,7 @@ const Codeblock = memo(function Codeblock({ className, inline, children, ...prop
   )
 });
 
-const rehypePlugins: PluggableList = [
+const rehypePlugins = [
   [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
 ];
 

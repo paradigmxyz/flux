@@ -15,7 +15,7 @@ export const REACT_FLOW_NODE_TYPES: Record<
   LabelUpdater: LabelUpdaterNode,
 };
 
-export const SUPPORTED_MODELS = ["claude-instant-v1", "claude-v1", "claude-v1.2", "claude-v1-100k"];
+export const SUPPORTED_MODELS = ["claude-instant-v1", "claude-v1", "claude-v1.2", "claude-v1-100k", "claude-instant-v1-100k"];
 
 export const DEFAULT_SETTINGS: Settings = {
   temp: 1.2,

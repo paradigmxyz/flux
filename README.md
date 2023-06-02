@@ -42,9 +42,7 @@ npm install
 npm run dev
 ```
 
-also, to run claude locally, you will need to [utilize this CORS proxy](https://github.com/garmeeh/local-cors-proxy).
-
-once downloaded, you can run the command `lcp --proxyUrl https://api.anthropic.com` locally before utilizing the API.
+To run Claude branch locally, you will also need to [utilize this CORS proxy](https://github.com/garmeeh/local-cors-proxy). Once downloaded, you can run the command `lcp --proxyUrl https://api.anthropic.com` in another terminal window before using the API.
 
 ## Contributing
 

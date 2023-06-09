@@ -10,8 +10,8 @@ export function APIKeyInput({
 }: {
   apiKey: string | null;
   setApiKey: (apiKey: string) => void;
-  title: string | null;
-  link: string | null;
+  title?: string;
+  link?: string;
 } & BoxProps) {
   return (
     <LabeledPasswordInputWithLink

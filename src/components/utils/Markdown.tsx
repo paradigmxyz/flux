@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
-import { Button, Box, Code, Text, useTheme } from "@chakra-ui/react";
+import { Button, Box, Code, Text, useTheme, List, ListItem } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
@@ -76,6 +76,40 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
           [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
         ]}
         components={{
+          ul({ children }) {
+            return (
+              <List styleType="disc" h="fit-content">
+                {children}
+              </List>
+            );
+          },
+          ol({ children }) {
+            return (
+              <List styleType="decimal" h="fit-content">
+                {children}
+              </List>
+            );
+          },
+          li({ children }) {
+            return (
+              <ListItem as="li" mb="0px" ml="20px">
+                {children?.filter(
+                  (child: ReactNode) =>
+                    !(typeof child === "string" && child.trim() === "")
+                )}
+              </ListItem>
+            );
+          },
+          blockquote({ children }) {
+            return (
+              <Box borderLeft="2px solid currentcolor" pl="20px">
+                {children?.filter(
+                  (child: ReactNode) =>
+                    !(typeof child === "string" && child.trim() === "")
+                )}
+              </Box>
+            );
+          },
           code({ node, inline, className, children, style, ...props }) {
             const match = /language-(\w+)/.exec(className || "");
 
@@ -134,6 +168,11 @@ const stringifyChildren = (children: ReactNode[]): string => {
                 : [currentNode.props.children]
             )
           );
+        }
+
+        // Ignore non-text ReactNodes, fixing [object Object] error.
+        if (typeof currentNode === "object") {
+          return concatenatedText;
         }
 
         return concatenatedText + String(currentNode || "");

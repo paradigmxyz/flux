@@ -1,14 +1,14 @@
 <div align="center">
   <h1 align="center">Flux</h1>
   <p align="center">
-    LLM power tool
+    Graph-based LLM power tool for exploring many completions in parallel.
     <br />
     <br />
     <a href="https://twitter.com/transmissions11/status/1640775967856803840">Announcement</a>
     ·
     <a href="http://flux.paradigm.xyz">Try Online</a>
     ·
-    <a href="https://github.com/transmissions11/flux/issues">Report a Bug</a>
+    <a href="https://github.com/paradigmxyz/flux/issues">Report a Bug</a>
   </p>
 </div>
 
@@ -37,7 +37,7 @@ Visit [flux.paradigm.xyz](https://flux.paradigm.xyz) to try Flux online or follo
 ## Running Locally
 
 ```sh
-git clone https://github.com/transmissions11/flux.git
+git clone https://github.com/paradigmxyz/flux.git
 npm install
 npm run dev
 ```
@@ -46,4 +46,4 @@ To run Claude branch locally, you will also need to [utilize this CORS proxy](ht
 
 ## Contributing
 
-See the [open issues](https://github.com/transmissions11/flux/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/paradigmxyz/flux/issues) for a list of proposed features (and known issues).

@@ -211,7 +211,10 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Copy">
-              <MenuItem command={`${modifierKeyText}C`} onClick={copyMessagesToClipboard}>
+              <MenuItem
+                command={`⇧${modifierKeyText}C`}
+                onClick={copyMessagesToClipboard}
+              >
                 Copy messages to clipboard
               </MenuItem>
             </MenuGroup>
@@ -234,7 +237,7 @@ export function NavigationBar({
                 Up to parent node
               </MenuItem>
               <MenuItem command={`${modifierKeyText}↓`} onClick={moveToChild}>
-                Down child node
+                Down to child node
               </MenuItem>
             </MenuGroup>
 

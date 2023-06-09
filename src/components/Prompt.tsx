@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Node, useReactFlow } from "reactflow";
 import { getPlatformModifierKeyText } from "../utils/platform";
+import { Whisper } from "./utils/Whisper";
 
 export function Prompt({
   lineage,
@@ -22,6 +23,7 @@ export function Prompt({
   newConnectedToSelectedNode,
   settings,
   setSettings,
+  openApiKey,
 }: {
   lineage: Node<FluxNodeData>[];
   onType: (text: string) => void;
@@ -30,6 +32,7 @@ export function Prompt({
   newConnectedToSelectedNode: (type: FluxNodeType) => void;
   settings: Settings;
   setSettings: (settings: Settings) => void;
+  openApiKey: string | null;
 }) {
   const { setNodes } = useReactFlow();
 
@@ -177,8 +180,8 @@ export function Prompt({
                     zIndex={10}
                     variant="outline"
                     border="0px"
-                    _hover={{ background: "none" }}
                     p={1}
+                    _hover={{ background: "none" }}
                   >
                     {data.streamId ? (
                       <NotAllowedIcon boxSize={4} />
@@ -200,25 +203,41 @@ export function Prompt({
                     crossAxisAlignment="flex-start"
                     borderRadius="6px"
                     wordBreak="break-word"
+                    minHeight={
+                      data.fluxNodeType === FluxNodeType.User && isLast && isEditing
+                        ? "75px"
+                        : "0px"
+                    }
                   >
                     {isLast && isEditing ? (
-                      <TextareaAutosize
-                        id="promptBox"
-                        style={{
-                          width: "100%",
-                          backgroundColor: "transparent",
-                          outline: "none",
-                        }}
-                        value={data.text ?? ""}
-                        onChange={(e) => onType(e.target.value)}
-                        placeholder={
-                          data.fluxNodeType === FluxNodeType.User
-                            ? "Write a poem about..."
-                            : data.fluxNodeType === FluxNodeType.System
-                            ? "You are ChatGPT..."
-                            : undefined
-                        }
-                      />
+                      <>
+                        <TextareaAutosize
+                          id="promptBox"
+                          style={{
+                            width: "100%",
+                            backgroundColor: "transparent",
+                            outline: "none",
+                          }}
+                          minRows={data.fluxNodeType === FluxNodeType.User ? 3 : 1}
+                          value={data.text ?? ""}
+                          onChange={(e) => onType(e.target.value)}
+                          placeholder={
+                            data.fluxNodeType === FluxNodeType.User
+                              ? "Write a poem about..."
+                              : data.fluxNodeType === FluxNodeType.System
+                              ? "You are ChatGPT..."
+                              : undefined
+                          }
+                        />
+                        {data.fluxNodeType === FluxNodeType.User && (
+                          <Whisper
+                            onConvertedText={(text: string) =>
+                              onType(`${data.text}${data.text ? " " : ""}${text}`)
+                            }
+                            apiKey={openApiKey}
+                          />
+                        )}
+                      </>
                     ) : (
                       <Markdown text={data.text} />
                     )}

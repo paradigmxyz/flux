@@ -1,5 +1,5 @@
 .selected {
-  box-shadow: 0px 0px 0px 2px red, 0px 0px 30px 2px red !important;
+  box-shadow: 0px 0px 0px 2px #e73324, 0px 0px 20px 2px #e73324 !important;
 }
 
 .react-flow__node {
@@ -33,11 +33,6 @@ want bigger handles:
   margin: revert;
 }
 
-.markdown-wrapper ol,
-.markdown-wrapper ul {
-  margin-left: 20px;
-}
-
 .markdown-wrapper h1 {
   font-size: 2em;
 }
@@ -63,7 +58,8 @@ want bigger handles:
 }
 
 .markdown-wrapper hr {
-  background-color: #000000;
+  background-color: currentColor;
   height: 2px;
   border: 0px;
+  border-radius: 6px;
 }

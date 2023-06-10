@@ -26,6 +26,8 @@ export const SettingsModal = memo(function SettingsModal({
   setSettings,
   apiKey,
   setApiKey,
+  openApiKey,
+  setOpenApiKey,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -33,6 +35,8 @@ export const SettingsModal = memo(function SettingsModal({
   setSettings: (settings: Settings) => void;
   apiKey: string | null;
   setApiKey: (apiKey: string) => void;
+  openApiKey: string | null;
+  setOpenApiKey: (openApiKey: string) => void;
 }) {
   const reset = () => {
     if (
@@ -87,6 +91,15 @@ export const SettingsModal = memo(function SettingsModal({
           />
 
           <APIKeyInput mt={4} width="100%" apiKey={apiKey} setApiKey={setApiKey} />
+
+          <APIKeyInput
+            title="OpenAI API Key"
+            link="https://platform.openai.com/account/api-keys"
+            mt={4}
+            width="100%"
+            apiKey={openApiKey}
+            setApiKey={setOpenApiKey}
+          />
 
           <LabeledSlider
             mt={4}

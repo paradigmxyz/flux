@@ -6,6 +6,7 @@ import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
 import {
   API_KEY_LOCAL_STORAGE_KEY,
+  OPEN_AI_API_KEY_LOCAL_STORAGE_KEY,
   DEFAULT_SETTINGS,
   FIT_VIEW_SETTINGS,
   HOTKEY_CONFIG,
@@ -855,6 +856,9 @@ function App() {
   //////////////////////////////////////////////////////////////*/
 
   const [apiKey, setApiKey] = useLocalStorage<string>(API_KEY_LOCAL_STORAGE_KEY);
+  const [openApiKey, setOpenApiKey] = useLocalStorage<string>(
+    OPEN_AI_API_KEY_LOCAL_STORAGE_KEY
+  );
 
   const isAnythingLoading = isSavingReactFlow || isSavingSettings;
 
@@ -992,6 +996,8 @@ function App() {
         onClose={onCloseSettingsModal}
         apiKey={apiKey}
         setApiKey={setApiKey}
+        openApiKey={openApiKey}
+        setOpenApiKey={setOpenApiKey}
       />
       <Column
         mainAxisAlignment="center"
@@ -1134,6 +1140,7 @@ function App() {
                   );
                 }}
                 submitPrompt={() => submitPrompt(false)}
+                openApiKey={openApiKey}
               />
             ) : (
               <Column

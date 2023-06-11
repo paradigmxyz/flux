@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo, ReactNode, RefObject } from "react";
+import React, { useState, useEffect, useRef, ReactNode, RefObject } from "react";
 import ReactMarkdown, { Components } from "react-markdown";
 import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
@@ -9,13 +9,13 @@ import { copySnippetToClipboard } from "../../utils/clipboard";
 import { solidity, yul } from "highlightjs-solidity";
 import { PluggableList } from "unified";
 
-const CodeblockTitleBar = memo(function CodeblockTitleBar({
+const CodeblockTitleBar = ({
   language,
   codeRef,
 }: {
   language?: string;
   codeRef: RefObject<ReactNode[]>;
-}) {
+}) => {
   // Grabbing the default font family from Chakra via
   // useTheme to override the markdown code font family.
   const theme = useTheme();
@@ -38,9 +38,9 @@ const CodeblockTitleBar = memo(function CodeblockTitleBar({
       <CopyCodeButton codeRef={codeRef} />
     </Row>
   );
-});
+};
 
-const CopyCodeButton = memo(function CopyCodeButton({ codeRef }: { codeRef: RefObject<ReactNode[]> }) {
+const CopyCodeButton = ({ codeRef }: { codeRef: RefObject<ReactNode[]> }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -67,13 +67,13 @@ const CopyCodeButton = memo(function CopyCodeButton({ codeRef }: { codeRef: RefO
       <CopyIcon boxSize={4} mr={1} /> {copied ? "Copied!" : "Copy Code"}
     </Button>
   );
-});
+};
 
-const Codeblock = memo(function Codeblock({ className, inline, children, ...props }: {
+const Codeblock = ({ className, inline, children, ...props }: {
   className?: string;
   inline?: boolean;
   children: ReactNode[];
-}) {
+}) => {
   const match = /language-(\w+)/.exec(className || "");
   const codeRef = useRef<ReactNode[]>([]);
 
@@ -110,7 +110,7 @@ const Codeblock = memo(function Codeblock({ className, inline, children, ...prop
       {children}
     </Code>
   )
-});
+};
 
 const rehypePlugins: PluggableList = [
   [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
@@ -156,7 +156,7 @@ const components: Components = {
   },
 }
 
-export const Markdown = memo(function Markdown({ text }: { text: string }) {
+export const Markdown = ({ text }: { text: string }) => {
   return (
     <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
       <ReactMarkdown
@@ -167,7 +167,7 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
       </ReactMarkdown>
     </Box>
   );
-});
+};
 
 // Recursively extract text value from the children prop of a ReactMarkdown component.
 // This function is necessary because some children can contain inline elements,

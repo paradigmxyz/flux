@@ -46,7 +46,8 @@ const CopyCodeButton = ({ codeRef }: { codeRef: RefObject<ReactNode[]> }) => {
   const handleCopyButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
 
-    if (await copySnippetToClipboard(stringifyChildren(codeRef.current ?? []))) setCopied(true);
+    if (await copySnippetToClipboard(stringifyChildren(codeRef.current ?? [])))
+      setCopied(true);
   };
 
   useEffect(() => {
@@ -69,7 +70,12 @@ const CopyCodeButton = ({ codeRef }: { codeRef: RefObject<ReactNode[]> }) => {
   );
 };
 
-const Codeblock = ({ className, inline, children, ...props }: {
+const Codeblock = ({
+  className,
+  inline,
+  children,
+  ...props
+}: {
   className?: string;
   inline?: boolean;
   children: ReactNode[];
@@ -109,7 +115,17 @@ const Codeblock = ({ className, inline, children, ...props }: {
     >
       {children}
     </Code>
-  )
+  );
+};
+
+export const Markdown = ({ text }: { text: string }) => {
+  return (
+    <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
+      <ReactMarkdown rehypePlugins={rehypePlugins} components={components}>
+        {text}
+      </ReactMarkdown>
+    </Box>
+  );
 };
 
 const rehypePlugins: PluggableList = [
@@ -135,8 +151,7 @@ const components: Components = {
     return (
       <ListItem as="li" mb="0px" ml="20px">
         {children?.filter(
-          (child: ReactNode) =>
-            !(typeof child === "string" && child.trim() === "")
+          (child: ReactNode) => !(typeof child === "string" && child.trim() === "")
         )}
       </ListItem>
     );
@@ -145,28 +160,14 @@ const components: Components = {
     return (
       <Box borderLeft="2px solid currentcolor" pl="20px">
         {children?.filter(
-          (child: ReactNode) =>
-            !(typeof child === "string" && child.trim() === "")
+          (child: ReactNode) => !(typeof child === "string" && child.trim() === "")
         )}
       </Box>
     );
   },
   code(props) {
-      return <Codeblock {...props} />
+    return <Codeblock {...props} />;
   },
-}
-
-export const Markdown = ({ text }: { text: string }) => {
-  return (
-    <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
-      <ReactMarkdown
-        rehypePlugins={rehypePlugins}
-        components={components}
-      >
-        {text}
-      </ReactMarkdown>
-    </Box>
-  );
 };
 
 // Recursively extract text value from the children prop of a ReactMarkdown component.

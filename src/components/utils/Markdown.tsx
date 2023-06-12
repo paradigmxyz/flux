@@ -1,5 +1,5 @@
-import React, { useState, useEffect, memo, ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
+import React, { useState, useEffect, useRef, ReactNode, RefObject } from "react";
+import ReactMarkdown, { Components } from "react-markdown";
 import "highlight.js/styles/atom-one-light.css";
 import rehypeHighlight from "rehype-highlight";
 import { Button, Box, Code, Text, useTheme, List, ListItem } from "@chakra-ui/react";
@@ -7,13 +7,14 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { Row, Column } from "../../utils/chakra";
 import { copySnippetToClipboard } from "../../utils/clipboard";
 import { solidity, yul } from "highlightjs-solidity";
+import { PluggableList } from "unified";
 
 const CodeblockTitleBar = ({
   language,
-  code,
+  codeRef,
 }: {
   language?: string;
-  code: ReactNode[];
+  codeRef: RefObject<ReactNode[]>;
 }) => {
   // Grabbing the default font family from Chakra via
   // useTheme to override the markdown code font family.
@@ -34,18 +35,19 @@ const CodeblockTitleBar = ({
       sx={{ fontFamily: theme.fonts.body }}
     >
       <Text>{language || "plaintext"}</Text>
-      <CopyCodeButton code={code} />
+      <CopyCodeButton codeRef={codeRef} />
     </Row>
   );
 };
 
-const CopyCodeButton = ({ code }: { code: ReactNode[] }) => {
+const CopyCodeButton = ({ codeRef }: { codeRef: RefObject<ReactNode[]> }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent this from triggering edit mode in the parent.
 
-    if (await copySnippetToClipboard(stringifyChildren(code))) setCopied(true);
+    if (await copySnippetToClipboard(stringifyChildren(codeRef.current ?? [])))
+      setCopied(true);
   };
 
   useEffect(() => {
@@ -68,88 +70,105 @@ const CopyCodeButton = ({ code }: { code: ReactNode[] }) => {
   );
 };
 
-export const Markdown = memo(function Markdown({ text }: { text: string }) {
+const Codeblock = ({
+  className,
+  inline,
+  children,
+  ...props
+}: {
+  className?: string;
+  inline?: boolean;
+  children: ReactNode[];
+}) => {
+  const match = /language-(\w+)/.exec(className || "");
+  const codeRef = useRef<ReactNode[]>([]);
+
+  useEffect(() => {
+    codeRef.current = children;
+  }, [children]);
+
+  return !inline ? (
+    <Column
+      borderRadius="0.25rem"
+      overflow="hidden"
+      mainAxisAlignment="flex-start"
+      crossAxisAlignment="center"
+    >
+      <CodeblockTitleBar language={match?.[1]} codeRef={codeRef} />
+      <Code
+        width="100%"
+        padding={!match?.[1] ? "10px" : 0} // When no language is specified, inconsistent padding is applied. This fixes that.
+        className={className}
+        {...props}
+        backgroundColor="white"
+        style={{ whiteSpace: "pre-wrap" }}
+      >
+        {children}
+      </Code>
+    </Column>
+  ) : (
+    <Code
+      className={className}
+      {...props}
+      backgroundColor="white"
+      style={{ whiteSpace: "pre-wrap" }}
+    >
+      {children}
+    </Code>
+  );
+};
+
+export const Markdown = ({ text }: { text: string }) => {
   return (
     <Box className="markdown-wrapper" width="100%" wordBreak="break-word">
-      <ReactMarkdown
-        rehypePlugins={[
-          [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
-        ]}
-        components={{
-          ul({ children }) {
-            return (
-              <List styleType="disc" h="fit-content">
-                {children}
-              </List>
-            );
-          },
-          ol({ children }) {
-            return (
-              <List styleType="decimal" h="fit-content">
-                {children}
-              </List>
-            );
-          },
-          li({ children }) {
-            return (
-              <ListItem as="li" mb="0px" ml="20px">
-                {children?.filter(
-                  (child: ReactNode) =>
-                    !(typeof child === "string" && child.trim() === "")
-                )}
-              </ListItem>
-            );
-          },
-          blockquote({ children }) {
-            return (
-              <Box borderLeft="2px solid currentcolor" pl="20px">
-                {children?.filter(
-                  (child: ReactNode) =>
-                    !(typeof child === "string" && child.trim() === "")
-                )}
-              </Box>
-            );
-          },
-          code({ node, inline, className, children, style, ...props }) {
-            const match = /language-(\w+)/.exec(className || "");
-
-            return !inline ? (
-              <Column
-                borderRadius="0.25rem"
-                overflow="hidden"
-                mainAxisAlignment="flex-start"
-                crossAxisAlignment="center"
-              >
-                <CodeblockTitleBar language={match?.[1]} code={children} />
-                <Code
-                  width="100%"
-                  padding={!match?.[1] ? "10px" : 0} // When no language is specified, inconsistent padding is applied. This fixes that.
-                  className={className}
-                  {...props}
-                  backgroundColor="white"
-                  style={{ whiteSpace: "pre-wrap" }}
-                >
-                  {children}
-                </Code>
-              </Column>
-            ) : (
-              <Code
-                className={className}
-                {...props}
-                backgroundColor="white"
-                style={{ whiteSpace: "pre-wrap" }}
-              >
-                {children}
-              </Code>
-            );
-          },
-        }}
-      >
+      <ReactMarkdown rehypePlugins={rehypePlugins} components={components}>
         {text}
       </ReactMarkdown>
     </Box>
   );
-});
+};
+
+const rehypePlugins: PluggableList = [
+  [rehypeHighlight, { ignoreMissing: true, languages: { solidity, yul } }],
+];
+
+const components: Components = {
+  ul({ children }) {
+    return (
+      <List styleType="disc" h="fit-content">
+        {children}
+      </List>
+    );
+  },
+  ol({ children }) {
+    return (
+      <List styleType="decimal" h="fit-content">
+        {children}
+      </List>
+    );
+  },
+  li({ children }) {
+    return (
+      <ListItem as="li" mb="0px" ml="20px">
+        {children?.filter(
+          (child: ReactNode) => !(typeof child === "string" && child.trim() === "")
+        )}
+      </ListItem>
+    );
+  },
+  blockquote({ children }) {
+    return (
+      <Box borderLeft="2px solid currentcolor" pl="20px">
+        {children?.filter(
+          (child: ReactNode) => !(typeof child === "string" && child.trim() === "")
+        )}
+      </Box>
+    );
+  },
+  code(props) {
+    return <Codeblock {...props} />;
+  },
+};
 
 // Recursively extract text value from the children prop of a ReactMarkdown component.
 // This function is necessary because some children can contain inline elements,

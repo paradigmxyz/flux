@@ -896,7 +896,9 @@ function App() {
         if (!modelList.includes(settings.model)) {
           const oldModel = settings.model;
           const newModel = modelList.includes(DEFAULT_SETTINGS.model) ? DEFAULT_SETTINGS.model : modelList[0];
+
           setSettings((settings) => ({ ...settings, model: newModel }));
+
           toast({
             title: `Model "${oldModel}" no longer available!`,
             description: `Switched to "${newModel}"`,

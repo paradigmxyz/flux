@@ -866,9 +866,9 @@ function App() {
   const [apiKey, setApiKey] = useLocalStorage<string>(API_KEY_LOCAL_STORAGE_KEY);
 
   const [availableModels, setAvailableModels] = useState<string[] | null>(null);
-  const modelsLoadCounter = useRef(0);
 
-  // Load available models for the API key.
+  // modelsLoadCounter lets us discard the results of the requests if a concurrent newer one was made.
+  const modelsLoadCounter = useRef(0);
   useEffect(() => {
     if (isValidAPIKey(apiKey)) {
       const modelsLoadIndex = modelsLoadCounter.current + 1;

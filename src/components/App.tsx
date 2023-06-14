@@ -873,6 +873,7 @@ function App() {
     if (isValidAPIKey(apiKey)) {
       const modelsLoadIndex = modelsLoadCounter.current + 1;
       modelsLoadCounter.current = modelsLoadIndex;
+
       setAvailableModels(null);
 
       (async () => {

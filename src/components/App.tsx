@@ -910,11 +910,12 @@ function App() {
     }
   }, [apiKey]);
 
-  const isAnythingLoading = isSavingReactFlow || isSavingSettings || (availableModels === null);
+  const isAnythingSaving = isSavingReactFlow || isSavingSettings;
+  const isAnythingLoading = isAnythingSaving || (availableModels === null);
 
   useBeforeunload((event: BeforeUnloadEvent) => {
     // Prevent leaving the page before saving.
-    if (isAnythingLoading) event.preventDefault();
+    if (isAnythingSaving) event.preventDefault();
   });
 
   /*//////////////////////////////////////////////////////////////

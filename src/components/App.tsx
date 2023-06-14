@@ -877,7 +877,6 @@ function App() {
 
       (async () => {
         let modelList: string[] = [];
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         try {
           modelList = await getAvailableChatModels(apiKey!);
         } catch (e) {

@@ -889,6 +889,7 @@ function App() {
         if (modelsLoadIndex !== modelsLoadCounter.current) return;
 
         if (modelList.length === 0) modelList.push(settings.model);
+
         setAvailableModels(modelList);
 
         if (!modelList.includes(settings.model)) {

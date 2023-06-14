@@ -907,7 +907,7 @@ function App() {
     }
   }, [apiKey]);
 
-  const isAnythingLoading = isSavingReactFlow || isSavingSettings;
+  const isAnythingLoading = isSavingReactFlow || isSavingSettings || (availableModels === null);
 
   useBeforeunload((event: BeforeUnloadEvent) => {
     // Prevent leaving the page before saving.

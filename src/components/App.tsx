@@ -15,6 +15,7 @@ import {
   OVERLAP_RANDOMNESS_MAX,
   REACT_FLOW_NODE_TYPES,
   REACT_FLOW_LOCAL_STORAGE_KEY,
+  SUPPORTED_MODELS,
   TOAST_CONFIG,
   UNDEFINED_RESPONSE_STRING,
   STREAM_CANCELED_ERROR_MESSAGE,
@@ -864,6 +865,8 @@ function App() {
 
   const [apiKey, setApiKey] = useLocalStorage<string>(API_KEY_LOCAL_STORAGE_KEY);
 
+  const [availableModels, setAvailableModels] = useState<string[] | null>(SUPPORTED_MODELS);
+
   const isAnythingLoading = isSavingReactFlow || isSavingSettings;
 
   useBeforeunload((event: BeforeUnloadEvent) => {
@@ -1000,6 +1003,7 @@ function App() {
         onClose={onCloseSettingsModal}
         apiKey={apiKey}
         setApiKey={setApiKey}
+        availableModels={availableModels}
       />
       <Column
         mainAxisAlignment="center"

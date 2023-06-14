@@ -3,7 +3,7 @@ import { getFluxNodeTypeDarkColor } from "../../utils/color";
 import { DEFAULT_SETTINGS, SUPPORTED_MODELS } from "../../utils/constants";
 import { Settings, FluxNodeType } from "../../utils/types";
 import { APIKeyInput } from "../utils/APIKeyInput";
-import { LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
+import { LabeledInput, LabeledSelect, LabeledSlider } from "../utils/LabeledInputs";
 
 import {
   Button,
@@ -24,15 +24,11 @@ export const SettingsModal = memo(function SettingsModal({
   onClose,
   settings,
   setSettings,
-  apiKey,
-  setApiKey,
 }: {
   isOpen: boolean;
   onClose: () => void;
   settings: Settings;
   setSettings: (settings: Settings) => void;
-  apiKey: string | null;
-  setApiKey: (apiKey: string) => void;
 }) {
   const reset = () => {
     if (
@@ -86,7 +82,9 @@ export const SettingsModal = memo(function SettingsModal({
             }}
           />
 
-          <APIKeyInput mt={4} width="100%" apiKey={apiKey} setApiKey={setApiKey} />
+          <LabeledInput mt={4} label="API Base URL" value={settings.apiBase} setValue={(v) => setSettings({ ...settings, apiBase: v })} />
+
+          <APIKeyInput mt={4} width="100%" apiKey={settings.apiKey} setApiKey={(v) => setSettings({ ...settings, apiKey: v })} />
 
           <LabeledSlider
             mt={4}

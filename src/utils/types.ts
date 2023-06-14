@@ -18,6 +18,8 @@ export enum FluxNodeType {
 }
 
 export type Settings = {
+  apiKey: string;
+  apiBase: string;
   defaultPreamble: string;
   autoZoom: boolean;
   model: string;

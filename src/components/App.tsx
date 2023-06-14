@@ -1,11 +1,9 @@
 import { MIXPANEL_TOKEN } from "../main";
-import { isValidAPIKey } from "../utils/apikey";
 import { Column, Row } from "../utils/chakra";
 import { copySnippetToClipboard } from "../utils/clipboard";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
 import {
-  API_KEY_LOCAL_STORAGE_KEY,
   DEFAULT_SETTINGS,
   FIT_VIEW_SETTINGS,
   HOTKEY_CONFIG,
@@ -57,7 +55,6 @@ import {
   ReactFlowNodeTypes,
 } from "../utils/types";
 import { Prompt } from "./Prompt";
-import { APIKeyModal } from "./modals/APIKeyModal";
 import { SettingsModal } from "./modals/SettingsModal";
 import { BigButton } from "./utils/BigButton";
 import { NavigationBar } from "./utils/NavigationBar";
@@ -369,7 +366,7 @@ function App() {
           temperature: temp,
           messages: messagesFromLineage(parentNodeLineage, settings),
         },
-        { apiKey: apiKey!, mode: "raw" }
+        { apiKey: apiKey!, apiBase, mode: "raw" }
       );
 
       const DECODER = new TextDecoder();
@@ -552,7 +549,7 @@ function App() {
           max_tokens: 250,
           stop: ["\n\n", "assistant:", "user:"],
         },
-        { apiKey: apiKey!, mode: "raw" }
+        { apiKey: apiKey!, apiBase, mode: "raw" }
       );
 
       const DECODER = new TextDecoder();
@@ -830,14 +827,7 @@ function App() {
                          SETTINGS MODAL LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  const {
-    isOpen: isSettingsModalOpen,
-    onOpen: onOpenSettingsModal,
-    onClose: onCloseSettingsModal,
-    onToggle: onToggleSettingsModal,
-  } = useDisclosure();
-
-  const [settings, setSettings] = useState<Settings>(() => {
+  const getSettings = () => {
     const rawSettings = localStorage.getItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY);
 
     if (rawSettings !== null) {
@@ -845,7 +835,16 @@ function App() {
     } else {
       return DEFAULT_SETTINGS;
     }
-  });
+  }
+
+  const {
+    isOpen: isSettingsModalOpen,
+    onOpen: onOpenSettingsModal,
+    onClose: onCloseSettingsModal,
+    onToggle: onToggleSettingsModal,
+  } = useDisclosure({ defaultIsOpen: !(getSettings().apiKey) });
+
+  const [settings, setSettings] = useState<Settings>(getSettings());
 
   const isGPT4 = settings.model.includes("gpt-4");
 
@@ -862,7 +861,7 @@ function App() {
                             API KEY LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  const [apiKey, setApiKey] = useLocalStorage<string>(API_KEY_LOCAL_STORAGE_KEY);
+  const {apiKey, apiBase} = settings
 
   const isAnythingLoading = isSavingReactFlow || isSavingSettings;
 
@@ -991,15 +990,11 @@ function App() {
 
   return (
     <>
-      {!isValidAPIKey(apiKey) && <APIKeyModal apiKey={apiKey} setApiKey={setApiKey} />}
-
       <SettingsModal
         settings={settings}
         setSettings={setSettings}
         isOpen={isSettingsModalOpen}
         onClose={onCloseSettingsModal}
-        apiKey={apiKey}
-        setApiKey={setApiKey}
       />
       <Column
         mainAxisAlignment="center"
@@ -1143,6 +1138,7 @@ function App() {
                   );
                 }}
                 submitPrompt={() => submitPrompt(false)}
+                // used for whisper
                 apiKey={apiKey}
               />
             ) : (

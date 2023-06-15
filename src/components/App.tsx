@@ -44,6 +44,7 @@ import {
 } from "../utils/fluxNode";
 import { useLocalStorage } from "../utils/lstore";
 import { mod } from "../utils/mod";
+import { getAvailableChatModels } from "../utils/models";
 import { generateNodeId, generateStreamId } from "../utils/nodeId";
 import { messagesFromLineage, promptFromLineage } from "../utils/prompt";
 import { getQueryParam, resetURL } from "../utils/qparams";
@@ -864,11 +865,57 @@ function App() {
 
   const [apiKey, setApiKey] = useLocalStorage<string>(API_KEY_LOCAL_STORAGE_KEY);
 
-  const isAnythingLoading = isSavingReactFlow || isSavingSettings;
+  const [availableModels, setAvailableModels] = useState<string[] | null>(null);
+
+  // modelsLoadCounter lets us discard the results of the requests if a concurrent newer one was made.
+  const modelsLoadCounter = useRef(0);
+  useEffect(() => {
+    if (isValidAPIKey(apiKey)) {
+      const modelsLoadIndex = modelsLoadCounter.current + 1;
+      modelsLoadCounter.current = modelsLoadIndex;
+
+      setAvailableModels(null);
+
+      (async () => {
+        let modelList: string[] = [];
+        try {
+          modelList = await getAvailableChatModels(apiKey!);
+        } catch (e) {
+          toast({
+            title: "Failed to load model list!",
+            status: "error",
+            ...TOAST_CONFIG,
+          });
+        }
+        if (modelsLoadIndex !== modelsLoadCounter.current) return;
+
+        if (modelList.length === 0) modelList.push(settings.model);
+
+        setAvailableModels(modelList);
+
+        if (!modelList.includes(settings.model)) {
+          const oldModel = settings.model;
+          const newModel = modelList.includes(DEFAULT_SETTINGS.model) ? DEFAULT_SETTINGS.model : modelList[0];
+
+          setSettings((settings) => ({ ...settings, model: newModel }));
+
+          toast({
+            title: `Model "${oldModel}" no longer available!`,
+            description: `Switched to "${newModel}"`,
+            status: "warning",
+            ...TOAST_CONFIG,
+          });
+        }
+      })();
+    }
+  }, [apiKey]);
+
+  const isAnythingSaving = isSavingReactFlow || isSavingSettings;
+  const isAnythingLoading = isAnythingSaving || (availableModels === null);
 
   useBeforeunload((event: BeforeUnloadEvent) => {
     // Prevent leaving the page before saving.
-    if (isAnythingLoading) event.preventDefault();
+    if (isAnythingSaving) event.preventDefault();
   });
 
   /*//////////////////////////////////////////////////////////////
@@ -1000,6 +1047,7 @@ function App() {
         onClose={onCloseSettingsModal}
         apiKey={apiKey}
         setApiKey={setApiKey}
+        availableModels={availableModels}
       />
       <Column
         mainAxisAlignment="center"

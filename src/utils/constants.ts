@@ -15,8 +15,6 @@ export const REACT_FLOW_NODE_TYPES: Record<
   LabelUpdater: LabelUpdaterNode,
 };
 
-export const SUPPORTED_MODELS = ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k"];
-
 export const DEFAULT_SETTINGS: Settings = {
   apiBase: "https://api.openai.com/v1",
   apiKey: "",

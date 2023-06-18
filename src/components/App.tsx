@@ -1,11 +1,9 @@
 import { MIXPANEL_TOKEN } from "../main";
-import { isValidAPIKey } from "../utils/apikey";
 import { Column, Row } from "../utils/chakra";
 import { copySnippetToClipboard } from "../utils/clipboard";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
 import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
 import {
-  API_KEY_LOCAL_STORAGE_KEY,
   DEFAULT_SETTINGS,
   FIT_VIEW_SETTINGS,
   HOTKEY_CONFIG,
@@ -58,7 +56,6 @@ import {
   ReactFlowNodeTypes,
 } from "../utils/types";
 import { Prompt } from "./Prompt";
-import { APIKeyModal } from "./modals/APIKeyModal";
 import { SettingsModal } from "./modals/SettingsModal";
 import { BigButton } from "./utils/BigButton";
 import { NavigationBar } from "./utils/NavigationBar";
@@ -370,7 +367,7 @@ function App() {
           temperature: temp,
           messages: messagesFromLineage(parentNodeLineage, settings),
         },
-        { apiKey: apiKey!, mode: "raw" }
+        { apiKey: apiKey!, apiBase, mode: "raw" }
       );
 
       const DECODER = new TextDecoder();
@@ -553,7 +550,7 @@ function App() {
           max_tokens: 250,
           stop: ["\n\n", "assistant:", "user:"],
         },
-        { apiKey: apiKey!, mode: "raw" }
+        { apiKey: apiKey!, apiBase, mode: "raw" }
       );
 
       const DECODER = new TextDecoder();
@@ -831,14 +828,7 @@ function App() {
                          SETTINGS MODAL LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  const {
-    isOpen: isSettingsModalOpen,
-    onOpen: onOpenSettingsModal,
-    onClose: onCloseSettingsModal,
-    onToggle: onToggleSettingsModal,
-  } = useDisclosure();
-
-  const [settings, setSettings] = useState<Settings>(() => {
+  const getSettings = () => {
     const rawSettings = localStorage.getItem(MODEL_SETTINGS_LOCAL_STORAGE_KEY);
 
     if (rawSettings !== null) {
@@ -846,7 +836,16 @@ function App() {
     } else {
       return DEFAULT_SETTINGS;
     }
-  });
+  }
+
+  const {
+    isOpen: isSettingsModalOpen,
+    onOpen: onOpenSettingsModal,
+    onClose: onCloseSettingsModal,
+    onToggle: onToggleSettingsModal,
+  } = useDisclosure({ defaultIsOpen: !(getSettings().apiKey) });
+
+  const [settings, setSettings] = useState<Settings>(getSettings());
 
   const isGPT4 = settings.model.includes("gpt-4");
 
@@ -863,51 +862,49 @@ function App() {
                             API KEY LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  const [apiKey, setApiKey] = useLocalStorage<string>(API_KEY_LOCAL_STORAGE_KEY);
+  const {apiKey, apiBase} = settings
 
   const [availableModels, setAvailableModels] = useState<string[] | null>(null);
 
   // modelsLoadCounter lets us discard the results of the requests if a concurrent newer one was made.
   const modelsLoadCounter = useRef(0);
   useEffect(() => {
-    if (isValidAPIKey(apiKey)) {
-      const modelsLoadIndex = modelsLoadCounter.current + 1;
-      modelsLoadCounter.current = modelsLoadIndex;
+    const modelsLoadIndex = modelsLoadCounter.current + 1;
+    modelsLoadCounter.current = modelsLoadIndex;
 
-      setAvailableModels(null);
+    setAvailableModels(null);
 
-      (async () => {
-        let modelList: string[] = [];
-        try {
-          modelList = await getAvailableChatModels(apiKey!);
-        } catch (e) {
-          toast({
-            title: "Failed to load model list!",
-            status: "error",
-            ...TOAST_CONFIG,
-          });
-        }
-        if (modelsLoadIndex !== modelsLoadCounter.current) return;
+    (async () => {
+      let modelList: string[] = [];
+      try {
+        modelList = await getAvailableChatModels(apiKey!);
+      } catch (e) {
+        toast({
+          title: "Failed to load model list!",
+          status: "error",
+          ...TOAST_CONFIG,
+        });
+      }
+      if (modelsLoadIndex !== modelsLoadCounter.current) return;
 
-        if (modelList.length === 0) modelList.push(settings.model);
+      if (modelList.length === 0) modelList.push(settings.model);
 
-        setAvailableModels(modelList);
+      setAvailableModels(modelList);
 
-        if (!modelList.includes(settings.model)) {
-          const oldModel = settings.model;
-          const newModel = modelList.includes(DEFAULT_SETTINGS.model) ? DEFAULT_SETTINGS.model : modelList[0];
+      if (!modelList.includes(settings.model)) {
+        const oldModel = settings.model;
+        const newModel = modelList.includes(DEFAULT_SETTINGS.model) ? DEFAULT_SETTINGS.model : modelList[0];
 
-          setSettings((settings) => ({ ...settings, model: newModel }));
+        setSettings((settings) => ({ ...settings, model: newModel }));
 
-          toast({
-            title: `Model "${oldModel}" no longer available!`,
-            description: `Switched to "${newModel}"`,
-            status: "warning",
-            ...TOAST_CONFIG,
-          });
-        }
-      })();
-    }
+        toast({
+          title: `Model "${oldModel}" no longer available!`,
+          description: `Switched to "${newModel}"`,
+          status: "warning",
+          ...TOAST_CONFIG,
+        });
+      }
+    })();
   }, [apiKey]);
 
   const isAnythingSaving = isSavingReactFlow || isSavingSettings;
@@ -1038,15 +1035,11 @@ function App() {
 
   return (
     <>
-      {!isValidAPIKey(apiKey) && <APIKeyModal apiKey={apiKey} setApiKey={setApiKey} />}
-
       <SettingsModal
         settings={settings}
         setSettings={setSettings}
         isOpen={isSettingsModalOpen}
         onClose={onCloseSettingsModal}
-        apiKey={apiKey}
-        setApiKey={setApiKey}
         availableModels={availableModels}
       />
       <Column
@@ -1191,6 +1184,7 @@ function App() {
                   );
                 }}
                 submitPrompt={() => submitPrompt(false)}
+                // used for whisper
                 apiKey={apiKey}
               />
             ) : (

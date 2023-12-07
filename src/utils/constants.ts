@@ -19,8 +19,8 @@ export const DEFAULT_SETTINGS: Settings = {
   temp: 1.2,
   n: 3,
   autoZoom: true,
-  model: "gpt-3.5-turbo",
-  defaultPreamble: `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Knowledge cutoff: 2021-09 Current date: ${
+  model: "gpt-4",
+  defaultPreamble: `You are ChatGPT, a large language model trained by OpenAI, based on the GPT-4 architecture.\nKnowledge cutoff: 2022-01\nCurrent date: ${
     new Date().toISOString().split("T")[0]
   }`,
 };

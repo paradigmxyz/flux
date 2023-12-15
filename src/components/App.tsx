@@ -539,9 +539,9 @@ function App() {
 
               setNodes((newerNodes) => {
                 return modifyFluxNodeText(newerNodes, {
+                  asHuman: false,
                   id: correspondingNodeId,
                   text: text,
-                  streamId,
                 });
               });
             }

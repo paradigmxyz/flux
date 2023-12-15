@@ -22,6 +22,7 @@ export function Prompt({
   selectNode,
   newConnectedToSelectedNode,
   isGPT4,
+  isGemini,
   settings,
   setSettings,
   apiKey,
@@ -32,6 +33,7 @@ export function Prompt({
   selectNode: (id: string) => void;
   newConnectedToSelectedNode: (type: FluxNodeType) => void;
   isGPT4: boolean;
+  isGemini: boolean;
   settings: Settings;
   setSettings: (settings: Settings) => void;
   apiKey: string | null;
@@ -273,8 +275,8 @@ export function Prompt({
           <Text fontWeight="extrabold">
             &nbsp;
             {promptNodeType === FluxNodeType.User
-              ? displayNameFromFluxNodeType(FluxNodeType.GPT, isGPT4)
-              : displayNameFromFluxNodeType(FluxNodeType.User, isGPT4)}
+              ? displayNameFromFluxNodeType(FluxNodeType.GPT, isGPT4, isGemini)
+              : displayNameFromFluxNodeType(FluxNodeType.User, isGPT4, isGemini)}
             &nbsp;
           </Text>
           response

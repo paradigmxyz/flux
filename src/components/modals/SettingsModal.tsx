@@ -26,7 +26,9 @@ export const SettingsModal = memo(function SettingsModal({
   setSettings,
   apiKey,
   setApiKey,
-  availableModels
+  googleApiKey,
+  setGoogleApiKey,
+  availableModels,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -34,6 +36,8 @@ export const SettingsModal = memo(function SettingsModal({
   setSettings: (settings: Settings) => void;
   apiKey: string | null;
   setApiKey: (apiKey: string) => void;
+  googleApiKey: string | null;
+  setGoogleApiKey: (apiKey: string) => void;
   availableModels: string[] | null;
 }) {
   const reset = () => {
@@ -88,7 +92,25 @@ export const SettingsModal = memo(function SettingsModal({
             }}
           />
 
-          <APIKeyInput mt={4} width="100%" apiKey={apiKey} setApiKey={setApiKey} />
+          {/* OpenAI  */}
+          <APIKeyInput
+            mt={4}
+            width="100%"
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            label="OpenAI API Key"
+            placeholder="sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          />
+
+          {/* Google Gemini */}
+          <APIKeyInput
+            mt={4}
+            width="100%"
+            apiKey={googleApiKey}
+            setApiKey={setGoogleApiKey}
+            label="Google Gemini API Key"
+            placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          />
 
           <LabeledSlider
             mt={4}

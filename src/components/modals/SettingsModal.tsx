@@ -110,6 +110,7 @@ export const SettingsModal = memo(function SettingsModal({
             setApiKey={setGoogleApiKey}
             label="Google Gemini API Key"
             placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            link="https://makersuite.google.com/app/apikey"
           />
 
           <LabeledSlider

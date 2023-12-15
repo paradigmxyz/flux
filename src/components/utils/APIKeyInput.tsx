@@ -6,12 +6,14 @@ export function APIKeyInput({
   setApiKey,
   label,
   placeholder,
+  link,
   ...others
 }: {
   apiKey: string | null;
   setApiKey: (apiKey: string) => void;
   label: string;
   placeholder: string;
+  link?: string;
 } & BoxProps) {
   return (
     <LabeledPasswordInputWithLink
@@ -19,7 +21,7 @@ export function APIKeyInput({
       label={label}
       linkLabel="Get a key"
       placeholder={placeholder}
-      link="https://platform.openai.com/account/api-keys"
+      link={link ?? "https://platform.openai.com/account/api-keys"}
       value={apiKey ?? ""}
       setValue={setApiKey}
       {...others}

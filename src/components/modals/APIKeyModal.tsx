@@ -38,7 +38,12 @@ export function APIKeyModal({
       <ModalOverlay />
       <ModalContent>
         <Column mainAxisAlignment="center" crossAxisAlignment="center" height="500px">
-          <APIKeyInput apiKey={apiKey} setApiKey={setApiKeyTracked} />
+          <APIKeyInput
+            apiKey={apiKey}
+            setApiKey={setApiKeyTracked}
+            label="OpenAI API Key"
+            placeholder="sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          />
           <Text mt={5} width="80%" textAlign="center" fontSize="md">
             We will <u>never</u> upload, log, or store your API key outside of your
             browser's local storage. Verify for yourself{" "}

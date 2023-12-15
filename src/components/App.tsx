@@ -494,7 +494,7 @@ function App() {
       if (!googleApiKey) {
         throw new Error("Google API key is not set.");
       }
-      // decodes weird escape characters. gotta fix this later.
+      // TODO: decodes weird escape characters. gotta fix this later.
       const decodedApiKey = decodeURIComponent(googleApiKey);
       const fixedApiKey = decodedApiKey.replace(/^"|"$/g, "");
       const genAI = new GoogleGenerativeAI(fixedApiKey);
@@ -520,7 +520,6 @@ function App() {
 
       const abortController = new AbortController();
 
-      // Handle the streams incrementally as they arrive.
       for (let i = 0; i < responses; i++) {
         const msg = parentNode.data.text;
         const correspondingNodeId =
@@ -528,7 +527,6 @@ function App() {
             ? currentNodeChildren[i].id
             : newNodes[newNodes.length - responses + i].id;
 
-        // Start the stream
         const streamPromise = chat.sendMessageStream(msg);
 
         streamPromise.then((stream) => {
@@ -537,19 +535,17 @@ function App() {
             for await (const chunk of stream.stream) {
               if (abortController.signal.aborted) break;
               const chunkText = chunk.text();
-              text += chunkText; // Append the latest text chunk
+              text += chunkText;
 
-              // Update the node with the accumulated text
               setNodes((newerNodes) => {
                 return modifyFluxNodeText(newerNodes, {
                   id: correspondingNodeId,
-                  text: text, // Set the text to the accumulated content
-                  streamId, // This will cause a throw if the streamId has changed.
+                  text: text,
+                  streamId,
                 });
               });
             }
 
-            // After the stream is done, update the edge to no longer be animated
             setEdges((edges) =>
               modifyFluxEdge(edges, {
                 source: parentNode.id,
@@ -558,7 +554,6 @@ function App() {
               })
             );
 
-            // Reset the stream id.
             setNodes((nodes) =>
               setFluxNodeStreamId(nodes, { id: correspondingNodeId, streamId: undefined })
             );
@@ -582,8 +577,6 @@ function App() {
       let newEdges = [...edges];
 
       for (let i = 0; i < responses; i++) {
-        // Update the links between
-        // re-used nodes if necessary.
         if (overrideExistingIfPossible && i < currentNodeChildren.length) {
           const childId = currentNodeChildren[i].id;
 
@@ -596,11 +589,8 @@ function App() {
             animated: true,
           };
         } else {
-          // The new nodes are added to the end of the array, so we need to
-          // subtract responses from and add i to length of the array to access.
           const childId = newNodes[newNodes.length - responses + i].id;
 
-          // Otherwise, add a new edge.
           newEdges.push(
             newFluxEdge({
               source: parentNode.id,
@@ -621,7 +611,6 @@ function App() {
 
   // The completeNextWords function remains unchanged
   const completeNextWords = () => {
-    // ... existing logic
     takeSnapshot();
 
     const temp = settings.temp;

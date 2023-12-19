@@ -16,7 +16,10 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 
 import { Row } from "../../utils/chakra";
 import { FluxNodeType } from "../../utils/types";
-import { getPlatformModifierKeyText } from "../../utils/platform";
+import { 
+  getPlatformModifierKeyText, 
+  getPlatformSecondaryModifierKeyText 
+} from "../../utils/platform";
 
 import dave from "/dave.jpg";
 import t11s from "/t11s.jpg";
@@ -60,6 +63,7 @@ export function NavigationBar({
   onOpenSettingsModal: () => void;
 }) {
   const modifierKeyText = getPlatformModifierKeyText();
+  const secondaryKeyText = getPlatformSecondaryModifierKeyText();
 
   return (
     <Row
@@ -191,11 +195,11 @@ export function NavigationBar({
             <MenuDivider />
 
             <MenuGroup title="Delete">
-              <MenuItem command={`${modifierKeyText}⌫`} onClick={deleteSelectedNodes}>
+              <MenuItem command={`${modifierKeyText}D`} onClick={deleteSelectedNodes}>
                 Delete selected node(s)
               </MenuItem>
 
-              <MenuItem command={`⇧${modifierKeyText}⌫`} onClick={onClear}>
+              <MenuItem command={`⇧${modifierKeyText}U`} onClick={onClear}>
                 Delete everything
               </MenuItem>
             </MenuGroup>

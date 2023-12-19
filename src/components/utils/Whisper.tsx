@@ -5,7 +5,6 @@ import mixpanel from "mixpanel-browser";
 import { MIXPANEL_TOKEN } from "../../main";
 import { useHotkeys } from "react-hotkeys-hook";
 import { HOTKEY_CONFIG } from "../../utils/constants";
-import { getPlatformModifierKey } from "../../utils/platform";
 
 export const Whisper = ({
   onConvertedText,
@@ -95,10 +94,8 @@ export const Whisper = ({
     if (MIXPANEL_TOKEN) mixpanel.track("Stopped recording");
   };
 
-  const modifierKey = getPlatformModifierKey();
-
   useHotkeys(
-    `${modifierKey}+L`,
+    `mod+L`,
     () => (isRecording ? stopRecording() : startRecording()),
     HOTKEY_CONFIG
   );

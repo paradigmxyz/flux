@@ -3,7 +3,10 @@ import { isValidAPIKey } from "../utils/apikey";
 import { Column, Row } from "../utils/chakra";
 import { copySnippetToClipboard } from "../utils/clipboard";
 import { getFluxNodeTypeColor, getFluxNodeTypeDarkColor } from "../utils/color";
-import { getPlatformModifierKey, getPlatformModifierKeyText } from "../utils/platform";
+import { 
+  getPlatformModifierKeyText, 
+  getPlatformSecondaryModifierKeyText 
+} from "../utils/platform";
 import {
   API_KEY_LOCAL_STORAGE_KEY,
   DEFAULT_SETTINGS,
@@ -983,31 +986,30 @@ function App() {
                           HOTKEYS LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  const modifierKey = getPlatformModifierKey();
   const modifierKeyText = getPlatformModifierKeyText();
 
-  useHotkeys(`${modifierKey}+s`, save, HOTKEY_CONFIG);
+  useHotkeys(`mod+s`, save, HOTKEY_CONFIG);
 
   useHotkeys(
-    `${modifierKey}+p`,
+    `mod+p`,
     () => newConnectedToSelectedNode(FluxNodeType.User),
     HOTKEY_CONFIG
   );
   useHotkeys(
-    `${modifierKey}+u`,
+    `mod+u`,
     () => newConnectedToSelectedNode(FluxNodeType.System),
     HOTKEY_CONFIG
   );
 
   useHotkeys(
-    `${modifierKey}+shift+p`,
+    `mod+shift+p`,
     () => newUserNodeLinkedToANewSystemNode(),
     HOTKEY_CONFIG
   );
 
-  useHotkeys(`${modifierKey}+.`, trackedAutoZoom, HOTKEY_CONFIG);
+  useHotkeys(`mod+.`, trackedAutoZoom, HOTKEY_CONFIG);
   useHotkeys(
-    `${modifierKey}+/`,
+    `mod+/`,
     () => {
       onToggleSettingsModal();
 
@@ -1015,22 +1017,22 @@ function App() {
     },
     HOTKEY_CONFIG
   );
-  useHotkeys(`${modifierKey}+shift+backspace`, onClear, HOTKEY_CONFIG);
+  useHotkeys(`mod+shift+u`, onClear, HOTKEY_CONFIG);
 
-  useHotkeys(`${modifierKey}+z`, undo, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+shift+z`, redo, HOTKEY_CONFIG);
+  useHotkeys(`mod+z`, undo, HOTKEY_CONFIG);
+  useHotkeys(`mod+shift+z`, redo, HOTKEY_CONFIG);
 
-  useHotkeys(`${modifierKey}+e`, showRenameInput, HOTKEY_CONFIG);
+  useHotkeys(`mod+e`, showRenameInput, HOTKEY_CONFIG);
 
-  useHotkeys(`${modifierKey}+up`, moveToParent, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+down`, moveToChild, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+left`, moveToLeftSibling, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+right`, moveToRightSibling, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+return`, () => submitPrompt(false), HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
+  useHotkeys(`mod+up`, moveToParent, HOTKEY_CONFIG);
+  useHotkeys(`mod+down`, moveToChild, HOTKEY_CONFIG);
+  useHotkeys(`mod+left`, moveToLeftSibling, HOTKEY_CONFIG);
+  useHotkeys(`mod+right`, moveToRightSibling, HOTKEY_CONFIG);
+  useHotkeys(`mod+return`, () => submitPrompt(false), HOTKEY_CONFIG);
+  useHotkeys(`mod+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
+  useHotkeys(`mod+k`, completeNextWords, HOTKEY_CONFIG);
+  useHotkeys(`mod+d`, deleteSelectedNodes, HOTKEY_CONFIG);
+  useHotkeys(`mod+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
   /*//////////////////////////////////////////////////////////////
                               APP

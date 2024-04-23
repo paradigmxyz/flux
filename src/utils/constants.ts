@@ -16,10 +16,10 @@ export const REACT_FLOW_NODE_TYPES: Record<
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  temp: 1.2,
+  temp: 1,
   n: 3,
   autoZoom: true,
-  model: "gpt-4",
+  model: "gpt-4-turbo",
   defaultPreamble: `You are a helpful assistant.`,
 };
 

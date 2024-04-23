@@ -20,9 +20,7 @@ export const DEFAULT_SETTINGS: Settings = {
   n: 3,
   autoZoom: true,
   model: "gpt-4",
-  defaultPreamble: `You are ChatGPT, a large language model trained by OpenAI, based on the GPT-4 architecture.\nKnowledge cutoff: 2022-01\nCurrent date: ${
-    new Date().toISOString().split("T")[0]
-  }`,
+  defaultPreamble: `You are a helpful assistant.`,
 };
 
 export const HOTKEY_CONFIG: Options = {

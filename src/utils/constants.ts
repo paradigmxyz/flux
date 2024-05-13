@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS: Settings = {
   temp: 1,
   n: 3,
   autoZoom: true,
-  model: "gpt-4-turbo",
+  model: "gpt-4o",
   defaultPreamble: `You are a helpful assistant.`,
 };
 

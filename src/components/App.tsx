@@ -1129,7 +1129,7 @@ function App() {
                   height="100px"
                   fontSize="xl"
                   onClick={() => newUserNodeLinkedToANewSystemNode()}
-                  color={getFluxNodeTypeDarkColor(FluxNodeType.GPT)}
+                  color={getFluxNodeTypeDarkColor(FluxNodeType.System)}
                 >
                   Create a new conversation tree
                 </BigButton>

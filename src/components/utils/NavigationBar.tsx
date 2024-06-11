@@ -75,7 +75,10 @@ export function NavigationBar({
       >
         <Text whiteSpace="nowrap">
           <b>
-            <span style={{ color: "#6A5EEB" }}>Hyperbolic</span> Flux
+            <a href="https://hyperbolic.xyz/" style={{ color: "#6A5EEB" }}>
+              Hyperbolic
+            </a>{" "}
+            Flux
           </b>{" "}
           by
         </Text>

@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS: Settings = {
   temp: 1,
   n: 3,
   autoZoom: true,
-  model: "gpt-4o",
+  model: "Qwen/Qwen2-72B-Instruct",
   defaultPreamble: `You are a helpful assistant.`,
 };
 

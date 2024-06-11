@@ -74,7 +74,10 @@ export function NavigationBar({
         width="auto"
       >
         <Text whiteSpace="nowrap">
-          <b>Flux</b> by
+          <b>
+            <span style={{ color: "#6A5EEB" }}>Hyperbolic</span> Flux
+          </b>{" "}
+          by
         </Text>
 
         <AvatarGroup ml="4px" size="sm">

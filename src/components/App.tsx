@@ -370,7 +370,11 @@ function App() {
           temperature: temp,
           messages: messagesFromLineage(parentNodeLineage, settings),
         },
-        { apiKey: apiKey!, mode: "raw" }
+        {
+          apiKey: apiKey!,
+          mode: "raw",
+          apiBase: "https://api.hyperbolic.xyz/v1",
+        }
       );
 
       const DECODER = new TextDecoder();

@@ -1,3 +1,3 @@
 export function isValidAPIKey(apiKey: string | null) {
-  return (apiKey?.length === 51 && apiKey.startsWith("sk-")) || (apiKey?.length === 56 && apiKey.startsWith("sk-proj-"));
+  return apiKey?.length ?? 0 >= 50; // No idea what Hyperbolic's key spec is, but this is a safe bet.
 }

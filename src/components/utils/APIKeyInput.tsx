@@ -12,10 +12,10 @@ export function APIKeyInput({
   return (
     <LabeledPasswordInputWithLink
       width="80%"
-      label="OpenAI API Key"
+      label="Hyperbolic API Key"
       linkLabel="Get a key"
-      placeholder="sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-      link="https://platform.openai.com/account/api-keys"
+      placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      link="https://app.hyperbolic.xyz/settings"
       value={apiKey ?? ""}
       setValue={setApiKey}
       {...others}

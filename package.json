@@ -16,7 +16,7 @@
     "framer-motion": "^9.0.4",
     "highlightjs-solidity": "^2.0.6",
     "mixpanel-browser": "^2.46.0",
-    "openai-streams": "^4.2.0",
+    "openai-streams": "^6.2.0",
     "re-resizable": "^6.9.9",
     "react": "^18.2.0",
     "react-beforeunload": "^2.5.3",

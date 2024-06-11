@@ -527,87 +527,6 @@ function App() {
     if (MIXPANEL_TOKEN) mixpanel.track("Submitted Prompt"); // KPI
   };
 
-  const completeNextWords = () => {
-    takeSnapshot();
-
-    const temp = settings.temp;
-
-    const lineage = selectedNodeLineage;
-    const selectedNodeId = lineage[0].id;
-
-    const streamId = generateStreamId();
-
-    // Set the node's streamId so it will accept the incoming text.
-    setNodes((nodes) => setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId }));
-
-    (async () => {
-      // TODO: Stop sequences for user/assistant/etc?
-      // TODO: Select between instruction and auto raw base models?
-      const stream = await OpenAI(
-        "completions",
-        {
-          // TODO: Allow customizing.
-          model: "text-davinci-003",
-          temperature: temp,
-          prompt: promptFromLineage(lineage, settings),
-          max_tokens: 250,
-          stop: ["\n\n", "assistant:", "user:"],
-        },
-        { apiKey: apiKey!, mode: "raw" }
-      );
-
-      const DECODER = new TextDecoder();
-
-      const abortController = new AbortController();
-
-      for await (const chunk of yieldStream(stream, abortController)) {
-        if (abortController.signal.aborted) break;
-
-        try {
-          const decoded = JSON.parse(DECODER.decode(chunk));
-
-          if (decoded.choices === undefined)
-            throw new Error(
-              "No choices in response. Decoded response: " + JSON.stringify(decoded)
-            );
-
-          const choice: CreateCompletionResponseChoicesInner = decoded.choices[0];
-
-          setNodes((newerNodes) => {
-            try {
-              return appendTextToFluxNodeAsGPT(newerNodes, {
-                id: selectedNodeId,
-                text: choice.text ?? UNDEFINED_RESPONSE_STRING,
-                streamId, // This will cause a throw if the streamId has changed.
-              });
-            } catch (e: any) {
-              // If the stream id does not match,
-              // it is stale and we should abort.
-              abortController.abort(e.message);
-
-              return newerNodes;
-            }
-          });
-        } catch (err) {
-          console.error(err);
-        }
-      }
-
-      // If the stream wasn't aborted or was aborted due to a cancelation.
-      if (
-        !abortController.signal.aborted ||
-        abortController.signal.reason === STREAM_CANCELED_ERROR_MESSAGE
-      ) {
-        // Reset the stream id.
-        setNodes((nodes) =>
-          setFluxNodeStreamId(nodes, { id: selectedNodeId, streamId: undefined })
-        );
-      }
-    })().catch((err) => console.error(err));
-
-    if (MIXPANEL_TOKEN) mixpanel.track("Completed next words");
-  };
-
   /*//////////////////////////////////////////////////////////////
                           SELECTED NODE LOGIC
   //////////////////////////////////////////////////////////////*/
@@ -895,7 +814,9 @@ function App() {
 
         if (!modelList.includes(settings.model)) {
           const oldModel = settings.model;
-          const newModel = modelList.includes(DEFAULT_SETTINGS.model) ? DEFAULT_SETTINGS.model : modelList[0];
+          const newModel = modelList.includes(DEFAULT_SETTINGS.model)
+            ? DEFAULT_SETTINGS.model
+            : modelList[0];
 
           setSettings((settings) => ({ ...settings, model: newModel }));
 
@@ -911,7 +832,7 @@ function App() {
   }, [apiKey]);
 
   const isAnythingSaving = isSavingReactFlow || isSavingSettings;
-  const isAnythingLoading = isAnythingSaving || (availableModels === null);
+  const isAnythingLoading = isAnythingSaving || availableModels === null;
 
   useBeforeunload((event: BeforeUnloadEvent) => {
     // Prevent leaving the page before saving.
@@ -1028,7 +949,6 @@ function App() {
   useHotkeys(`${modifierKey}+right`, moveToRightSibling, HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+return`, () => submitPrompt(false), HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+shift+return`, () => submitPrompt(true), HOTKEY_CONFIG);
-  useHotkeys(`${modifierKey}+k`, completeNextWords, HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+backspace`, deleteSelectedNodes, HOTKEY_CONFIG);
   useHotkeys(`${modifierKey}+shift+c`, copyMessagesToClipboard, HOTKEY_CONFIG);
 
@@ -1105,7 +1025,6 @@ function App() {
                   deleteSelectedNodes={deleteSelectedNodes}
                   submitPrompt={() => submitPrompt(false)}
                   regenerate={() => submitPrompt(true)}
-                  completeNextWords={completeNextWords}
                   undo={undo}
                   redo={redo}
                   onClear={onClear}

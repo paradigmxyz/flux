@@ -75,7 +75,7 @@ export function NavigationBar({
       >
         <Text whiteSpace="nowrap">
           <b>
-            <a href="https://hyperbolic.xyz/" style={{ color: "#6A5EEB" }}>
+            <a href="https://hyperbolic.xyz" style={{ color: "#6A5EEB" }}>
               Hyperbolic
             </a>{" "}
             Flux

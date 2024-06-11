@@ -65,7 +65,7 @@ import { NavigationBar } from "./utils/NavigationBar";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { Box, useDisclosure, Spinner, useToast } from "@chakra-ui/react";
 import mixpanel from "mixpanel-browser";
-import { ChatCompletionRequestMessageInner, OpenAI } from "openai-streams";
+import { OpenAI } from "openai-streams";
 import { Resizable } from "re-resizable";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useBeforeunload } from "react-beforeunload";
@@ -392,7 +392,8 @@ function App() {
               "No choices in response. Decoded response: " + JSON.stringify(decoded)
             );
 
-          const choice: ChatCompletionRequestMessageInner = decoded.choices[0];
+          const choice: CreateChatCompletionStreamResponseChoicesInner =
+            decoded.choices[0];
 
           if (choice.index === undefined)
             throw new Error(
@@ -1047,9 +1048,9 @@ function App() {
 
                 <Box ml="20px">
                   {isAnythingLoading ? (
-                    <Spinner size="sm" mt="6px" color={"#404040"} />
+                    <Spinner size="sm" mt="6px" color="#404040" />
                   ) : (
-                    <CheckCircleIcon color={"#404040"} />
+                    <CheckCircleIcon color="#404040" />
                   )}
                 </Box>
               </Row>

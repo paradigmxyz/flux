@@ -1,13 +1,13 @@
 import { FluxNodeData, FluxNodeType, Settings } from "./types";
-import { CreateCompletionRequest } from "openai-streams";
+import { ChatCompletionRequestMessage } from "openai";
 import { MAX_AUTOLABEL_CHARS } from "./constants";
 import { Node } from "reactflow";
 
 export function messagesFromLineage(
   lineage: Node<FluxNodeData>[],
   settings: Settings
-): CreateCompletionRequest[] {
-  const messages: CreateCompletionRequest[] = [];
+): ChatCompletionRequestMessage[] {
+  const messages: ChatCompletionRequestMessage[] = [];
 
   // Iterate backwards.
   for (let i = lineage.length - 1; i >= 0; i--) {
